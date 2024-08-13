@@ -1,0 +1,82 @@
+.contenedor {
+   page-break-after: always;
+}
+
+.card-body {
+   max-width: 100%;
+   height: auto;
+}
+
+img.card-body {
+   max-width: 100%;
+   height: auto;
+}
+
+
+.qr.card-body {
+   max-width: 100%;
+   height: auto;
+}
+
+.card-body {
+   font-size: auto;
+}
+
+
+@media print {
+   @page {
+      margin: 0mm;
+      orientation: portrait;
+      width: fit-content;
+   }
+
+
+   .flex-row {
+      page-break-after: always ;
+   }
+
+   body {
+      margin: 0mm;
+      width: fit-content;
+      height: fit-content;
+   }
+}
+
+.row{
+   /*border-style: dashed;*/
+   background: pink;
+}
+
+.tarjeta{
+   background-color: red;
+  /* border-style: solid;*/
+   margin-left: 2mm;
+   margin-right: 1mm;
+}
+
+.tarjeta-contenedor{
+   width: 100%;
+   height: 100%;
+}
+
+
+/* @media print {
+
+   .contenedor {
+      page-break-after: always;
+   }
+
+   .card-body {
+      max-width: 100%;
+      height: auto;
+   }
+
+   .card-header {
+      max-width: 60%;
+      height: auto;
+   }
+
+   @page {
+      margin: 0.5cm;
+   }
+} */
