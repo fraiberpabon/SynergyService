@@ -11,8 +11,8 @@ use App\Http\Resources\EquipementsCollection;
 use App\Models\Compania;
 use App\Models\SyncRelacionVehiculoPesos;
 use App\Models\ts_Equipement;
-use App\Models\WbEquipo;
-use App\Models\wbTipoEquipo;
+use App\Models\Equipos\WbEquipo;
+use App\Models\Equipos\wbTipoEquipo;
 use App\Models\WbCompanieProyecto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -40,144 +40,13 @@ class WbEquipoControlles extends BaseController implements Vervos
 {
 
     /*
-    * Función que crea un equipo tanto en TimeScan como en Webu
-    * Esta función contiene la validación del formulario
-    * Ademas de la funciones se valida si esta en proyecto 1 para actualizar la
-    * tabla de TimeScan.
-    */
+     * Función que crea un equipo tanto en TimeScan como en Webu
+     * Esta función contiene la validación del formulario
+     * Ademas de la funciones se valida si esta en proyecto 1 para actualizar la
+     * tabla de TimeScan.
+     */
     public function post(Request $req)
     {
-        try {
-            // se valida la informacion recibida
-            $validator = Validator::make($req->all(), [
-                'CODIGO' => 'required|min:3',
-                'MARCA' => 'required|min:1',
-                'MODELO' => 'present|max:50',
-                'PLACA' => 'present|max:50',
-                'CUBICAJE' => 'present|numeric',
-                'TIPO' => 'required|size:1|regex:/[O,R]/',
-                'CONTRATISTAID' => 'required|max:20',
-                'TIPO_CONTRATO' => 'required',
-                'DESCRIPCION' => 'required|max:50',
-                'OBSERVACION' => 'present',
-                'TIPO_CONTRATO' => 'present',
-            ]);
-            // si no cumple validaciones imprime error
-            if ($validator->fails()) {
-                return $this->handleAlert($validator->errors());
-            }
-            /**
-             * Copio todos los datos a la variable $datos.
-             */
-            $datos = $req->all();
-            // inicia la instancia de contratista
-            //validacion si la compañia existe
-            $companiaProyecto = new WbCompanieProyecto();
-            $companiaProyecto = WbCompanieProyecto::where('fk_compañia', $datos['CONTRATISTAID'])
-                ->where('fk_id_project_Company', $this->traitGetProyectoCabecera($req))
-                ->first();
-            //Aqui devuelve un handle alert de que no existen las compañias
-            if (!$companiaProyecto) {
-                return $this->handleAlert(__('No existen compañias para este proyecto.'));
-            }
-            //Aqui se compara si tipo de equipo es vacio o diferente de 0 el me trae por proyecto los tipos de equipo
-            if (
-                strcmp($req->tipoDeEquipo, '') != 0 && wbTipoEquipo::where('fk_id_project_Company', $this->traitGetProyectoCabecera($req))
-                ->find($req->tipoDeEquipo) == null
-            ) {
-                //Aqui devuelve un handle alert de que no se encontro el tipo de equipo
-                return $this->handleAlert(__('messages.tipo_de_equipo_no_encontrado'));
-            }
-
-            //Aqui se verifica si se encuentra un equipo con el mismo codigo
-            if (
-                WbEquipo::where('equiment_id', $req->CODIGO)
-                ->where('fk_id_project_Company', $this->traitGetProyectoCabecera($req))
-                ->first() != null
-            ) {
-                //retorna el mensaje que el equipo ya esta registrado
-                return $this->handleAlert(__('messages.ya_existe_un_equipo_con_el_mismo_codigo_registrado'));
-            }
-            $proyecto = $this->traitGetProyectoCabecera($req);
-            /*
-             * Si el codigo es un numero le concateno al inicio el caracter E y recorto el numero a los 3 primeros caracteres,
-             * si no tomo los caracteres antes del punto
-             */
-
-            if (is_numeric(substr($datos['CODIGO'], 0, 1))) {
-                $a = 'E' . substr($datos['CODIGO'], 0, 3);
-            } else {
-                $a = substr($datos['CODIGO'], 0, strpos($datos['CODIGO'], '.'));
-            }
-            // Inserto el equipo a la tabla WbEquipo
-            $equipo = new WbEquipo();
-            $equipo->equiment_id = $datos['CODIGO'];
-            $equipo->marca = $datos['MARCA'];
-            $equipo->modelo = $datos['MODELO'];
-            $equipo->placa = $datos['PLACA'];
-            $equipo->cubicaje = $datos['CUBICAJE'];
-            $equipo->dueno = $datos['TIPO'];
-            $equipo->descripcion = $datos['DESCRIPCION'];
-            $equipo->observacion = $datos['OBSERVACION'];
-            $equipo->estado = 'A';
-            $equipo->fk_compania = $datos['CONTRATISTAID'];
-            $equipo->fk_user_creador = $this->traitGetIdUsuarioToken($req);
-            $equipo->fk_id_project_Company = $proyecto;
-            $equipo->tipocontrato = $datos['TIPO_CONTRATO'];
-            if (strcmp($req->tipoDeEquipo, -1) != 0) {
-                $equipo->fk_id_tipo_equipo = $req->tipoDeEquipo;
-            }
-            /*
-             * Solo se agregara el equipo a TimeScanSI si estamos en el proyecto 1
-             */
-            if ($proyecto == 1) {
-                $equipoTimeScan = new ts_Equipement();
-                /*
-                 * Se corta los datos de entrada si superan el limite con el que deben ser guardado.
-                 */
-                if (strlen($datos['CODIGO']) > 10) {
-                    $datos['CODIGO'] = substr($datos['CODIGO'], 0, 10);
-                }
-                if (strlen($datos['DESCRIPCION']) > 50) {
-                    $datos['DESCRIPCION'] = substr($datos['DESCRIPCION'], 0, 50);
-                }
-                if (strlen($datos['MODELO']) > 50) {
-                    $datos['MODELO'] = substr($datos['MODELO'], 0, 50);
-                }
-                if (strlen($datos['PLACA']) > 50) {
-                    $datos['PLACA'] = substr($datos['PLACA'], 0, 50);
-                }
-                if (strlen($datos['MARCA']) > 50) {
-                    $datos['MARCA'] = substr($datos['MARCA'], 0, 50);
-                }
-                if (strlen($datos['TIPO']) > 1) {
-                    $datos['TIPO'] = substr($datos['TIPO'], 0, 1);
-                }
-                //se guarda en la tabla de timescan
-                $equipoTimeScan->EquipmentID = $datos['CODIGO'];
-                $equipoTimeScan->Make = $datos['MARCA'];
-                $equipoTimeScan->Model = $datos['MODELO'];
-                $equipoTimeScan->SerialNumber = $datos['PLACA'];
-                $equipoTimeScan->Payload = $datos['CUBICAJE'];
-                $equipoTimeScan->Owned = $datos['TIPO'];
-                $equipoTimeScan->Description = $datos['DESCRIPCION'];
-                $equipoTimeScan->Comments = $datos['OBSERVACION'];
-                $equipoTimeScan->Status = 'A';
-                $equipoTimeScan->ContractID = $datos['CONTRATISTAID'];
-                $equipoTimeScan->ModelNumber = $a;
-                if (!$equipoTimeScan->save()) {
-                    return $this->handleAlert('Equiment no guadado.');
-                }
-            }
-            //se guarda en la tabla de webu
-            $equipo->save();
-            //se guarda con exito
-            return $this->handleResponse($req, [], 'El equipo ' . $datos['CODIGO'] . ' ha sido insertado con exito');
-        } catch (\Exception $e) {
-            var_dump($e);
-            //retorna algun error al insertar dependiendo de las validaciones antes mencionadas
-            return $this->handleError('Error al  insertar', $e->getMessage());
-        }
     }
 
     /**
@@ -240,32 +109,6 @@ class WbEquipoControlles extends BaseController implements Vervos
      */
     public function CambiarEstado(Request $request, $equipo)
     {
-        $WBequipos = WbEquipo::where('equiment_id', $equipo)
-            ->where('fk_id_project_Company', $this->traitGetProyectoCabecera($request))
-            ->first();
-        $usuario = $this->traitGetIdUsuarioToken($request);
-        switch ($WBequipos->estado) {
-            case 'A':
-                $nuevoEstado = 'I';
-                $mensaje = __('messages.inactivado');
-                break;
-            case 'I':
-                $nuevoEstado = 'A';
-                $mensaje = __('messages.activado');
-                break;
-        }
-        $WBequipos->fk_user_update = $usuario;
-        $WBequipos->estado = $nuevoEstado;
-        $WBequipos->save();
-
-        if ($this->traitGetProyectoCabecera($request) == 1) {
-            $equipos = ts_Equipement::find($equipo);
-            $equipos->Status = $nuevoEstado;
-            $equipos->save();
-        }
-        $mensaje = __('messages.El equipo') . $equipo . $mensaje = __('messages.ha sido') . $mensaje;
-        // $mensaje = 'El equipo ' . $equipo . ' ha sido ' . $mensaje;
-        return $this->handleAlert($mensaje, true);
     }
 
     /**
@@ -341,168 +184,43 @@ class WbEquipoControlles extends BaseController implements Vervos
      */
     public function equiposActivos(Request $request)
     {
-        $consulta = WbEquipo::select(
-            'id',
-            'equiment_id',
-            'descripcion',
-            'marca',
-            'modelo',
-            'dueno',
-            'Wb_equipos.estado',
-            'placa',
-            'placa',
-            'Wb_tipo_equipo.id_tipo_equipo as idTipoEquipo',
-            'Wb_tipo_equipo.nombre as nombreTipoEquipo'
-        )->leftJoin('Wb_tipo_equipo', 'Wb_tipo_equipo.id_tipo_equipo', 'Wb_equipos.fk_id_tipo_equipo')
-            ->where('Wb_equipos.estado', '!=', 'I');
-        $consulta = $this->filtrarPorProyecto($request, $consulta, 'Wb_equipos')->get();
+        $consulta = WbEquipo::with([
+            'tipo_equipo' => function ($query) {
+                $query->select('id_tipo_equipo', 'nombre');
+            },
+            'vehiculos_pesos' => function ($query) {
+                $query->select('vehiculo', 'peso');
+            },
+            'compania' => function ($query) {
+                $query->select('id_compañia', 'nombreCompañia');
+            }
+        ])->where('estado', '!=', 'I')
+            ->select(
+                'id',
+                'equiment_id',
+                'descripcion',
+                'cubicaje',
+                'marca',
+                'modelo',
+                'placa',
+                'observacion',
+                'dueno',
+                'estado',
+                'tipocontrato',
+                'fk_compania',
+                'fk_id_tipo_equipo',
+                'fk_id_project_Company'
+            );
 
-        $is_excel = true;
+        $consulta = $this->filtrar($request, $consulta)->orderBy('equiment_id', 'DESC')->get();
+        //return $this->handleResponse($request, $consulta->get(), 'consultado');
         return $this->handleResponse($request, $this->equiposToArray($consulta), 'consultado');
-        return $this->handleResponse($request, $this->syncRegistroToArray($consulta, $is_excel), __("messages.consultado"));
-    }
-
-    /**
-     * @return false|string
-     * Aqui consultamos los equipos de time scan que se encuentren activos
-     * @deprecated
-     */
-    public function equiposActivosDeprecated(Request $request)
-    {
-        $consulta = WbEquipo::select(
-            'equiment_id as EquipmentID',
-            'descripcion as Description',
-            'marca as Make',
-            'modelo as Model',
-            'dueno as Owned',
-            'estado as Status',
-            'placa as SerialNumber'
-        )
-            ->where('estado', '!=', 'I');
-
-        // $consulta = $this->filtrar($request, $consulta)->get();
-        return json_encode(new EquipementsCollection($consulta->get()));
     }
 
     public function getPorProyecto(Request $request, $proyecto)
     {
         // TODO: Implement getPorProyecto() method.
     }
-
-    /*
-    * Función que actualiza un equipo tanto en TimeScan como en Webu
-    * Esta función contiene la validación del formulario
-    * Ademas de la funciones se valida si esta en proyecto 1 para actualizar la
-    * tabla de TimeScan.
-    */
-    public function updateEquipo(Request $req)
-    {
-        try {
-            $validator = Validator::make($req->all(), [
-                'CODIGO' => 'required',
-                'MARCA' => 'required|min:1',
-                'MODELO' => 'present|max:50',
-                'PLACA' => 'present|max:50',
-                'CUBICAJE' => 'present|numeric',
-                'TIPO' => 'required|size:1|regex:/[O,R]/',
-                'CONTRATISTAID' => 'required|max:20',
-                'TIPO_CONTRATO' => 'required',
-                'DESCRIPCION' => 'required|max:50',
-                'OBSERVACION' => 'present',
-                'TIPO_CONTRATO' => 'present',
-            ]);
-            //validamos que el formulario no contenga errores
-            if ($validator->fails()) {
-                return $this->handleAlert($validator->errors());
-            }
-            //recogemos datos
-            $datos = $req->all();
-
-            //buscamos el codigo por proyectos y recogemos el primero
-            $equipo = WbEquipo::where('equiment_id', $datos['CODIGO'])
-                ->where('fk_id_project_Company', $this->traitGetProyectoCabecera($req))
-                ->first();
-            //validacion si la compañia existe
-            $companiaProyecto = new WbCompanieProyecto();
-            //Buscamos comapñias por proyecto ye recogemos el primero
-            $companiaProyecto = WbCompanieProyecto::where('fk_compañia', $datos['CONTRATISTAID'])
-                ->where('fk_id_project_Company', $this->traitGetProyectoCabecera($req))
-                ->first();
-            //mandamos la alerta si no existen compañias
-            if (!$companiaProyecto) {
-                return $this->handleAlert(__('No existen compañias para este proyecto.'));
-            }
-            //Aqui verificamos que el equipo no venga vacio o sea cero
-            if (
-                strcmp($req->tipoDeEquipo, '') != 0 && wbTipoEquipo::where('fk_id_project_Company', $this->traitGetProyectoCabecera($req))
-                ->find($req->tipoDeEquipo) == null
-            ) {
-                //mandamos la alerta de que el equipo no fue encontrado
-                return $this->handleAlert(__('messages.tipo_de_equipo_no_encontrado'));
-            }
-
-
-            $proyecto = $this->traitGetProyectoCabecera($req);
-            // Verificar si se encontró un equipo para actualizar
-            if ($equipo) {
-                // Actualizar los campos del equipo con los datos recibidos
-                $equipo->marca = $datos['MARCA'];
-                $equipo->modelo = $datos['MODELO'];
-                $equipo->placa = $datos['PLACA'];
-                $equipo->cubicaje = $datos['CUBICAJE'];
-                $equipo->dueno = $datos['TIPO'];
-                $equipo->descripcion = $datos['DESCRIPCION'];
-                $equipo->observacion = $datos['OBSERVACION'];
-                $equipo->tipocontrato = $datos['TIPO_CONTRATO'];
-                $equipo->fk_compania = $datos['CONTRATISTAID'];
-                $equipo->fk_user_update = $this->traitGetIdUsuarioToken($req);
-                if (strcmp($req->tipoDeEquipo, -1) != 0) {
-                    $equipo->fk_id_tipo_equipo = $req->tipoDeEquipo;
-                }
-                // Guardar los cambios en la base de datos en webu
-                $equipo->save();
-                // si el proyecto es 1 recortamos las siguientes variables
-                if ($proyecto == 1) {
-                    $equipoTimeScan = ts_Equipement::where('EquipmentID', $datos['CODIGO'])->first();
-                    if (strlen($datos['DESCRIPCION']) > 50) {
-                        $datos['DESCRIPCION'] = substr($datos['DESCRIPCION'], 0, 50);
-                    }
-                    if (strlen($datos['MODELO']) > 50) {
-                        $datos['MODELO'] = substr($datos['MODELO'], 0, 50);
-                    }
-                    if (strlen($datos['PLACA']) > 50) {
-                        $datos['PLACA'] = substr($datos['PLACA'], 0, 50);
-                    }
-                    if (strlen($datos['MARCA']) > 50) {
-                        $datos['MARCA'] = substr($datos['MARCA'], 0, 50);
-                    }
-                    if (strlen($datos['TIPO']) > 1) {
-                        $datos['TIPO'] = substr($datos['TIPO'], 0, 1);
-                    }
-
-                    //guardamos el timescan
-                    $equipoTimeScan->Make = $datos['MARCA'];
-                    $equipoTimeScan->Model = $datos['MODELO'];
-                    $equipoTimeScan->SerialNumber = $datos['PLACA'];
-                    $equipoTimeScan->Payload = $datos['CUBICAJE'];
-                    $equipoTimeScan->Owned = $datos['TIPO'];
-                    $equipoTimeScan->Description = $datos['DESCRIPCION'];
-                    $equipoTimeScan->Comments = $datos['OBSERVACION'];
-                    $equipoTimeScan->Status = 'A';
-                    $equipo->tipocontrato = $datos['TIPO_CONTRATO'];
-                    $equipoTimeScan->save();
-                }
-                return $this->handleResponse($req, [], 'El equipo ' . $datos['CODIGO'] . ' ha sido actualizado exitosamente');
-            } else {
-                return $this->handleAlert('No se encontró un equipo con el código ' . $datos['CODIGO']);
-            }
-        } catch (\Exception $e) {
-            var_dump($e);
-            return $this->handleError('Error al actualizar', $e->getMessage());
-        }
-    }
-
-
 
     /*
     *Función que me permite listar los equipos para descargar el excel en la cual pasamos las

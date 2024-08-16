@@ -421,6 +421,10 @@ Route::middleware('desencript')->group(function () {
             Route::prefix('usu-planta')->group(function () {
                 Route::get('/activos', [UsuPlantaController::class, 'getActivos']);
             });
+            
+            Route::prefix('material-lista')->controller(WbMaterialListaController::class)->group(function () {
+                Route::get('/', 'get');
+            });
 
             // seguridad en sitio
             Route::prefix('seguridad-sitio')->group(function () {
@@ -589,15 +593,6 @@ Route::middleware('desencript')->group(function () {
                 Route::put('/{id}', 'update');
             });
 
-            Route::prefix('material-lista')->controller(WbMaterialListaController::class)->group(function () {
-                Route::get('/', 'get');
-                Route::post('/', 'post');
-                Route::put('/{id}', 'update');
-                Route::patch('/activar/{id}', 'activar');
-                Route::patch('/desactivar/{id}', 'desactivar');
-                Route::patch('/solicitable/{id}', 'solicitar');
-                Route::patch('/nosolicitable/{id}', 'noSolicitar');
-            });
             Route::prefix('material-capa')->controller(WbMaterialCapaController::class)->group(function () {
                 Route::get('/material-lista/{id}', [WbMaterialCapaController::class, 'getByMaterialLista']);
                 Route::post('/', [WbMaterialCapaController::class, 'post']);
@@ -1096,138 +1091,9 @@ Route::prefix('')->group(function () {
     Route::get('/equipos', [WbEquipoControlles::class, 'equiposActivosDeprecated']);
     Route::get('/para_sync', [EstrucFormulaController::class, 'getParaSync']);
 
-    //PRUEBA CONFIGURACIONES
-    /*Route::prefix('solicitud-liberacion')->group(function () {
-                 Route::post('/', [WbSolicitudLiberacionesController::class, 'post1']);
-                 Route::get('/', [WbSolicitudLiberacionesController::class, 'get']);
-                 Route::get('/getByFecha', [WbSolicitudLiberacionesController::class, 'getByFecha']);
-             });*/
-
-
-
-    //Route::get('/calculaPromedio/{hito}/{proy}/{abs1}/{abs2}', [WbAbscisasController::class, 'getPromedioEntreAbscisas']);
-    //prueba de correos
-    //Route::get('enviarCorreoPruebas', [WbSeguridadSitioController::class, 'enviarCorreo']);
-    /*Route::prefix('estructura')->group(function () {
-        Route::put('/finalizar/{id}', [EstructurasController::class, 'finalizarEstructura']);
-        Route::get('/nomenclatura/{tramo}/{hito}/{tipoEstructura}', [EstructurasController::class, 'getNomenclaturasFinalizar']);
-        Route::get('/nomenclaturaPorLicencia/{tramo}/{hito}/{licencia}', [EstructurasController::class, 'getNomenclaturasFinalizarPorLicencia']);
-        Route::get('/getTipoEstructura/{tramo}/{hito}', [EstructurasController::class, 'getTipoEstructura']);
-        Route::get('/getLicencia/{tramo}/{hito}', [EstructurasController::class, 'getLicencia']);
-        Route::get('/sincronizarApp/{tramo}', [EstructurasController::class, 'getParaSincronizarApp']);
-    });*/
-
-    /* Route::get('/prueba_fecha/{dias}/{intervalo}', [WbTareasProgramadasController::class, 'pruebaSemanal']);
-    Route::get('/prueba_fecha/{dias}/{intervalo}/{fecha}', [WbTareasProgramadasController::class, 'pruebaSemanal']); */
-
-    //Route::get('/prueba_fecha/{dia}/{sem}/{mes}', [WbTareasProgramadasController::class, 'calcuprueba']);
-
-
-    // Route::get('getPruebaEnsayos', [WbMuestraRegistroEnsayoController::class, 'get']);
-
-    /* Route::prefix('muestra-gestion-prueba')->group(function () {
-         Route::prefix('')->controller(WbMuestraRegistroController::class)->group(function () {
-             Route::get('', 'getGestion');
-             Route::get('/cambiar-estado', 'cambiarEstado');
-             Route::post('/anular', 'anularMuestra');
-             Route::post('/finalizar', 'finalizarMuestra');
-             Route::get('/report', 'getReporteExcel');
-         });
-
-         Route::prefix('ensayo')->controller(WbMuestraRegistroEnsayoController::class)->group(function () {
-             Route::get('', 'get');
-             Route::post('/ejecutar', 'ensayoEjecutado');
-         });
-     }); */
-
-    /* Route::prefix('motivo-rechazo-prueba')->group(function () {
-        Route::prefix('')->controller(WbMotivoRechazoController::class)->group(function () {
-            Route::get('', 'get');
-            Route::get('/cambiar-estado', 'cambiarEstado');
-            Route::post('/anular', 'anularMuestra');
-            Route::post('/finalizar', 'finalizarMuestra');
-            Route::get('/report', 'getReporteExcel');
-            Route::get('/asigados','getAsignadosPorMotivo');
-            Route::get('/disponibleArea', 'getAreasDisponibles');
-
-            Route::post('/asignar-area', 'postAsigArea');
-        });
-
-        Route::prefix('ensayo')->controller(WbMuestraRegistroEnsayoController::class)->group(function () {
-            Route::get('', 'get');
-            Route::post('/ejecutar', 'ensayoEjecutado');
-        });
-
-        Route::prefix('/asig')->controller(WbMotivoRechazoAsignacionController::class)->group(function () {
-            Route::get('', 'getMovil');
-        });
-    }); */
-});
-
-// PRUEBA CONFIGURACIONES
-/*Route::prefix('solicitud-liberacion')->group(function () {
-             Route::post('/', [WbSolicitudLiberacionesController::class, 'post1']);
-             Route::get('/', [WbSolicitudLiberacionesController::class, 'get']);
-             Route::get('/getByFecha', [WbSolicitudLiberacionesController::class, 'getByFecha']);
-         });*/
-
-// Route::get('/calculaPromedio/{hito}/{proy}/{abs1}/{abs2}', [WbAbscisasController::class, 'getPromedioEntreAbscisas']);
-// prueba de correos
-// Route::get('enviarCorreoPruebas', [WbSeguridadSitioController::class, 'enviarCorreo']);
-/*Route::prefix('estructura')->group(function () {
-    Route::put('/finalizar/{id}', [EstructurasController::class, 'finalizarEstructura']);
-    Route::get('/nomenclatura/{tramo}/{hito}/{tipoEstructura}', [EstructurasController::class, 'getNomenclaturasFinalizar']);
-    Route::get('/nomenclaturaPorLicencia/{tramo}/{hito}/{licencia}', [EstructurasController::class, 'getNomenclaturasFinalizarPorLicencia']);
-    Route::get('/getTipoEstructura/{tramo}/{hito}', [EstructurasController::class, 'getTipoEstructura']);
-    Route::get('/getLicencia/{tramo}/{hito}', [EstructurasController::class, 'getLicencia']);
-    Route::get('/sincronizarApp/{tramo}', [EstructurasController::class, 'getParaSincronizarApp']);
-});*/
-
-/* Route::get('/prueba_fecha/{dias}/{intervalo}', [WbTareasProgramadasController::class, 'pruebaSemanal']);
-Route::get('/prueba_fecha/{dias}/{intervalo}/{fecha}', [WbTareasProgramadasController::class, 'pruebaSemanal']); */
-
-// Route::get('/prueba_fecha/{dia}/{sem}/{mes}', [WbTareasProgramadasController::class, 'calcuprueba']);
-
-// Route::get('getPruebaEnsayos', [WbMuestraRegistroEnsayoController::class, 'get']);
-
-/* Route::prefix('muestra-gestion-prueba')->group(function () {
-     Route::prefix('')->controller(WbMuestraRegistroController::class)->group(function () {
-         Route::get('', 'getGestion');
-         Route::get('/cambiar-estado', 'cambiarEstado');
-         Route::post('/anular', 'anularMuestra');
-         Route::post('/finalizar', 'finalizarMuestra');
-         Route::get('/report', 'getReporteExcel');
-     });
-
-     Route::prefix('ensayo')->controller(WbMuestraRegistroEnsayoController::class)->group(function () {
-         Route::get('', 'get');
-         Route::post('/ejecutar', 'ensayoEjecutado');
-     });
- }); */
-
-// Route::prefix('solicitud-material')->controller(WbSolicitudMaterialesController::class)->group(function () {
-//     Route::put('/{id}', [WbSolicitudMaterialesController::class, 'update']);
-//     Route::get('/', [WbSolicitudMaterialesController::class, 'get']);
-//     Route::put('/re-asignar/{id}', [WbSolicitudMaterialesController::class, 'reAsignar']);
-//     Route::put('/aprovar/{id}', [WbSolicitudMaterialesController::class, 'aprovar']);
-//     Route::put('/rechazar/{id}', [WbSolicitudMaterialesController::class, 'rechazar']);
-// });
-/* Route::prefix('motivo-rechazo-prueba')->group(function () {
-    Route::prefix('')->controller(WbMotivoRechazoController::class)->group(function () {
-        Route::get('', 'get');
-        Route::get('/cambiar-estado', 'cambiarEstado');
-        Route::post('/anular', 'anularMuestra');
-        Route::post('/finalizar', 'finalizarMuestra');
-        Route::get('/report', 'getReporteExcel');
-        Route::get('/asigados','getAsignadosPorMotivo');
-        Route::get('/disponibleArea', 'getAreasDisponibles');
+    Route::prefix('equipos-dev')->group(function () {
+        Route::get('/', [WbEquipoControlles::class, 'equiposActivos']);
     });
-
-    Route::prefix('ensayo')->controller(WbMuestraRegistroEnsayoController::class)->group(function () {
-        Route::get('', 'get');
-        Route::post('/ejecutar', 'ensayoEjecutado');
-    });
-});
 });
 /*
  * End rutas huerfanas

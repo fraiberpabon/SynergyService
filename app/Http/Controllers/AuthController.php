@@ -268,7 +268,7 @@ class AuthController extends BaseController
             /**
              * El usuario no tiene imei registrado
              */
-            if ($user->change_pass != null && strlen($user->change_pass) == 1) {
+            if ($user->change_pass != null && $user->change_pass == 1) {
                 return $this->handleCod('Bienvenido a Synergy, por favor actualice su contraseña.', $this->usuarioSinImeiError);
             }
 
@@ -277,10 +277,14 @@ class AuthController extends BaseController
              */
             $datos = Sy_usuarios::where('fk_wb_id_usuarios', $user->id_usuarios)->first();
 
-            if (strcmp($datos->imei, $request->imeil) != 0) {
-                return $this->handleCod(__('messages.por_favor_ingrese_desde_el_dispositivo_que_se_registro'), $this->usuarioImeiIncorrectoError);
+            if ($datos->imei) {
+                if (strcmp($datos->imei, $request->imeil) != 0) {
+                    return $this->handleCod(__('messages.por_favor_ingrese_desde_el_dispositivo_que_se_registro'), $this->usuarioImeiIncorrectoError);
+                }
+            } else {
+                $datos->imei = $request->imeil;
             }
-
+            
             /**
              * Actualizo la version de aplicacion que se está usando al usuario
              */

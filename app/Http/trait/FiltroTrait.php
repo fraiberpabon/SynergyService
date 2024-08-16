@@ -3,7 +3,7 @@
 namespace App\Http\trait;
 
 use App\Models\usuarios_M;
-use App\Models\WbUsuarioProyecto;
+use App\Models\Usuarios\WbUsuarioProyecto;
 use Illuminate\Http\Request;
 
 trait FiltroTrait
