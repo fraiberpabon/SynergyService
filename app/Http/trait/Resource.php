@@ -22,87 +22,6 @@ trait Resource
         return [];
     }
 
-    public function solicitudLiberacionFirmaToArray($lista): Collection|\Illuminate\Support\Collection
-    {
-        return $lista->map(function ($data) {
-            return $this->solicitudLiberacionFirmaToModel($data);
-        });
-    }
-
-    public function solicitudLiberacionFirmaToModel($modelo): array
-    {
-        return [
-            'identificador' => $modelo->id_solicitudes_liberaciones_firmas,
-            'solicitudLiberacion' => $modelo->fk_id_solicitudes_liberaciones,
-            'area' => $modelo->fk_id_area,
-            'usuario' => $modelo->fk_id_usuario,
-            'estado' => $modelo->estado,
-            'fechaCreacion' => $modelo->dateCreate,
-            'idArea' =>  $modelo->area ?  $modelo->area->id_area : '',
-            'nombreArea' => $modelo->area ? $modelo->area->Area : '',
-            'nota' => $modelo->nota,
-            'panoramica' => $modelo->panoramica,
-        ];
-    }
-
-    public function actividadToArray($lista): Collection|\Illuminate\Support\Collection
-    {
-        return $lista->map(function ($data) {
-            return $this->actividadToModel($data);
-        });
-    }
-
-    /**
-     * @return array
-     *               Formato para la tabla Actividades
-     */
-    public function actividadToModel($modelo): array
-    {
-        return [
-            'identificador' => $modelo->id_Actividad,
-            'nombre' => $modelo->Actividad,
-            'descripcion' => $modelo->descripcion,
-        ];
-    }
-
-    public function wbAsfaltFormulaAsgignToArray($lista): Collection|\Illuminate\Support\Collection
-    {
-        return $lista->map(function ($data) {
-            return $this->wbAsfaltFormulaAsgignToModel($data);
-        });
-    }
-
-    public function wbAsfaltFormulaAsgignToModel($modelo): array
-    {
-        return [
-            'identificador' => $modelo->id_asfalt_asig,
-            'formulaAsfalto' => $modelo->fk_asfal_formula,
-            'objectFormula' => $modelo->objectFormula,
-            'objectPlanta' => $modelo->objectPlanta,
-            'planta' => $modelo->fk_planta,
-            'estado' => $modelo->estado == 0 ? 'Inactivo' : 'Activo',
-        ];
-    }
-
-    public function wbAsfaltFormulaAsgignToArray2($lista): Collection|\Illuminate\Support\Collection
-    {
-        return $lista->map(function ($data) {
-            return $this->wbAsfaltFormulaAsgignToModel2($data);
-        });
-    }
-
-    public function wbAsfaltFormulaAsgignToModel2($modelo): array
-    {
-        return [
-            'identificador' => $modelo->id_asfalt_asig,
-            'formulaAsfalto' => $modelo->fk_asfal_formula,
-            'NombrePlanta' => $modelo->NombrePlanta,
-            'asfalFormula' => $modelo->asfalt_formula,
-            'planta' => $modelo->fk_planta,
-            'estado' => $modelo->estado,
-        ];
-    }
-
     public function wbFormulaListaToArray($lista): Collection|\Illuminate\Support\Collection
     {
         return $lista->map(function ($data) {
@@ -122,71 +41,6 @@ trait Resource
             'usuario' => $modelo->userCreator,
             'listaFormulaCapa' => $modelo->listaFormulaCapa,
             'listaFormulaCentroProduccion' => $modelo->listaFormulaCentroProduccion,
-        ];
-    }
-
-    public function wbFormulaCentroProduccionToArray($lista): Collection|\Illuminate\Support\Collection
-    {
-        return $lista->map(function ($data) {
-            return $this->wbFormulaCentroProduccionToModel($data);
-        });
-    }
-
-    public function wbFormulaCentroProduccionToModel($modelo): array
-    {
-        return [
-            'identificador' => $modelo->id_formula_centroProduccion,
-            'formulaLista' => $modelo->fk_id_formula_lista,
-            'planta' => $modelo->fk_id_planta,
-            'estado' => $modelo->Estado,
-            'fecha' => $modelo->dateCreate,
-            'usuario' => $modelo->userCreator,
-            'codigo' => $modelo->codigoFormulaCdp,
-            'nombrePlanta' => $modelo->NombrePlanta,
-            'location' => $modelo->fk_LocationID,
-            'objectUsuPlanta' => $modelo->objectUsuPlanta,
-        ];
-    }
-
-    public function wbFormulaCapaToArray($lista): Collection|\Illuminate\Support\Collection
-    {
-        return $lista->map(function ($data) {
-            return $this->wbFormulaCapaToModel($data);
-        });
-    }
-
-    public function wbFormulaCapaToModel($modelo): array
-    {
-        return [
-            'identificador' => $modelo->id_formula_capa,
-            'tipoCapa' => $modelo->fk_id_tipo_capa,
-            'formulaLista' => $modelo->fk_id_formula_lista,
-            'estado' => $modelo->Estado,
-            'fecha' => $modelo->dateCreate,
-            'usuario' => $modelo->userCreator,
-            'objectTipoCapa' => $modelo->objectTipoCapa,
-            'nombre' => $modelo->Nombre,
-            'unidadMedida' => $modelo->unidadMedida,
-        ];
-    }
-
-    public function wbMaterialCentroProduccionToArray($lista): Collection|\Illuminate\Support\Collection
-    {
-        return $lista->map(function ($data) {
-            return $this->wbMaterialCentroProduccionToModel($data);
-        });
-    }
-
-    public function wbMaterialCentroProduccionToModel($modelo): array
-    {
-        return [
-            'identificador' => $modelo->id_material_centroProduccion,
-            'materialLista' => $modelo->fk_id_material_lista,
-            'planta' => $modelo->fk_id_planta,
-            'estado' => $modelo->Estado,
-            'fecha' => $modelo->dateCreate,
-            'objectUsuPlanta' => $modelo->objectUsuPlanta,
-            'objectMaterialLista' => $modelo->objectMaterialLista,
         ];
     }
 
@@ -229,52 +83,11 @@ trait Resource
             'material' => $modelo->Nombre,
             'descripcion' => $modelo->Descripcion,
             'unidadMedida' => $modelo->unidadMedida,
-            'tipo_id' => $modelo->Estado,
-            'tipo' => $modelo->dateCreate,
-            'solicitable' => $modelo->fk_id_material_tipo,
-            'proyecto' => $modelo->Solicitable,
-        ];
-    }
-
-    public function wbMaterialCapaToArray($lista): Collection|\Illuminate\Support\Collection
-    {
-        return $lista->map(function ($data) {
-            return $this->wbMaterialCapaToModel($data);
-        });
-    }
-
-    public function wbMaterialCapaToModel($modelo): array
-    {
-        return [
-            'identificador' => $modelo->id_material_capa,
-            'tipoCapa' => $modelo->fk_id_tipo_capa,
-            'materialLista' => $modelo->fk_id_material_lista,
-            'estado' => $modelo->Estado,
-            'fechaCreacion' => $modelo->dateCreate,
-            'usuario' => $modelo->userCreator,
-            'objectTipoCapa' => $modelo->objectTipoCapa,
-        ];
-    }
-
-    public function wbCentroProduccionHitoToArray($lista): Collection|\Illuminate\Support\Collection
-    {
-        return $lista->map(function ($data) {
-            return $this->wbCentroProduccionHitoToModel($data);
-        });
-    }
-
-    public function wbCentroProduccionHitoToModel($modelo): array
-    {
-        return [
-            'identificador' => $modelo->id_centroProduccion_hito,
-            'plantas' => $modelo->fk_id_planta,
-            'hito' => $modelo->fk_id_Hito,
-            'estado' => $modelo->Estado,
-            'fechaCreacion' => $modelo->dateCreate,
-            'fechaCierre' => $modelo->dateClose,
-            'fechaActualizacion' => $modelo->dateUpdate,
-            'usuario' => $modelo->userCreator,
-            'objectHito' => $modelo->objectHito,
+            'tipo_id' => $modelo->fk_id_material_tipo,
+            'tipo' => $modelo->tipo_material ? $modelo->tipo_material->tipoDescripcion : '',
+            'compuesto' => $modelo->tipo_material ? $modelo->tipo_material->Compuesto : '',
+            'solicitable' => $modelo->Solicitable,
+            'proyecto' => $modelo->fk_id_project_company,
         ];
     }
 
@@ -294,120 +107,6 @@ trait Resource
             'estado' => $modelo->Estado,
             'fechaCreacion' => $modelo->dateCreate,
             'usuario' => $modelo->userCreator,
-        ];
-    }
-
-    public function wbEstructPerfilFrimasToArray($lista): Collection|\Illuminate\Support\Collection
-    {
-        return $lista->map(function ($data) {
-            return $this->wbEstructPerfilFrimasToModel($data);
-        });
-    }
-
-    public function wbEstructPerfilFrimasToModel($modelo): array
-    {
-        return [
-            'identificador' => $modelo->id_estruc_perfil,
-            'nombre' => $modelo->nombre_perfil,
-            'descripcion' => $modelo->descripcion,
-        ];
-    }
-
-    public function wbEstructFirmaToArray($lista): Collection|\Illuminate\Support\Collection
-    {
-        return $lista->map(function ($data) {
-            return $this->wbEstructFirmaToModel($data);
-        });
-    }
-
-    public function wbEstructFirmaToModel($modelo): array
-    {
-        return [
-            'identificador' => $modelo->id_estruc_firma,
-            'estructPerfil' => $modelo->fk_estruc_perfil,
-            'area' => $modelo->area,
-            'firma' => $modelo->firma,
-            'estado' => $modelo->estado,
-        ];
-    }
-
-    public function wbEstructCriterioToArray($lista): Collection|\Illuminate\Support\Collection
-    {
-        return $lista->map(function ($data) {
-            return $this->wbEstructCriterioToModel($data);
-        });
-    }
-
-    public function wbEstructCriterioToModel($modelo): array
-    {
-        switch ($modelo->operacion) {
-            case '=':
-                $operador = 'Igual';
-                break;
-            case '<':
-                $operador = 'Menor';
-                break;
-            case '<=':
-                $operador = 'Menor o Igual';
-                break;
-            case '>':
-                $operador = 'Mayor';
-                break;
-            case '>=':
-                $operador = 'Mayor o Igual';
-                break;
-            case '!=':
-                $operador = 'Diferente';
-                break;
-            case '<>':
-                $operador = 'Entre';
-                break;
-        }
-
-        return [
-            'identificador' => $modelo->id_estruc_criterio,
-            'estructConfig' => $modelo->fk_estruc_config,
-            'nombreCriterio' => $modelo->nombre_criterio,
-            'criterio1' => $modelo->criterio1,
-            'operacion' => $operador,
-            'criterio2' => $modelo->criterio2,
-            'estado' => $modelo->estado,
-        ];
-    }
-
-    public function wbEstructConfigToArray($lista): Collection|\Illuminate\Support\Collection
-    {
-        return $lista->map(function ($data) {
-            return $this->wbEstructConfigToModel($data);
-        });
-    }
-
-    public function wbEstructConfigToModel($modelo): array
-    {
-        return [
-            'identificador' => $modelo->id_estruc_config,
-            'estrucPerfil' => $modelo->fk_estruc_perfil,
-            'empresa' => $modelo->empresa,
-            'nombre' => $modelo->nombre_config,
-            'estado' => $modelo->estado,
-        ];
-    }
-
-    public function wbEstructConfigAsignToArray($lista): Collection|\Illuminate\Support\Collection
-    {
-        return $lista->map(function ($data) {
-            return $this->wbEstructConfigAsignToModel($data);
-        });
-    }
-
-    public function wbEstructConfigAsignToModel($modelo): array
-    {
-        return [
-            'identificador' => $modelo->id_Estruc_Config_Asign,
-            'estructConfig' => $modelo->fk_estruc_config,
-            'estructTipo' => $modelo->fk_estruc_tipo,
-            'objectEstructConfig' => $modelo->objectEstructConfig,
-            'objectEstructTipo' => $modelo->objectEstructTipo,
         ];
     }
 
@@ -477,26 +176,6 @@ trait Resource
         ];
     }
 
-    public function syncEmpleadoToArray($lista): Collection|\Illuminate\Support\Collection
-    {
-        return $lista->map(function ($data) {
-            return $this->syncEmpleadoToModel($data);
-        });
-    }
-
-    public function syncEmpleadoToModel($modelo): array
-    {
-        return [
-            'identificador' => $modelo->EmployeeID,
-            'tipo' => $modelo->EmployeeType,
-            'tipoOdeb' => $modelo->EmployeeTypeOdeb,
-            'nombres' => $modelo->FirstName,
-            'apellidos' => $modelo->LastName,
-            'fechaCreacion' => $modelo->DateCreated,
-            'estado' => $modelo->Status,
-        ];
-    }
-
     public function costCodeToArray($lista): Collection|\Illuminate\Support\Collection
     {
         return $lista->map(function ($data) {
@@ -521,31 +200,6 @@ trait Resource
             'workCode' => $modelo->WorkCode,
             'um' => $modelo->UM,
             'cycleCC' => $modelo->CycleCC,
-        ];
-    }
-
-    public function cnfCostControlToArray($lista): Collection|\Illuminate\Support\Collection
-    {
-        return $lista->map(function ($data) {
-            return $this->cnfCostControlToModel($data);
-        });
-    }
-
-    public function cnfCostControlToModel($modelo): array
-    {
-        return [
-            'identificacion' => $modelo->COCEIDENTIFICATION,
-            'nombre' => $modelo->COCENAME,
-            'observacion' => $modelo->COCEOBSERVATION,
-            'costIdFather' => $modelo->COCECOSTIDFATHER,
-            'habilitado' => $modelo->COCEENABLED,
-            'fecha' => $modelo->COCECREATEDATE,
-            'usuario' => $modelo->COCEUSERCREATE,
-            'codigo' => $modelo->COSYNCCODE,
-            'codigo2' => $modelo->COSYNCCODE2,
-            'equivalente' => $modelo->COCEEQUIVALENT,
-            'unidadNegocio' => $modelo->BUSINESSUNIT,
-            'distribuible' => $modelo->DISTRIBUTABLE,
         ];
     }
 
@@ -613,45 +267,6 @@ trait Resource
             'hasTimeKeeper' => $modelo->hasTimeKeeper,
             'status' => $modelo->Status,
             'fecha' => $modelo->DateCreated,
-        ];
-    }
-
-    public function solicitudMaterialAppToArray($lista): Collection|\Illuminate\Support\Collection
-    {
-        return $lista->map(function ($data) {
-            return $this->solicitudMaterialAppToModel($data);
-        });
-    }
-
-    public function solicitudMaterialAppToModel($modelo): array
-    {
-        return [
-            'identificador' => $modelo['id_solicitud_Materiales'],
-            'usuario' => $modelo['fk_id_usuarios'],
-            'descripcion' => $modelo['Descripcion'],
-            'tramo' => $modelo['fk_id_tramo'],
-            'hito' => $modelo['fk_id_hito'],
-            'abscisaInicial' => $modelo['abscisaInicialReferencia'],
-            'abscisaFinal' => $modelo['abscisaFinalReferencia'],
-            'inicialfinal' => $modelo['inicialfinal'],
-            'carril' => $modelo['Carril'],
-            'calzada' => $modelo['Calzada'],
-            'material' => $modelo['fk_id_material'],
-            'nombreMaterial' => $modelo['Nombre'],
-            'unidadMedida' => $modelo['unidadMedida'],
-            'fechaProgramacion' => $modelo['fechaProgramacion'],
-            'cantidad' => $modelo['Cantidad'],
-            'numeroCapa' => $modelo['numeroCapa'],
-            'notaUsuario' => $modelo['notaUsuario'],
-            'notaSU' => $modelo['notaSU'],
-            'notaCenProduccion' => $modelo['notaCenProduccion'],
-            'estado' => $modelo['fk_id_estados'],
-            'descripcionEstado' => $modelo['descripcion_estado'],
-            'fechaCreacion' => $modelo['dateCreation'],
-            'formula' => $modelo['fk_id_formula'],
-            'nombrePlanta' => $modelo['NombrePlanta'],
-            'nombreFormula' => $modelo['nombreFormula'],
-            'plantadestino' => $modelo['plantadestino'],
         ];
     }
 
@@ -853,14 +468,14 @@ trait Resource
             'nombreRuta' => $modelo['tipoRuta'] != null ? $modelo['tipoRuta']['nombre'] : '',
             'nombreCalzada' => $modelo['tipoCalzada'] != null ? $modelo['tipoCalzada']['Calzada'] : '',
             'descripcionCalzada' => $modelo['tipoCalzada'] != null ? $modelo['tipoCalzada']['Descripcion'] : '',
-            'nombreUsuario' => $modelo['tipoUsuario'] != null ? $modelo['tipoUsuario']['Nombre'].' '.$modelo['tipoUsuario']['Apellido'] : '',
+            'nombreUsuario' => $modelo['tipoUsuario'] != null ? $modelo['tipoUsuario']['Nombre'] . ' ' . $modelo['tipoUsuario']['Apellido'] : '',
             'nombreEstado' => $modelo['tipoEstado'] != null ? $modelo['tipoEstado']['descripcion_estado'] : '',
             'latitud' => $modelo['latitud'],
             'longitud' => $modelo['longitud'],
             'tipoHallazgos' => $modelo['tipoHallazgo'],
             'FechaCierre' => $modelo['fecha_cierre'],
             'ObservacionesCierre' => $modelo['observaciones_cierre'],
-            'CerradoPor' => $modelo['tipoUsuarioAct'] != null ? $modelo['tipoUsuarioAct']['Nombre'].' '.$modelo['tipoUsuarioAct']['Apellido'] : '',
+            'CerradoPor' => $modelo['tipoUsuarioAct'] != null ? $modelo['tipoUsuarioAct']['Nombre'] . ' ' . $modelo['tipoUsuarioAct']['Apellido'] : '',
             'foto_cierre1' => $modelo['foto_cierre1'],
             'foto_cierre2' => $modelo['foto_cierre2'],
         ];
@@ -1098,7 +713,7 @@ trait Resource
         });
     }
 
-   public function asfaltoToModel($modelo): array
+    public function asfaltoToModel($modelo): array
     {
         return [
             'id_solicitudAsf' => $modelo->id_solicitudAsf,
@@ -1320,7 +935,7 @@ trait Resource
             'abscisas' => $modelo->abscisas,
             'hito' => $modelo->hito,
             'tramo' => $modelo->tramo,
-            'ubicacion' => 'Tramo: '.$modelo->tramo.' Hito: '.$modelo->hito,
+            'ubicacion' => 'Tramo: ' . $modelo->tramo . ' Hito: ' . $modelo->hito,
             'costCode' => $costCode,
             'calzada' => $modelo->calzada,
             'cantidadToneladas' => $modelo->cantidadToneladas,
@@ -1391,29 +1006,17 @@ trait Resource
     public function usuarioToModel($modelo): array
     {
         return [
-            'identificador' => $modelo['id_usuarios'],
-            'nombreCuenta' => $modelo['usuario'],
-            'cedula' => $modelo['cedula'],
-            'matricula' => $modelo['matricula'],
-            'area' => $modelo['area'],
-            'estado' => $modelo['estado'],
-            'rol' => $modelo['fk_rol'],
-            'imeil' => $modelo['imeil'],
-            'compania' => $modelo['fk_compañia'],
-            'proyecto' => $modelo['fk_id_project_Company'],
-            'plantaAsignada' => $modelo['fk_Planta_asignada'],
-            'nombres' => $modelo['Nombre'],
-            'apellido' => $modelo['Apellido'],
-            'firma' => $modelo['Firma'],
-            'correo' => $modelo['Correo'],
-            'version' => $modelo['version'],
-            'celular' => $modelo['celular'],
-            'objectRol' => $modelo['objectRol'],
-            'habilitado' => $modelo['habilitado'],
-            'cel_confirmado' => $modelo['cel_confirmado'],
-            'objectUsuarioProyecto' => $modelo['objectUsuarioProyecto'],
-            'objectPlanta' => $modelo['objectPlanta'],
-            'objectCostCenter' => $modelo['objectCostCenter'],
+            'idUsuario' => $modelo->id_usuarios,
+            'usuario' => $modelo->usuario,
+            'cedula' => $modelo->cedula,
+            'codigo' => $modelo->matricula,
+            'nombre' => $modelo->Nombre,
+            'apellido' => $modelo->Apellido,
+            'correo' => $modelo->Correo,
+            'area' => $modelo->area,
+            'firma' => $modelo->Firma,
+            'imei' => $modelo->imeil,
+            'proyecto' => $modelo->fk_id_project_Company,
         ];
     }
 
@@ -2350,7 +1953,7 @@ trait Resource
         return [
             'identificador' => $modelo->id_muestras_registros_ensayos,
             'ensayo' => $modelo->ensayo ? $modelo->ensayo->id_ensayo : '',
-            'ensayo_name' => $modelo->ensayo ? $modelo->ensayo->nombre.' - '.$modelo->ensayo->descripcion : '',
+            'ensayo_name' => $modelo->ensayo ? $modelo->ensayo->nombre . ' - ' . $modelo->ensayo->descripcion : '',
             'estado' => $modelo->estado,
             'observacion' => $modelo->observacion,
             'usuario_creador' => $modelo->fk_id_usuario_creador,
@@ -2429,149 +2032,6 @@ trait Resource
         ];
     }
 
-    public function WbPlantaAutorizadaToArray($lista, $autorizado): Collection|\Illuminate\Support\Collection
-    {
-        return $lista->map(function ($data) use ($autorizado) {
-            return $this->WbPlantaAutorizadaToModel($data, $autorizado);
-        });
-    }
-
-    public function WbPlantaAutorizadaToModel($modelo, $autorizado): array
-    {
-        return [
-            'identificador' => $modelo->id_plata,
-            'NombrePlanta' => $modelo->NombrePlanta,
-            'descripcion' => $modelo->descripcion,
-            'Autorizado' => $autorizado,
-        ];
-    }
-
-    public function WbSolicitudLiberacionToArray($lista): Collection|\Illuminate\Support\Collection
-    {
-        return $lista->map(function ($data) {
-            return $this->WbSolicitudLiberacionToModel($data);
-        });
-    }
-
-    public function WbSolicitudLiberacionToModel($modelo): array
-    {
-        return [
-            'solicitud' => $modelo->id_solicitud_liberaciones,
-            'usuario' => $modelo->fk_id_usuarios,
-            'tramo' => $modelo->fk_id_tramo,
-            'hito' => $modelo->fk_id_hito,
-            'abscisaInicial' => $modelo->abscisaInicialReferencia,
-            'abscisaFinal' => $modelo->abscisaFinalReferencia,
-            'nota' => $modelo->notaUsuario,
-            'espesor' => $modelo->espesor,
-            'ubicacion' => $modelo->ubicacion,
-            'fecha' => $modelo->date_create,
-            'fecha_solicitud' => $modelo->Fecha_solicitud,
-            'plantaId' => $modelo->fk_id_planta,
-            'materialId' => $modelo->fk_id_material,
-            'formulaId' => $modelo->fk_id_formula,
-            'estadoId' => $modelo->fk_id_estados,
-            'capa' => ($modelo->capa) ? $modelo->capa->Descripcion : '',
-            'carril' => ($modelo->carril) ? $modelo->carril->Descripcion : '',
-            'calzada' => ($modelo->calzada) ? $modelo->calzada->Descripcion : '',
-            'estado' => ($modelo->estado) ? $modelo->estado->descripcion_estado : '',
-            'planta' => ($modelo->planta) ? $modelo->planta->NombrePlanta : '',
-            'material' => ($modelo->material) ? $modelo->material->Nombre : '',
-            'formula' => ($modelo->formula) ? $modelo->formula->Nombre : '',
-            'firmas' => ($modelo->firmas) ? $modelo->firmas->map(function ($data) {
-                return [
-                    'identificador' => $data->id_solicitudes_liberaciones_firmas,
-                    'idArea' => $data->fk_id_area,
-                    'nombreArea' => ($data->area) ? $data->area->Area : '',
-                    'estado' => $data->estado,
-                    'usuario' => $data->fk_id_usuario,
-                    'nota' => $data->nota,
-                    'panoramica' => $data->panoramica
-                ];
-            }) : '',
-            'soli_lib_act' => ($modelo->lib_actividad) ? $modelo->lib_actividad->map(function ($data) {
-                return [
-                    'identificador' => $data->id_solicitud_liberaciones_act,
-                    'idActividad' => ($data->actividad) ? $data->actividad->id_liberaciones_actividades : '',
-                    'nombre' => ($data->actividad) ? $data->actividad->nombre : '',
-                    'criterio' => ($data->actividad) ? $data->actividad->criterios : '',
-                    'calificacion' => $data->calificacion,
-                    'nota' => $data->nota,
-                    //'idResponsable' => ($data->responsable) ? $data->responsable->id_liberacion_responsable : '',
-                    'idArea' => ($data->responsable) ? $data->responsable->pluck('fk_id_area') : '',
-                ];
-            }) : '',
-            'foto' => "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"
-            //'foto' => null
-        ];
-    }
-
-    public function wbMotivoRechazoToArray($lista): Collection|\Illuminate\Support\Collection
-    {
-        return $lista->map(function ($data) {
-            return $this->wbMotivoRechazoToModel($data);
-        });
-    }
-
-    public function wbMotivoRechazoToModel($modelo): array
-    {
-        return [
-            'identificador' => $modelo->id_motivo_rechazo,
-            'motivo' => $modelo->motivo,
-            'estado' => $modelo->estado,
-            'es_obs' => $modelo->observacion,
-            'es_global' => $modelo->es_global,
-            'asignadas' => $modelo->motivo_rechazo_asignacion ? $modelo->motivo_rechazo_asignacion->map(function ($info) {
-                return [
-                    'identificador' => $info->id_motivo_rechazo_asignacion,
-                    'area_id' => $info->area ? $info->area->id_area : '',
-                    'area' => $info->area ? $info->area->Area : '',
-                    'capa_id' => $info->capa ? $info->capa->id_tipo_capa : '',
-                    'capa' => $info->capa ? $info->capa->Descripcion : '',
-                ];
-            }) : '',
-        ];
-    }
-
-    public function wbMotivoRechazoAsignacionToArray($lista, $case = 0): Collection|\Illuminate\Support\Collection
-    {
-        return $lista->map(function ($data) use ($case) {
-            return $this->wbMotivoRechazoAsignacionToModel($data, $case);
-        });
-    }
-
-    public function wbMotivoRechazoAsignacionToModel($modelo, $case = 0): array
-    {
-        switch ($case) {
-            case 0:
-                $return = [
-                    'motivo_id' => $modelo->motivo_rechazo ? $modelo->motivo_rechazo->id_motivo_rechazo : '',
-                    'motivo' => $modelo->motivo_rechazo ? $modelo->motivo_rechazo->motivo : '',
-                    'es_obs' => $modelo->motivo_rechazo ? $modelo->motivo_rechazo->observacion : '',
-                    'es_global' => $modelo->motivo_rechazo ? $modelo->motivo_rechazo->es_global : '',
-                    'area_id' => $modelo->area ? $modelo->area->id_area : '',
-                    'area' => $modelo->area ? $modelo->area->Area : '',
-                    'capa_id' => $modelo->capa ? $modelo->capa->id_tipo_capa : '',
-                    'capa' => $modelo->capa ? $modelo->capa->Descripcion : '',
-                ];
-                break;
-            case 1:
-                $return = [
-                    'motivo_id' => $modelo->id_motivo_rechazo,
-                    'motivo' => $modelo->motivo,
-                    'es_obs' => $modelo->observacion,
-                    'es_global' => $modelo->es_global,
-                    'area_id' => null,
-                    'area' => null,
-                    'capa_id' => null,
-                    'capa' => null,
-                ];
-                break;
-        }
-
-        return $return;
-    }
-
     public function wbSolicitudMaterialToArray($lista): Collection|\Illuminate\Support\Collection
     {
         return $lista->map(function ($data) {
@@ -2581,14 +2041,14 @@ trait Resource
 
     public function wbSolicitudMaterialToModel($modelo): array
     {
-        $destino = ($modelo->plantas_destino) ? $modelo->plantas_destino->NombrePlanta : $modelo->tramo->Id_Tramo.'-'.$modelo->hitos->Id_Hitos;
+        $destino = ($modelo->plantas_destino) ? $modelo->plantas_destino->NombrePlanta : $modelo->tramo->Id_Tramo . '-' . $modelo->hitos->Id_Hitos;
         if ($modelo->plantas_destino) {
             $abscisa = '';
         } else {
             $abscisaInicial = $modelo->abscisaInicialReferencia;
             $abscisaFinal = $modelo->abscisaFinalReferencia;
-            $abscisa = 'K'.substr($abscisaInicial, 0, 2).'+'.substr($abscisaInicial, 2).
-                       '-K'.substr($abscisaFinal, 0, 2).'+'.substr($abscisaFinal, 2);
+            $abscisa = 'K' . substr($abscisaInicial, 0, 2) . '+' . substr($abscisaInicial, 2) .
+                '-K' . substr($abscisaFinal, 0, 2) . '+' . substr($abscisaFinal, 2);
         }
         $material = ($modelo->materialLista) ? $modelo->materialLista->Nombre : $modelo->formulaLista->Nombre;
         if ($modelo->materialLista) {
@@ -2604,10 +2064,10 @@ trait Resource
         $fechasolFormateada = $fechasol->format('Y/m/d h:i:s');
         $nombre = ($modelo->usuario) ? $modelo->usuario->Nombre : '';
         $apellido = ($modelo->usuario) ? $modelo->usuario->Apellido : '';
-        $usuario = $nombre.' '.$apellido;
+        $usuario = $nombre . ' ' . $apellido;
         $nombreapro = ($modelo->usuarioaprobador) ? $modelo->usuarioaprobador->Nombre : '';
         $apellidoapro = ($modelo->usuarioaprobador) ? $modelo->usuarioaprobador->Apellido : '';
-        $usuarioapro = $nombreapro.' '.$apellidoapro;
+        $usuarioapro = $nombreapro . ' ' . $apellidoapro;
         $estado = ($modelo->estado) ? $modelo->estado->descripcion_estado : 'Sin Estado';
         $estado_descripcion = ($modelo->estado) ? $modelo->estado->descripcion_estado : 'Sin Estado';
         if ($modelo->estado->id_estados >= 7 && $modelo->estado->id_estados <= 11) {
@@ -2647,6 +2107,89 @@ trait Resource
             'Numero_Capa' => $modelo->numeroCapa,
             'Estado_descripcion' => $estado_descripcion,
             'fecha' => $fechasolFormateada,
+        ];
+    }
+
+    public function solicitudesAppToArray($lista): Collection|\Illuminate\Support\Collection
+    {
+        return $lista->map(function ($data) {
+            return $this->solicitudesAppToModel($data);
+        });
+    }
+
+    public function solicitudesAppToModel($modelo): array
+    {
+        return [
+            'identificador' => $modelo->identificador,
+            'tipo' => $modelo->tipo,
+            'capa_id' => $modelo->fk_id_tipo_capa,
+            'capa' => $modelo->tipoCapa ? $modelo->tipoCapa->Descripcion : null,
+            'material_id' => $modelo->fk_id_material,
+            'material' => $modelo->materialLista ? $modelo->materialLista->Nombre : null,
+            'tramo' => $modelo->fk_id_tramo,
+            'hito' => $modelo->fk_id_hito,
+            'abscisaInicial' => $modelo->abscisaInicialReferencia,
+            'abscisaFinal' => $modelo->abscisaFinalReferencia,
+            'carril' => $modelo->tipoCarril ? $modelo->tipoCarril->Descripcion : null,
+            'calzada' => $modelo->tipoCalzada ? $modelo->tipoCalzada->Descripcion : null,
+            'formula_id' => $modelo->fk_id_formula,
+            'fk_formula_cdp' => $modelo->fk_formula_cdp,
+            'formula' => $modelo->formulaLista ? $modelo->formulaLista->Nombre : null,
+            'formula_desc' => $modelo->formulaLista ? $modelo->formulaLista->formulaDescripcion : null,
+            'planta_id' => $modelo->fk_id_plantaReasig ? $modelo->fk_id_plantaReasig : $modelo->fk_id_planta,
+            'planta' => $modelo->plantaReasig ? $modelo->plantaReasig->NombrePlanta : $modelo->plantas->NombrePlanta,
+            'cantidad' => $modelo->cantidad_real ? $modelo->cantidad_real : $modelo->Cantidad,
+            'numeroCapa' => $modelo->numeroCapa,
+            'planta_destino_id' => $modelo->fk_id_planta_destino,
+            'planta_destino' => $modelo->plantas_destino ? $modelo->plantas_destino->NombrePlanta : null,
+            'usuario_crea' => $modelo->usuario ? ($modelo->usuario->Nombre ?? '') . ' '. ($modelo->usuario->Apellido ?? '') : null,
+            'notaUsuario' => $modelo->notaUsuario,
+            'usuario_upd' => $modelo->usuarioAprobador ? ($modelo->usuarioAprobador->Nombre ?? '') . ' '. ($modelo->usuarioAprobador->Apellido ?? '') : null,
+            'notaSU' => $modelo->notaSU,
+            //'notaCDC' => $modelo->notaCenProduccion,
+            //'cost_code' => $modelo->cost_code,
+            //'estructura_id' => $modelo->notaCenProduccion,
+            //'elemento_vaciar_id' => $modelo->cost_code,
+            'fechaProgramacion' => $modelo->fechaProgramacion,
+            'fechaCreacion' => $modelo->dateCreation,
+            'proyecto' => $modelo->fk_id_project_Company,
+        ];
+    }
+
+    public function WbFormulasToArray($lista): Collection|\Illuminate\Support\Collection
+    {
+        return $lista->map(function ($data) {
+            return $this->WbFormulasToModel($data);
+        });
+    }
+
+    public function WbFormulasToModel($modelo): array
+    {
+        return [
+            'identificador' => $modelo->identificador,
+            'nombre' => $modelo->Nombre,
+            'descripcion' => $modelo->formulaDescripcion,
+            'unidad_medida' => $modelo->unidadMedida,
+            'proyecto' => $modelo->fk_id_project_Company,
+        ];
+    }
+
+    public function WbFormulasComposicionToArray($lista): Collection|\Illuminate\Support\Collection
+    {
+        return $lista->map(function ($data) {
+            return $this->WbFormulasComposicionToModel($data);
+        });
+    }
+
+    public function WbFormulasComposicionToModel($modelo): array
+    {
+        return [
+            'identificador' => $modelo->identificador,
+            'formula_id' => $modelo->fk_formula_CentroProduccion,
+            'material_id' => $modelo->fk_material_CentroProduccion,
+            'porcentaje' => $modelo->Porcentaje,
+            'codigo_formula_cdp' => $modelo->fk_codigoFormulaCdp,
+            'proyecto' => $modelo->fk_id_project_Company,
         ];
     }
 }

@@ -7,8 +7,8 @@ use App\Models\usuarios_M;
 use App\Models\UsuPlanta;
 use App\Models\WbMaterialCapa;
 use App\Models\WbMaterialCentroProduccion;
-use App\Models\WbMaterialLista;
-use App\Models\WbMaterialTipos;
+use App\Models\Materiales\WbMaterialLista;
+use App\Models\Materiales\WbMaterialTipos;
 use App\Models\WbTipoCapa;
 use Exception;
 use Illuminate\Http\Request;
@@ -25,12 +25,22 @@ class WbMaterialListaController extends BaseController implements Vervos
 
     public function get(Request $request)
     {
-        $response = WbMaterialLista::where('Estado', 'A');
-        $response = $this->filtrar($request, $response)->get();
-        if (sizeof($response) == 0) {
-            return $this->handleAlert(__("messages.sin_registros_por_mostrar"), false);
+        try {
+            $consulta = WbMaterialLista::with([
+                'tipo_material' => function ($query) {
+                    $query->select('id_material_tipo','tipoDescripcion','Compuesto');
+                }
+            ])
+            ->where('Estado', 'A')
+            ->select('id_material_lista', 'Nombre', 'Descripcion', 'unidadMedida','fk_id_material_tipo', 'Solicitable', 'fk_id_project_company');
+            $consulta = $this->filtrar($request, $consulta)->orderBy('id_material_lista','DESC')->get();
+
+            //return $this->handleResponse($request, $consulta->get(), __("messages.consultado"));
+            return $this->handleResponse($request, $this->wbMaterialListaToArray($consulta), __("messages.consultado"));
+        } catch (\Throwable $th) {
+            //throw $th;
+            return $this->handleAlert($th->getMessage(), false);
         }
-        return $this->handleResponse($request, $this->wbMaterialListaToArray($response), __("messages.consultado"));
     }
 
     /**
