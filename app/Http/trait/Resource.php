@@ -131,10 +131,14 @@ trait Resource
             'estado' => $modelo->estado,
             'peso' => $modelo->vehiculos_pesos ? $modelo->vehiculos_pesos->peso : '',
             'compania' => $modelo->fk_compania,
-            'compania_name' => $modelo->compania ? $modelo->compania->nombreCompañia : '',
+            'companiaNombre' => $modelo->compania ? $modelo->compania->nombreCompañia : '',
             'nombreTipoEquipo' => $modelo->tipo_equipo ? $modelo->tipo_equipo->nombre : '',
             'tipoEquipo' => $modelo->fk_id_tipo_equipo,
             'tipocontrato' => $modelo->tipocontrato,
+            //'codigoExterno' => $modelo->codigo_externo,
+            //'horometro' => $modelo->horometros ? $modelo->horometros->horometro : $modelo->horometro_inicial,
+            //'fechaHorometro' => $modelo->horometros ? $modelo->horometros->create_at : $modelo->updated_at ?? $modelo->create_at,
+            //'fechaUbicacion' => $modelo->ubicacion ? $modelo->ubicacion->created_at : null,
             'proyecto' => $modelo->fk_id_project_Company,
         ];
     }

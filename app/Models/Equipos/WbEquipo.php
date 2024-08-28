@@ -50,4 +50,14 @@ class WbEquipo extends Model implements Auditable
     public function vehiculos_pesos(){
         return $this->hasOne(SyncRelacionVehiculoPesos::class, 'vehiculo', 'equiment_id');
     }
+
+    /* // Relacion con la tabla SyHorometrosUbicaciones para horometros
+    public function horometros(){
+        return $this->hasOne(SyHorometrosUbicaciones::class, 'vehiculo', 'equiment_id')->latest('created_at');
+    }
+
+    // Relacion con la tabla SyHorometrosUbicaciones para ubicaciones
+    public function ubicacion(){
+        return $this->hasOne(SyHorometrosUbicaciones::class, 'vehiculo', 'equiment_id');
+    } */
 }

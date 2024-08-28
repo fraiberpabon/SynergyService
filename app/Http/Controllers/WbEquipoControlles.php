@@ -179,8 +179,7 @@ class WbEquipoControlles extends BaseController implements Vervos
 
     /**
      * Aqui se encuentra la funcion de los equipos activos
-     * se filtran los equipos activos donde los equipos sean diferentes de que
-     * de inactivos osea esten activos
+     * se filtran los equipos diferentes de inactivos
      */
     public function equiposActivos(Request $request)
     {
@@ -194,6 +193,12 @@ class WbEquipoControlles extends BaseController implements Vervos
             'compania' => function ($query) {
                 $query->select('id_compañia', 'nombreCompañia');
             }
+            /* 'horometros' => function ($query) {
+                $query->select('id_compañia', 'nombreCompañia');
+            } */
+           /* 'ubicacion' => function ($query) {
+                $query->select('id_compañia', 'nombreCompañia');
+            } */
         ])->where('estado', '!=', 'I')
             ->select(
                 'id',
@@ -207,6 +212,8 @@ class WbEquipoControlles extends BaseController implements Vervos
                 'dueno',
                 'estado',
                 'tipocontrato',
+                //'codigo_externo',
+                //'horometro_inicial',
                 'fk_compania',
                 'fk_id_tipo_equipo',
                 'fk_id_project_Company'
