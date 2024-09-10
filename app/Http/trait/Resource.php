@@ -135,10 +135,10 @@ trait Resource
             'nombreTipoEquipo' => $modelo->tipo_equipo ? $modelo->tipo_equipo->nombre : '',
             'tipoEquipo' => $modelo->fk_id_tipo_equipo,
             'tipocontrato' => $modelo->tipocontrato,
-            //'codigoExterno' => $modelo->codigo_externo,
-            //'horometro' => $modelo->horometros ? $modelo->horometros->horometro : $modelo->horometro_inicial,
-            //'fechaHorometro' => $modelo->horometros ? $modelo->horometros->create_at : $modelo->updated_at ?? $modelo->create_at,
-            //'fechaUbicacion' => $modelo->ubicacion ? $modelo->ubicacion->created_at : null,
+            'codigoExterno' => $modelo->codigo_externo,
+            'horometro' => $modelo->horometros ? $modelo->horometros->horometro : $modelo->horometro_inicial,
+            'fechaHorometro' => $modelo->horometros ? $modelo->horometros->create_at : $modelo->updated_at ?? $modelo->create_at,
+            'fechaUbicacion' => $modelo->ubicacion ? $modelo->ubicacion->created_at : null,
             'proyecto' => $modelo->fk_id_project_Company,
         ];
     }
@@ -2194,6 +2194,36 @@ trait Resource
             'porcentaje' => $modelo->Porcentaje,
             'codigo_formula_cdp' => $modelo->fk_codigoFormulaCdp,
             'proyecto' => $modelo->fk_id_project_Company,
+        ];
+    }
+
+    public function WbHorometrosUbicacionestoArray($lista): Collection|\Illuminate\Support\Collection
+    {
+        return $lista->map(function ($data) {
+            return $this->toModel($data);
+        });
+    }
+
+    public function WbHorometrosUbicacionestoModel($modelo): array
+    {
+        return [
+            'identificador' => $modelo->id_tipo_muestreo,
+            'equipo_id' => $modelo->nombre,
+            'equipo' => $modelo->descripcion,
+            'contratista' => $modelo->es_via,
+            'placa' => $modelo->estado,
+            'modelo' => $modelo->id_tipo_muestreo,
+            'tipo_equipo' => $modelo->nombre,
+            'horometro' => $modelo->descripcion,
+            'horometro_foto' => $modelo->es_via,
+            'tramo_id' => $modelo->estado,
+            'hito_id' => $modelo->id_tipo_muestreo,
+            'ubicacion_gps' => $modelo->nombre,
+            'fecha_creacion' => $modelo->descripcion,
+            'codigo_externo' => $modelo->es_via,
+            'observacion' => $modelo->estado,
+            'estado' => $modelo->id_tipo_muestreo,
+            'proyecto' => $modelo->nombre,
         ];
     }
 }

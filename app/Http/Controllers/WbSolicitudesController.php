@@ -77,7 +77,7 @@ class WbSolicitudesController extends BaseController implements Vervos
                 $sub->select('id_plata', 'NombrePlanta', 'descripcion');
             }
         ])
-            ->where('fechaProgramacion', '>=', Carbon::now()->subDays(200))
+            ->whereDate('fechaProgramacion', '>=', Carbon::now()->subDays(400)->toDateString())
             ->where('fk_id_estados', 12)
             ->select(
                 'id_solicitud_Materiales as identificador',
@@ -110,12 +110,12 @@ class WbSolicitudesController extends BaseController implements Vervos
 
         $query = $query->map(function ($item) {
             $info = WbFormulaCentroProduccion::select('codigoFormulaCdp')
-            ->where('fk_id_formula_lista', $item->fk_id_formula)
-            ->where('fk_id_planta', $item->fk_id_planta)
-            ->where('Estado', 'A')
-            ->where('fk_id_project_Company', $item->fk_id_project_Company)
-            ->orderBy('dateCreate', 'DESC')
-            ->first();
+                ->where('fk_id_formula_lista', $item->fk_id_formula)
+                ->where('fk_id_planta', $item->fk_id_planta)
+                ->where('Estado', 'A')
+                ->where('fk_id_project_Company', $item->fk_id_project_Company)
+                ->orderBy('dateCreate', 'DESC')
+                ->first();
 
             $item->fk_formula_cdp = $info->codigoFormulaCdp ?? null;
 

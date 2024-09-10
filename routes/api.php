@@ -24,6 +24,7 @@ use App\Http\Controllers\WbControlVersionesController;
 use App\Http\Controllers\WbEquipoControlles;
 use App\Http\Controllers\WbFormulasController;
 use App\Http\Controllers\WbHitosController;
+use App\Http\Controllers\WbHorometrosUbicacionesControlles;
 use App\Http\Controllers\WbLiberacionesFormatosActController;
 use App\Http\Controllers\WbMaterialListaController;
 use App\Http\Controllers\WbSolicitudLiberacionesFirmasController;
@@ -73,25 +74,7 @@ Route::prefix('tipo-formato')->group(function () {
  * Eliminar en la proxima actualizacion
  */
 Route::prefix('app')->middleware('isAndroid')->group(function () {
-    Route::prefix('hito')->controller(WbHitosController::class)->group(function () {
-        Route::get('/tramo/{id}', [WbHitosController::class, 'getActivosByTramosDeprecated']);
-    });
-    Route::prefix('hitos')->group(function () {
-        Route::get('/activos/{proyect}', [WbTramosHitosAsignController::class, 'getActivosDeprecated']);
-    });
-    Route::prefix('tramo')->group(function () {
-        Route::get('/', [WbTramosController::class, 'getTramosActivosDeprecated']);
-    });
-    Route::get('/actividades/{id}', [WbLiberacionesFormatosActController::class, 'getActividadV2Deprecated']);
-    // ruta de carga de calificacion de reportes
 
-    // ruta de carga de calificaciones de preoperacionales
-    Route::post('/preoperacional/actividades', [preoperacional_actividad_C::class, 'postDeprecated']);
-    // ruta de sincronizacion del preoperacional
-    Route::post('/preoperacional', [preoperacional_C::class, 'postDeprecated']);
-    Route::prefix('solicitud-concreto')->group(function () {
-        Route::post('/solicitar', [SolicitudConcretoController::class, 'postDeprecated']);
-    });
 });
 /*
  * End endpoint para soportar la version anterior
@@ -140,6 +123,10 @@ Route::middleware('desencript')->group(function () {
                 Route::get('/', 'get');
             });
 
+            Route::prefix('horometros-ubicaciones')->controller(WbHorometrosUbicacionesControlles::class)->group(function () {
+                Route::post('/insertar-paquete', 'postArray');
+            });
+
             // configuraciones
             Route::prefix('configuracion')->group(function () {
                 Route::get('/liberacion_capa/fecha', [WbConfiguracionController::class, 'getfecha_liberacion_capa']);
@@ -152,12 +139,7 @@ Route::middleware('desencript')->group(function () {
         /*
          * Start endpoint para la pagina web
          */
-        Route::middleware('isWeb')->group(function () {
 
-            Route::prefix('enviar-correo')->controller(EnviarCorreo::class)->group(function () {
-                Route::post('/material', 'material');
-            });
-        });
     });
 
     /*
@@ -222,45 +204,8 @@ Route::prefix('')->group(function () {
 
     // hasta aqui
     // ---------------------------------------------------------------------------------------------------------------------------
-    // PREOPERACIONALES
-    Route::post('/preoperacional', [preoperacional_C::class, 'guardarDeprecated']);
 
-    // DESCARGA DE REPORTES
-    // EXCEL
-    Route::get('/excel2/{report}', [generatePDF_C::class, 'InformeExcel2']);
-    // PDF
-    Route::get('/PDF/{report}', [generatePDF_C::class, 'InformePdf2']);
-    // agrergar apermisos necesario
-
-    // ENVIO DE SMS
-    Route::get('/notificacion/sms', [NotificacionSMS::class, 'SMS']);
-    Route::middleware(['throttle:api'])->group(function () {
-        Route::post('/preoperacional/actividades', [preoperacional_actividad_C::class, 'guardarDeprecated']);
-    });
-    // EQUIPOS
-    // consultar equipos
-    Route::get('/equipos/{n}/equipo/{id}', [EquipementsController::class, 'ListarEquipos']);
-    Route::get('/equipos/{n}/equipo', [EquipementsController::class, 'ListarEquipos']);
-
-    // cambiar estado de equipo
-    Route::get('/equipos/{id}/estado', [WbEquipoControlles::class, 'CambiarEstado']);
-
-    // CONTRATISTAS
-    // listar contratistas activos
-    Route::get('/contratistas/activos', [ContratistaController::class, 'ContratistasActivosAPI']);
-
-    // ASFALTO
-
-    // CONSULTAR ACTIVIDADES
-    Route::get('/actividades/calificar/{id}', [Wb_solicitud_liberaciones_act_controller::class, 'getActividadDeprecated']);
-    Route::post('/actividades/calificar', [Wb_solicitud_liberaciones_act_controller::class, 'CambiarEstadoDeprecated']);
-    // FIRMAR ACTIVIDAD
-    Route::post('/actividades/firmar', [WbSolicitudLiberacionesFirmasController::class, 'FirmarDeprecated']);
-    Route::get('/generate/pdf/{sol}', [generatePDF_C::class, 'informe']);
-    Route::get('/generate/pdf2/{sol}', [generatePDF_C::class, 'informe2']);
-    // CONSULTAR RESPONSABLE
-    Route::get('/actividades/responsable/{id}', [Wb_Liberaciones_Reponsable::class, 'getResponsableDeprecated']);
-
+    // rutas para pruebas en desarrollo
     Route::prefix('equipos-dev')->group(function () {
         Route::get('/', [WbEquipoControlles::class, 'equiposActivos']);
     });
@@ -276,6 +221,7 @@ Route::prefix('')->group(function () {
     Route::prefix('formula-materiales-dev')->group(function() {
         Route::get('/', [WbFormulasController::class, 'get']);
     });
+    // ----------------------------------------------------------------------------------------------------------------------------
 });
 /*
  * End rutas huerfanas

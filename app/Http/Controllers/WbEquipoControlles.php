@@ -18,20 +18,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
-
-
-/*
-* Se debe tener en cuenta que la siguiente estructura se debe respetar
-* de la interface Vervos se debe tener en cuenta que los metodos acá mostrados deben ser inmmutables
-* recomendación crear nuevos metodos sin alterar los mencionados.
-    public function post(Request $req);
-    public function update(Request $req, $id);
-    public function delete(Request $request, $id);
-    public function get(Request $request);
-    public function getPorProyecto(Request $request, $proyecto);
-*/
-
-
 /**
  * Aqui se encuentra la clase WbEquipoControlles que contiene toda la
  * logica del controlador de equipos
@@ -70,33 +56,6 @@ class WbEquipoControlles extends BaseController implements Vervos
      */
     public function get(Request $request)
     {
-    }
-
-    //Aqui se busca la compañia por id en cual se tienen dos parametros modelo
-    // y vamos asiganando compañias, se anexa a la
-    //lista de equipos de respuesta el peso vacio que tiene registrado en
-    //el sistema, modelo es listado de equipos y array lista de pesos
-    private function setCompaniaById($modelo, $array)
-    {
-        for ($i = 0; $i < $array->count(); ++$i) {
-            if ($modelo->fk_compania == $array[$i]->id_compañia) {
-                $reescribir = $this->companiaToModel($array[$i]);
-                $modelo->objectCompania = $reescribir;
-                break;
-            }
-        }
-    }
-    //Aqui se busca el peso  por id en cual se tienen dos parametros modelo
-    // y array recorremos el array y vamos asiganando el peso
-    private function setPesoById($modelo, $array)
-    {
-        for ($i = 0; $i < $array->count(); ++$i) {
-            if ($modelo->equiment_id == $array[$i]->vehiculo) {
-                $reescribir = $this->companiaToModel($array[$i]);
-                $modelo->objectPeso = $reescribir;
-                break;
-            }
-        }
     }
 
     /**
@@ -192,13 +151,13 @@ class WbEquipoControlles extends BaseController implements Vervos
             },
             'compania' => function ($query) {
                 $query->select('id_compañia', 'nombreCompañia');
+            },
+            'horometros' => function ($query) {
+                $query->select('id_equipos_horometros_ubicaciones', 'fk_id_equipo', 'horometro', 'fecha_registro');
+            },
+           'ubicacion' => function ($query) {
+                $query->select('id_equipos_horometros_ubicaciones', 'fk_id_equipo', 'fk_id_tramo', 'fk_id_hito', 'fecha_registro');
             }
-            /* 'horometros' => function ($query) {
-                $query->select('id_compañia', 'nombreCompañia');
-            } */
-           /* 'ubicacion' => function ($query) {
-                $query->select('id_compañia', 'nombreCompañia');
-            } */
         ])->where('estado', '!=', 'I')
             ->select(
                 'id',
@@ -212,8 +171,8 @@ class WbEquipoControlles extends BaseController implements Vervos
                 'dueno',
                 'estado',
                 'tipocontrato',
-                //'codigo_externo',
-                //'horometro_inicial',
+                'codigo_externo',
+                'horometro_inicial',
                 'fk_compania',
                 'fk_id_tipo_equipo',
                 'fk_id_project_Company'
@@ -227,57 +186,5 @@ class WbEquipoControlles extends BaseController implements Vervos
     public function getPorProyecto(Request $request, $proyecto)
     {
         // TODO: Implement getPorProyecto() method.
-    }
-
-    /*
-    *Función que me permite listar los equipos para descargar el excel en la cual pasamos las
-    variables que necesistamos para consultar los equipos
-    */
-
-    public function verEquipos(Request $request)
-    {
-
-        //consultamos los equipos
-        $baseDatos = Db::connection('sqlsrv2')->getDatabaseName() . '.dbo.';
-        $consulta = WbEquipo::select(
-            'Wb_equipos.equiment_id',
-            'Wb_equipos.descripcion',
-            'Wb_equipos.cubicaje',
-            'Wb_equipos.marca',
-            'Wb_equipos.modelo',
-            'Wb_equipos.placa',
-            'Wb_equipos.observacion',
-            'Wb_equipos.dueno',
-            'Wb_equipos.estado',
-            'sc.nombreCompañia',
-            'wb.nombre',
-            'Wb_equipos.tipocontrato'
-        )
-            //agrupamos por compañia y tipo de equipo
-            ->leftJoin('compañia as sc', 'sc.id_compañia', 'Wb_equipos.fk_compania')
-            ->leftJoin('Wb_tipo_equipo as wb', 'wb.id_tipo_equipo', 'Wb_equipos.fk_id_tipo_equipo');
-
-        $equipo = $request->busqueda;
-        if ($equipo != 0 && strlen($equipo) > 0) {
-            $equipo = strtolower($equipo);
-            //se filtra por placa y nombre de la compañia
-            $consulta = $consulta->where(function ($query) use ($equipo) {
-                $query->where(DB::raw('LOWER(sc.nombreCompañia)'), 'like', DB::raw("'%$equipo%'"))
-                    ->orWhere(DB::raw('LOWER(Wb_equipos.placa)'), 'like', DB::raw("'%$equipo%'"))
-                    ->orWhere(DB::raw('LOWER(Wb_equipos.equiment_id)'), 'like', DB::raw("'%$equipo%'"))
-                    ->orWhere(DB::raw('LOWER(wb.nombre)'), 'like', DB::raw("'%$equipo%'"));
-            });
-        }
-        if ($request->has('id') && strlen($request->id) > 0) {
-            $consulta = $consulta->where('equiment_id', $request->id);
-        }
-        //traemos los que esten activos
-        if ($request->has('estado') && strlen($request->estado) > 0) {
-            $consulta = $consulta->where('estado', 'A');
-        }
-        $consulta = $consulta->orderBy('Wb_equipos.equiment_id', 'asc');
-        $consulta = $this->filtrar3($request, $consulta, 'Wb_equipos')->get();
-        //retornamos que fue consultado correctamente
-        return $this->handleResponse($request, $consulta, __('messages.consultado'));
     }
 }
