@@ -53,7 +53,8 @@ class WbEquipo extends Model implements Auditable
 
     // Relacion con la tabla SyHorometrosUbicaciones para horometros
     public function horometros(){
-        return $this->hasOne(WbEquipoHorometrosUbicaciones::class, 'fk_id_equipo', 'id')->latest('created_at');
+        return $this->hasOne(WbEquipoHorometrosUbicaciones::class, 'fk_id_equipo', 'id')
+        ->whereNotNull('horometro')->latest(\DB::raw("CAST(REPLACE(fecha_registro, ' ', 'T') as datetime)"));
     }
 
     // Relacion con la tabla SyHorometrosUbicaciones para ubicaciones

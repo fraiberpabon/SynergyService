@@ -74,17 +74,18 @@ class WbHorometrosUbicacionesControlles extends BaseController implements Vervos
 
                     $model = new WbEquipoHorometrosUbicaciones();
                     //$model->id_equipos_horometros_ubicaciones = $info['identificador'];
-                    $model->fk_id_equipo = $info['equipo_id'];
-                    $model->fk_id_tramo = $info['tramo_id'];
-                    $model->fk_id_hito = $info['hito_id'];
-                    $model->horometro = $info['horometro'];
-                    $model->horometro_foto = $info['horometro_foto'];
-                    $model->observaciones = $info['observacion'];
-                    $model->fecha_registro = $info['fecha_creacion'];
+                    $model->fk_id_equipo = isset($info['equipo_id']) ? $info['equipo_id'] : null;
+                    $model->fk_id_tramo = isset($info['tramo_id']) ? $info['tramo_id'] : null;
+                    $model->fk_id_hito = isset($info['hito_id']) ? $info['hito_id'] : null;
+                    $model->horometro = isset($info['horometro']) ? $info['horometro'] : null;
+                    $model->horometro_foto = isset($info['horometro_foto']) ? $info['horometro_foto'] : null;
+                    $model->observaciones = isset($info['observacion']) ? $info['observacion'] : null;
+                    $model->fecha_registro = isset($info['fecha_creacion']) ? $info['fecha_creacion'] : null;
                     $model->estado = 0;
-                    $model->fk_id_project_Company = $info['proyecto'];
-                    $model->ubicacion_gps = $info['ubicacion_gps'];
-                    $model->hash = $info['hash'];
+                    $model->fk_id_project_Company = isset($info['proyecto']) ? $info['proyecto'] : null;
+                    $model->ubicacion_gps = isset($info['ubicacion_gps']) ? $info['ubicacion_gps'] : null;
+                    $model->user_created = isset($info['usuario']) ? $info['usuario'] : null;
+                    $model->hash = isset($info['hash']) ? $info['hash'] : null;
 
                     if (!$model->save()) continue;
 

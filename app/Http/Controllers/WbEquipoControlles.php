@@ -179,7 +179,7 @@ class WbEquipoControlles extends BaseController implements Vervos
             );
 
         $consulta = $this->filtrar($request, $consulta)->orderBy('equiment_id', 'DESC')->get();
-        //return $this->handleResponse($request, $consulta->get(), 'consultado');
+        //return $this->handleResponse($request, $consulta->orderBy('equiment_id', 'DESC')->get(), 'consultado');
         return $this->handleResponse($request, $this->equiposToArray($consulta), 'consultado');
     }
 
