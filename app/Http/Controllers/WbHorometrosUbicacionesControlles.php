@@ -44,6 +44,7 @@ class WbHorometrosUbicacionesControlles extends BaseController implements Vervos
             $listaGuardar = json_decode($req->datos, true);
 
             if (is_array($listaGuardar) && sizeof($listaGuardar) > 0) {
+                $guardados = 0;
                 foreach ($listaGuardar as $key => $info) {
                     $validacion = Validator::make($info, [
                         'identificador' => 'required|numeric',
@@ -52,7 +53,7 @@ class WbHorometrosUbicacionesControlles extends BaseController implements Vervos
                         'horometro_foto' => 'nullable|string',
                         'tramo_id' => 'required|string',
                         'hito_id' => 'required|string',
-                        'ubicacion_gps' => 'required|string',
+                        'ubicacion_gps' => 'nullable|string',
                         'fecha_creacion' => 'required|string',
                         'observacion' => 'nullable|string',
                         'proyecto' => 'required|string',
@@ -89,11 +90,13 @@ class WbHorometrosUbicacionesControlles extends BaseController implements Vervos
 
                     if (!$model->save()) continue;
 
+                    $guardados++;
                     $itemRespuesta = collect();
                     $itemRespuesta->put('identificador', $info['identificador']);
                     $itemRespuesta->put('estado', '1');
                     $respuesta->push($itemRespuesta);
                 }
+                if ($guardados == 0) return $this->handleAlert("empty");
                 return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));
             } else {
                 return $this->handleAlert("empty");

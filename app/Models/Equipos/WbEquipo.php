@@ -36,7 +36,8 @@ class WbEquipo extends Model implements Auditable
     }
 
     // Relacion de la tabla Wb_Equipos con Wb_tipo_equipo
-    public function tipo_equipo() {
+    public function tipo_equipo()
+    {
         return $this->hasOne(wbTipoEquipo::class, 'id_tipo_equipo', 'fk_id_tipo_equipo');
     }
 
@@ -47,18 +48,22 @@ class WbEquipo extends Model implements Auditable
     }
 
     // Relacion con la tabla sync_relacion_vehiculosPesos
-    public function vehiculos_pesos(){
+    public function vehiculos_pesos()
+    {
         return $this->hasOne(SyncRelacionVehiculoPesos::class, 'vehiculo', 'equiment_id');
     }
 
     // Relacion con la tabla SyHorometrosUbicaciones para horometros
-    public function horometros(){
+    public function horometros()
+    {
         return $this->hasOne(WbEquipoHorometrosUbicaciones::class, 'fk_id_equipo', 'id')
-        ->whereNotNull('horometro')->latest(\DB::raw("CAST(REPLACE(fecha_registro, ' ', 'T') as datetime)"));
+            ->whereNotNull('horometro')->latest(\DB::raw("CAST(REPLACE(fecha_registro, ' ', 'T') as datetime)"));
     }
 
     // Relacion con la tabla SyHorometrosUbicaciones para ubicaciones
-    public function ubicacion(){
-        return $this->hasOne(WbEquipoHorometrosUbicaciones::class, 'fk_id_equipo', 'id')->latest('created_at');
+    public function ubicacion()
+    {
+        return $this->hasOne(WbEquipoHorometrosUbicaciones::class, 'fk_id_equipo', 'id')
+            ->latest(\DB::raw("CAST(REPLACE(fecha_registro, ' ', 'T') as datetime)"));
     }
 }
