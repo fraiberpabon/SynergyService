@@ -2,9 +2,8 @@
 
 namespace App\Models\Equipos;
 
-use App\Models\Compania;
-use App\Models\SyncRelacionVehiculoPeso;
-use App\Models\SyncRelacionVehiculoPesos;
+use App\Models\WbHitos;
+use App\Models\WbTramos;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -43,5 +42,15 @@ class WbEquipoHorometrosUbicaciones extends Model implements Auditable
         return [
             'horometro_foto',
         ];
+    }
+
+    // relacion con la tabla tramos
+    public function tramo() {
+        return $this->hasOne(WbTramos::class,'Id_Tramo' ,'fk_id_tramo');
+    }
+
+    // relacion con la tabla hitos
+    public function hito() {
+        return $this->hasOne(WbHitos::class,'Id_Hitos', 'fk_id_hito');
     }
 }

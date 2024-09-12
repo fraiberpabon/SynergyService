@@ -138,8 +138,18 @@ trait Resource
             'codigoExterno' => $modelo->codigo_externo,
             'horometro' => $modelo->horometros ? $modelo->horometros->horometro : $modelo->horometro_inicial,
             'fechaHorometro' => $modelo->horometros ? $modelo->horometros->fecha_registro : $modelo->updated_at ?? $modelo->create_at,
-            'ubicacionTramo' => $modelo->ubicacion ? $modelo->ubicacion->fk_id_tramo : null,
-            'ubicacionHito' => $modelo->ubicacion ? $modelo->ubicacion->fk_id_hito : null,
+            'ubicacionTramo' => $modelo->ubicacion ?
+                ($modelo->ubicacion->tramo ?
+                    $modelo->ubicacion->tramo->Id_Tramo . ($modelo->ubicacion->tramo->Descripcion ?
+                        ' - ' . $modelo->ubicacion->tramo->Descripcion : '')
+                    : null)
+                : null,
+            'ubicacionHito' => $modelo->ubicacion ?
+                ($modelo->ubicacion->hito ?
+                    $modelo->ubicacion->hito->Id_Hitos . ($modelo->ubicacion->hito->Descripcion ?
+                        ' - ' . $modelo->ubicacion->hito->Descripcion : '')
+                    : null)
+                : null,
             'fechaUbicacion' => $modelo->ubicacion ? $modelo->ubicacion->fecha_registro : null,
             'proyecto' => $modelo->fk_id_project_Company,
         ];
@@ -1439,9 +1449,9 @@ trait Resource
             'numeroCapa' => $modelo->numeroCapa,
             'planta_destino_id' => $modelo->fk_id_planta_destino,
             'planta_destino' => $modelo->plantas_destino ? $modelo->plantas_destino->NombrePlanta : null,
-            'usuario_crea' => $modelo->usuario ? ($modelo->usuario->Nombre ?? '') . ' '. ($modelo->usuario->Apellido ?? '') : null,
+            'usuario_crea' => $modelo->usuario ? ($modelo->usuario->Nombre ?? '') . ' ' . ($modelo->usuario->Apellido ?? '') : null,
             'notaUsuario' => $modelo->notaUsuario,
-            'usuario_upd' => $modelo->usuarioAprobador ? ($modelo->usuarioAprobador->Nombre ?? '') . ' '. ($modelo->usuarioAprobador->Apellido ?? '') : null,
+            'usuario_upd' => $modelo->usuarioAprobador ? ($modelo->usuarioAprobador->Nombre ?? '') . ' ' . ($modelo->usuarioAprobador->Apellido ?? '') : null,
             'notaSU' => $modelo->notaSU,
             //'notaCDC' => $modelo->notaCenProduccion,
             //'cost_code' => $modelo->cost_code,
