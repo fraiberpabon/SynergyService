@@ -66,6 +66,7 @@ class WbHorometrosUbicacionesControlles extends BaseController implements Vervos
 
                     $find = WbEquipoHorometrosUbicaciones::select('id_equipos_horometros_ubicaciones')->where('hash', $info['hash'])->first();
                     if ($find != null) {
+                        $guardados++;
                         $itemRespuesta = collect();
                         $itemRespuesta->put('identificador', $info['identificador']);
                         $itemRespuesta->put('estado', '1');

@@ -137,7 +137,12 @@ trait Resource
             'tipocontrato' => $modelo->tipocontrato,
             'codigoExterno' => $modelo->codigo_externo,
             'horometro' => $modelo->horometros ? $modelo->horometros->horometro : $modelo->horometro_inicial,
-            'fechaHorometro' => $modelo->horometros ? $modelo->horometros->fecha_registro : $modelo->updated_at ?? $modelo->create_at,
+            'fechaHorometro' => $modelo->horometros ?
+                $modelo->horometros->fecha_registro :
+                ($modelo->updated_at ?
+                    Carbon::parse($modelo->updated_at)->format('Y-m-d H:i:s') :
+                    ($modelo->created_at ? Carbon::parse($modelo->created_at)->format('Y-m-d H:i:s') : null)
+                ),
             'ubicacionTramo' => $modelo->ubicacion ?
                 ($modelo->ubicacion->tramo ?
                     $modelo->ubicacion->tramo->Id_Tramo . ($modelo->ubicacion->tramo->Descripcion ?

@@ -185,7 +185,11 @@ class WbEquipoControlles extends BaseController implements Vervos
                     'horometro_inicial',
                     'fk_compania',
                     'fk_id_tipo_equipo',
-                    'fk_id_project_Company'
+                    'fk_id_project_Company',
+                    'created_at',
+                    'updated_at'
+                    //DB::raw("CASE WHEN created_at IS NOT NULL THEN CAST(created_at AS VARCHAR(19)) ELSE NULL"),
+                    //DB::raw("CASE WHEN updated_at IS NOT NULL THEN CAST(updated_at AS VARCHAR(19)) ELSE NULL")
                 );
 
             $consulta = $this->filtrar($request, $consulta)->orderBy('equiment_id', 'DESC')->get();
