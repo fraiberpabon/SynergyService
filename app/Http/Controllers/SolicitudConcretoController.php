@@ -6,7 +6,7 @@ use App\Http\interfaces\Vervos;
 use App\Models\Compania;
 use App\Models\estado;
 use App\Models\solicitudConcreto;
-use App\Models\usuarios_M;
+use App\Models\Usuarios\usuarios_M;
 use App\Models\WbTramos;
 use App\Models\WbHitos;
 use App\Models\estructuras;

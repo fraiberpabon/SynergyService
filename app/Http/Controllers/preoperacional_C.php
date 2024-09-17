@@ -6,7 +6,7 @@ use App\Http\Controllers\BaseController as BaseController;
 use App\Http\interfaces\Vervos;
 use App\Models\preoperacional_M;
 use App\Models\ts_Equipement;
-use App\Models\usuarios_M;
+use App\Models\Usuarios\usuarios_M;
 use App\Models\WbEquipo;
 use App\Models\WbLiberacionesFormato;
 use Illuminate\Database\Eloquent\Model;

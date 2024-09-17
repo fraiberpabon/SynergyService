@@ -2,7 +2,7 @@
 
 namespace App\Http\trait;
 
-use App\Models\WbSeguriRoles;
+use App\Models\Roles\WbSeguriRoles;
 
 trait RolTrait
 {

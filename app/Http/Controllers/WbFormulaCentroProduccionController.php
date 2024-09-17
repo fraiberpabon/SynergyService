@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\interfaces\Vervos;
-use App\Models\usuarios_M;
+use App\Models\Usuarios\usuarios_M;
 use App\Models\UsuPlanta;
 use App\Models\WbFormulaCentroProduccion;
 use App\Models\WbFormulaLista;
@@ -306,7 +306,7 @@ class WbFormulaCentroProduccionController extends BaseController implements Verv
         $formulas=$formulas->where('formula.Estado','A');
 
         //se envian todos los datos recibido
-        $respuesta=collect($this->WbFormulaAutorizadoToArray($formulas->pluck('formula')->sortBy('Nombre'),1)); 
+        $respuesta=collect($this->WbFormulaAutorizadoToArray($formulas->pluck('formula')->sortBy('Nombre'),1));
 
         return $this->handleResponse($request,$respuesta->unique('identificador')->values(), __('messages.consultado'));
 

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\SMSResponse;
-use App\Models\usuarios_M;
+use App\Models\Usuarios\usuarios_M;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\DB;

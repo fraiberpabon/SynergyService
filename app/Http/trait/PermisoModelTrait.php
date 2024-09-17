@@ -2,9 +2,9 @@
 
 namespace App\Http\trait;
 
-use App\Models\usuarios_M;
+use App\Models\Usuarios\usuarios_M;
 use App\Models\Wb_Seguri_Permiso;
-use App\Models\WbSeguriRolesPermiso;
+use App\Models\Roles\WbSeguriRolesPermiso;
 use App\Models\WbUsuarioProyecto;
 use http\Env\Request;
 

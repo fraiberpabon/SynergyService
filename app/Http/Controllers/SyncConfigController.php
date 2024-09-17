@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\interfaces\Vervos;
 use App\Models\SyncConfig;
-use App\Models\usuarios_M;
+use App\Models\Usuarios\usuarios_M;
 use Illuminate\Http\Request;
 
 class SyncConfigController extends BaseController implements Vervos

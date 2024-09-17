@@ -13,4 +13,6 @@ class wbTipoEquipo extends Model
     protected $primaryKey='id_tipo_equipo';
     public $timestamps = false;
     public $incrementing = true;
+
+    //protected $dateFormat = 'd-m-Y H:i:s.v'; //activar solo en pruebas
 }

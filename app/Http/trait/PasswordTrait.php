@@ -2,7 +2,7 @@
 
 namespace App\Http\trait;
 
-use App\Models\Wb_password_hash;
+use App\Models\Usuarios\Wb_password_hash;
 use App\Models\WbTipoPasword;
 use Illuminate\Http\Request;
 

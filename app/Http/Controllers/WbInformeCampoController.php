@@ -17,7 +17,7 @@ use App\Exports\InformeHallazgoExport;
 use Maatwebsite\Excel\Facades\Excel;
 use GuzzleHttp\Client;
 use App\Http\Controllers\SmsController;
-use App\Models\usuarios_M;
+use App\Models\Usuarios\usuarios_M;
 
 class WbInformeCampoController extends BaseController implements Vervos
 {

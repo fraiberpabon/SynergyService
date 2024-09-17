@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\interfaces\Vervos;
 use App\Models\HtrUsuarios;
 use App\Models\ProjectCompany;
-use App\Models\usuarios_M;
+use App\Models\Usuarios\usuarios_M;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 class HtrUsuariosController extends BaseController implements Vervos

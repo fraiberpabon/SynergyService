@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\trait\ChanguePasswordTrait;
-use App\Models\Wb_password_hash;
+use App\Models\Usuarios\Wb_password_hash;
 use App\Models\WbTipoPasword;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -22,7 +22,7 @@ class encrypt extends BaseController
     public function index(Request $req, $tipoPassword = ''){
         //validamos si tiene una contraseña actual
         $this->eliminarPasswordTrait($this->getPasswordActualTrait(Request::capture()));
-        
+
         $numeroPeticiones = 500;
         $ip = $this->getIp();
         //buscar tipo password

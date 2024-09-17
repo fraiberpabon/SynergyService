@@ -3,7 +3,6 @@
 namespace App\Models\Equipos;
 
 use App\Models\Compania;
-use App\Models\SyncRelacionVehiculoPeso;
 use App\Models\SyncRelacionVehiculoPesos;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -20,6 +19,8 @@ class WbEquipo extends Model implements Auditable
     protected $primaryKey = 'id';
     /* public $incrementing = true;
     public $timestamps = true; */
+
+    //protected $dateFormat = 'd-m-Y H:i:s.v'; //activar solo en pruebas
 
     public $module = 'Equipos';
 

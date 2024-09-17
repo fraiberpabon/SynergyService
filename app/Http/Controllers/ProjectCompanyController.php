@@ -8,7 +8,7 @@ use App\Models\Compania;
 use App\Models\ProjectCompany;
 use App\Models\WbCompanieProyecto;
 use App\Models\WbPais;
-use App\Models\WbSeguriRoles;
+use App\Models\Roles\WbSeguriRoles;
 use App\Models\WbTemaInterfaz;
 use App\Models\WbUsuarioProyecto;
 use Illuminate\Http\Request;

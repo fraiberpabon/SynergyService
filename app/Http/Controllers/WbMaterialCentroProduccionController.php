@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\interfaces\Vervos;
-use App\Models\usuarios_M;
+use App\Models\Usuarios\usuarios_M;
 use App\Models\UsuPlanta;
 use App\Models\WbMaterialCentroProduccion;
 use App\Models\WbCentroProduccionHitos;
@@ -403,7 +403,7 @@ class WbMaterialCentroProduccionController extends BaseController implements Ver
             //se envian todos los datos recibido
             $respuesta=collect($this->WbPlantaAutorizadaToArray($centros->pluck('centro')->sortBy('NombrePlanta'),1));
         }
-        
+
 
         return $this->handleResponse($request,$respuesta->unique('identificador')->values(), __('messages.consultado'));
 
@@ -422,7 +422,7 @@ class WbMaterialCentroProduccionController extends BaseController implements Ver
         $materiales=$materiales->where('material.Estado','A')->where('material.Solicitable','S');
 
         //se envian todos los datos recibido
-        $respuesta=collect($this->WbMaterialAutorizadoToArray($materiales->pluck('material')->sortBy('Nombre'),1)); 
+        $respuesta=collect($this->WbMaterialAutorizadoToArray($materiales->pluck('material')->sortBy('Nombre'),1));
 
         return $this->handleResponse($request,$respuesta->unique('identificador')->values(), __('messages.consultado'));
 

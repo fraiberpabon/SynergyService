@@ -7,7 +7,7 @@ use App\Models\actividad;
 use App\Models\estado;
 use App\Models\liberacionesActividades;
 use App\Models\solicitudConcreto;
-use App\Models\usuarios_M;
+use App\Models\Usuarios\usuarios_M;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;

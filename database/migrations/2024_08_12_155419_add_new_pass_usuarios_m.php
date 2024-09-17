@@ -11,8 +11,8 @@ return new class extends Migration
      *
      * @var string
      */
-    protected $connection = 'sqlsrv3'; //conexion de la base de datos nueva.
-    
+    protected $connection = 'sqlsrv2'; //conexion de la base de datos nueva.
+
 
     /**
      * Run the migrations.

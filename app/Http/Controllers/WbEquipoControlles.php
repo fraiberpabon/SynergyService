@@ -7,13 +7,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\interfaces\Vervos;
-use App\Http\Resources\EquipementsCollection;
 use App\Models\Compania;
 use App\Models\SyncRelacionVehiculoPesos;
-use App\Models\ts_Equipement;
 use App\Models\Equipos\WbEquipo;
-use App\Models\Equipos\wbTipoEquipo;
-use App\Models\WbCompanieProyecto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -185,18 +181,14 @@ class WbEquipoControlles extends BaseController implements Vervos
                     'horometro_inicial',
                     'fk_compania',
                     'fk_id_tipo_equipo',
-                    'fk_id_project_Company',
-                    'created_at',
-                    'updated_at'
-                    //DB::raw("CASE WHEN created_at IS NOT NULL THEN CAST(created_at AS VARCHAR(19)) ELSE NULL"),
-                    //DB::raw("CASE WHEN updated_at IS NOT NULL THEN CAST(updated_at AS VARCHAR(19)) ELSE NULL")
+                    'fk_id_project_Company'
                 );
 
             $consulta = $this->filtrar($request, $consulta)->orderBy('equiment_id', 'DESC')->get();
             //return $this->handleResponse($request, $consulta->orderBy('equiment_id', 'DESC')->get(), 'consultado');
             return $this->handleResponse($request, $this->equiposToArray($consulta), 'consultado');
         } catch (\Throwable $th) {
-            return $this->handleAlert($th->getMessage());
+            return $this->handleAlert($th->getMessage(), false);
         }
     }
 

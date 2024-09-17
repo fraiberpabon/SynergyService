@@ -2,17 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CnfCostCenter;
 use App\Models\Compania;
 use App\Models\ProjectCompany;
 use App\Models\User;
 use App\Models\Usuarios\Sy_usuarios;
 use App\Models\Usuarios\usuarios_M;
-use App\Models\UsuPlanta;
 use App\Models\Usuarios\Wb_password_hash;
 use App\Models\Roles\WbSeguriRolesPermiso;
-use App\Models\Usuarios\WbUsuarioProyecto;
-use GrahamCampbell\ResultType\Success;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -284,7 +280,7 @@ class AuthController extends BaseController
             } else {
                 $datos->imei = $request->imeil;
             }
-            
+
             /**
              * Actualizo la version de aplicacion que se está usando al usuario
              */

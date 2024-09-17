@@ -6,7 +6,7 @@ use App\Http\interfaces\Vervos;
 use App\Http\trait\DateHelpersTrait;
 use App\Models\Compania;
 use App\Models\MSO;
-use App\Models\usuarios_M;
+use App\Models\Usuarios\usuarios_M;
 use App\Models\UsuPlanta;
 use App\Models\WbSolitudAsfalto;
 use App\Models\WbAsfaltFormula;

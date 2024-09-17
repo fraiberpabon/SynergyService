@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\interfaces\Vervos;
-use App\Models\usuarios_M;
+use App\Models\Usuarios\usuarios_M;
 use App\Models\WbFormulaCapa;
 use App\Models\WbFormulaLista;
 use App\Models\WbTipoCapa;

@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 
 use App\Http\interfaces\Vervos;
 use App\Models\Compania;
-use App\Models\usuarios_M;
-use App\Models\WbSeguriRoles;
+use App\Models\Usuarios\usuarios_M;
+use App\Models\Roles\WbSeguriRoles;
 use App\Models\WbUsuarioProyecto;
 use Exception;
 use Illuminate\Http\Request;

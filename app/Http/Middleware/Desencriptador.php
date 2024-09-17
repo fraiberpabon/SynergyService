@@ -5,7 +5,7 @@ namespace App\Http\Middleware;
 use App\Http\trait\CrytoTrait;
 use App\Http\trait\PasswordTrait;
 use App\Http\trait\TipoClavePasswordTrait;
-use App\Models\Wb_password_hash;
+use App\Models\Usuarios\Wb_password_hash;
 use App\Models\WbTipoPasword;
 use Closure;
 use Illuminate\Http\Request;

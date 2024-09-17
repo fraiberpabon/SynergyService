@@ -3,7 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Http\trait\PermisoModelTrait;
-use App\Models\usuarios_M;
+use App\Models\Usuarios\usuarios_M;
 use Closure;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
