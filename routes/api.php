@@ -8,6 +8,7 @@ use App\Http\Controllers\CostCodeController;
 use App\Http\Controllers\encrypt;
 use App\Http\Controllers\EnviarCorreo;
 use App\Http\Controllers\EquipementsController;
+use App\Http\Controllers\EquiposLiquidacion\WbEquiposLiquidacionController;
 use App\Http\Controllers\generatePDF_C;
 use App\Http\Controllers\HtrUsuariosController;
 use App\Http\Controllers\NotificacionSMS;
@@ -50,17 +51,17 @@ Session::start();
 */
 
 Route::get('/img-bandera/{nombreArchivo}', function ($nombreArchivo) {
-    $fileContent = Storage::disk('imagenes')->get('paises/'.$nombreArchivo);
+    $fileContent = Storage::disk('imagenes')->get('paises/' . $nombreArchivo);
 
     return response($fileContent, 200)->header('Content-Type', 'image/svg+xml');
 });
 Route::get('/img-company/{nombreArchivo}', function ($nombreArchivo) {
-    $fileContent = Storage::disk('imagenes')->get('company/'.$nombreArchivo);
+    $fileContent = Storage::disk('imagenes')->get('company/' . $nombreArchivo);
 
     return response($fileContent, 200)->header('Content-Type', 'image/png');
 });
 Route::get('/img-company2/{nombreArchivo}', function ($nombreArchivo) {
-    $patch = storage_path('app/imagenes/company/'.$nombreArchivo);
+    $patch = storage_path('app/imagenes/company/' . $nombreArchivo);
     $imagedata = file_get_contents($patch);
     $base64 = base64_encode($imagedata);
 
@@ -95,9 +96,6 @@ Route::middleware('desencript')->group(function () {
         Route::prefix('control-version')->group(function () {
             Route::post('/', [WbControlVersionesController::class, 'getByVersion']);
         });
-        Route::prefix('htr-usuarios')->group(function () {
-            Route::post('/', [HtrUsuariosController::class, 'post']);
-        });
     });
     Route::middleware(['token', 'habilitado', 'proyecto'])->group(function () {
         /*
@@ -110,7 +108,11 @@ Route::middleware('desencript')->group(function () {
             Route::prefix('equipos')->group(function () {
                 Route::get('/', [WbEquipoControlles::class, 'equiposActivos']);
             });
-            Route::prefix('formulas')->group(function() {
+            Route::prefix('equipos-liquidacion')->controller(WbEquiposLiquidacionController::class)->group(function () {
+                Route::get('/last-date-liquidation', 'getFechaUltimoCierre');
+            });
+
+            Route::prefix('formulas')->group(function () {
                 Route::get('/', [WbFormulasController::class, 'get']);
                 Route::get('/composicion', [WbFormulasController::class, 'getComposicion']);
             });
@@ -218,7 +220,7 @@ Route::prefix('')->group(function () {
         Route::get('/', [WbSolicitudesController::class, 'getApp']);
     });
 
-    Route::prefix('formula-materiales-dev')->group(function() {
+    Route::prefix('formula-materiales-dev')->group(function () {
         Route::get('/', [WbFormulasController::class, 'get']);
     });
     // ----------------------------------------------------------------------------------------------------------------------------

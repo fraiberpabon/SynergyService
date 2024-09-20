@@ -20,7 +20,7 @@ class WbEquipoHorometrosUbicaciones extends Model implements Auditable
     /* public $incrementing = true;
     public $timestamps = true; */
 
-    //protected $dateFormat = 'd-m-Y H:i:s.v'; //activar solo en pruebas
+    protected $dateFormat = 'd-m-Y H:i:s.v'; //activar solo en pruebas
 
     public $module = 'Equipos Horometros Ubicaciones';
 

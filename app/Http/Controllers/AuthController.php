@@ -21,62 +21,62 @@ class AuthController extends BaseController
     {
         try {
             /**
-         * Obtengo la ip de la solicitud
-         */
-        $ip = $this->getIp();
-        $consulta = Wb_password_hash::where('ip', '=', $ip)->limit(1)->get();
-        if (!$consulta->isEmpty()) {
-            $contraseña = $consulta[0];
-            if ($contraseña->fechaBloqueo != null) {
-                $fecha = strtotime(date("Y-d-m H:i:s", time()));
-                $fecha2 = strtotime($contraseña->fechaBloqueo);
-                if ($fecha > $fecha2) { //la contraseña expiro
-                    return $this->handleAlert('La contraseña expiró.');
+             * Obtengo la ip de la solicitud
+             */
+            $ip = $this->getIp();
+            $consulta = Wb_password_hash::where('ip', '=', $ip)->limit(1)->get();
+            if (!$consulta->isEmpty()) {
+                $contraseña = $consulta[0];
+                if ($contraseña->fechaBloqueo != null) {
+                    $fecha = strtotime(date("Y-d-m H:i:s", time()));
+                    $fecha2 = strtotime($contraseña->fechaBloqueo);
+                    if ($fecha > $fecha2) { //la contraseña expiro
+                        return $this->handleAlert('La contraseña expiró.');
+                    }
+                }
+            } else { //no existe la contraseña en la base de datos
+                return $this->handleAlert('La contraseña expiró2.');
+            }
+            /**
+             * Verifico que se reciban los parametros de usuario y password
+             */
+            if ($request->json()->has('usuario') == null || $request->json()->has('password') == null) { //no existe la propiedad autch en el header
+                return $this->handleCod(__('messages.faltan_parametros'), $this->faltanParametrosCabeceraError);
+            }
+            $user = usuarios_M::with('synergyUsers')->where('usuario', $request->usuario)->first();
+
+            if (!$user || !Hash::check($request->password, $user->contraseña)) { //usuario o contraseña incorrecto
+                $contraseña->intentos += 1;
+                if (!$user) {
+                    return $this->handleCod(__('messages.usuario_no_encontrado'), $this->usuarioNoExisteError);
+                } else {
+                    return $this->handleCod(__('messages.usuario_o_contrasena_incorrecta'), $this->usuarioContrasenaNoValidaError);
                 }
             }
-        } else { //no existe la contraseña en la base de datos
-            return $this->handleAlert('La contraseña expiró2.');
-        }
-        /**
-         * Verifico que se reciban los parametros de usuario y password
-         */
-        if ($request->json()->has('usuario') == null || $request->json()->has('password') == null) { //no existe la propiedad autch en el header
-            return $this->handleCod(__('messages.faltan_parametros'), $this->faltanParametrosCabeceraError);
-        }
-        $user = usuarios_M::with('synergyUsers')->where('usuario', $request->usuario)->first();
-
-        if (!$user || !Hash::check($request->password, $user->contraseña)) { //usuario o contraseña incorrecto
-            $contraseña->intentos += 1;
-            if (!$user) {
-                return $this->handleCod(__('messages.usuario_no_encontrado'), $this->usuarioNoExisteError);
-            } else {
-                return $this->handleCod(__('messages.usuario_o_contrasena_incorrecta'), $this->usuarioContrasenaNoValidaError);
+            if ($user->estado != 'A') { //usuario bloqueado
+                $contraseña->intentos += 1;
+                $contraseña->save();
+                return $this->handleCod(__('messages.su_cuenta_se_encuentra_bloqueada'), $this->usuarioBloqueadoError);
             }
-        }
-        if ($user->estado != 'A') { //usuario bloqueado
-            $contraseña->intentos += 1;
-            $contraseña->save();
-            return $this->handleCod(__('messages.su_cuenta_se_encuentra_bloqueada'), $this->usuarioBloqueadoError);
-        }
-        if ($user->habilitado != 1) {
-            $contraseña->intentos += 1;
-            $contraseña->save();
-            return $this->handleCod(__('messages.su_cuenta_se_encuentra_deshabilitada'), $this->usuarioDeshabilitadoError);
-        }
-        $proyectoDefault = $this->traitGetProyectoDefaultP($user->id_usuarios);
-        if ($proyectoDefault['proyecto'] == 0) {
-            return $this->handleCod(__('messages.no_cuenta_con_proyectos_valido'), $this->usuarioSinProyectoError);
-        }
-        $agent = new Agent();
-        /**
-         * Compruebo si la solicitud viene de un dispositivo Android.
-         */
-        if ($agent->isAndroidOS() && !($agent->isChrome() || $agent->isEdge() || $agent->isFirefox())) {
-            return $this->loginAndroid($request, $user, $proyectoDefault);
-        }
-        /* else {
-            return $this->loginWeb($request, $ip, $user, $proyectoDefault);
-        } */
+            if ($user->habilitado != 1) {
+                $contraseña->intentos += 1;
+                $contraseña->save();
+                return $this->handleCod(__('messages.su_cuenta_se_encuentra_deshabilitada'), $this->usuarioDeshabilitadoError);
+            }
+            $proyectoDefault = $this->traitGetProyectoDefaultP($user->id_usuarios);
+            if ($proyectoDefault['proyecto'] == 0) {
+                return $this->handleCod(__('messages.no_cuenta_con_proyectos_valido'), $this->usuarioSinProyectoError);
+            }
+            $agent = new Agent();
+            /**
+             * Compruebo si la solicitud viene de un dispositivo Android.
+             */
+            if ($agent->isAndroidOS() && !($agent->isChrome() || $agent->isEdge() || $agent->isFirefox())) {
+                return $this->loginAndroid($request, $user, $proyectoDefault);
+            }
+            /* else {
+                return $this->loginWeb($request, $ip, $user, $proyectoDefault);
+            } */
         } catch (\Throwable $th) {
             return $this->handleAlert($th->getMessage());
         }
@@ -269,15 +269,19 @@ class AuthController extends BaseController
             }
 
             /**
-             * Verifico que el imeil enviado sea igual al imeil que el usuario tiene actualmente
+             * Verifico que el imei enviado sea igual al imei que el usuario tiene actualmente
              */
+
+            // consultamos si en la tabla de sy_usuarios tenemos un imei anteriormente registrado
             $datos = Sy_usuarios::where('fk_wb_id_usuarios', $user->id_usuarios)->first();
 
+            // si el imei existe entonces comprovamos que sea el mismo imei de su anterior inicio de sesion
             if ($datos->imei) {
-                if (strcmp($datos->imei, $request->imeil) != 0) {
+                /* if (strcmp($datos->imei, $request->imeil) != 0) {
                     return $this->handleCod(__('messages.por_favor_ingrese_desde_el_dispositivo_que_se_registro'), $this->usuarioImeiIncorrectoError);
-                }
+                } */
             } else {
+                // si el imei no existe entonces agregamos el nuevo imei
                 $datos->imei = $request->imeil;
             }
 
