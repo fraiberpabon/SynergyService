@@ -21,7 +21,7 @@ class Sy_usuarios extends Model implements Auditable
     protected $primaryKey = 'id_sy_usuarios';
     public $timestamps = true;
 
-    //protected $dateFormat = 'd-m-Y H:i:s.v'; //activar solo en pruebas
+    protected $dateFormat = 'd-m-Y H:i:s.v'; //activar solo en pruebas
 
     # Funcion para obtener el nombre de la tabla
     public function GetTable()

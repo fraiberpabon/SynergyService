@@ -14,5 +14,5 @@ class wbTipoEquipo extends Model
     public $timestamps = false;
     public $incrementing = true;
 
-    //protected $dateFormat = 'd-m-Y H:i:s.v'; //activar solo en pruebas
+    protected $dateFormat = 'd-m-Y H:i:s.v'; //activar solo en pruebas
 }
