@@ -77,7 +77,7 @@ class WbSolicitudesController extends BaseController implements Vervos
                 $sub->select('id_plata', 'NombrePlanta', 'descripcion');
             }
         ])
-            ->whereDate('fechaProgramacion', '>=', Carbon::now()->subDays(400)->toDateString())
+            ->whereDate('fechaProgramacion', '>=', Carbon::now()->subDays(3)->toDateString())
             ->where('fk_id_estados', 12)
             ->select(
                 'id_solicitud_Materiales as identificador',

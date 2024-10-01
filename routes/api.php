@@ -16,6 +16,7 @@ use App\Http\Controllers\preoperacional_actividad_C;
 use App\Http\Controllers\preoperacional_C;
 use App\Http\Controllers\ProjectCompanyController;
 use App\Http\Controllers\SolicitudConcretoController;
+use App\Http\Controllers\Transporte\WbTransporteRegistroController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\Wb_Liberaciones_Reponsable;
 use App\Http\Controllers\Wb_solicitud_liberaciones_act_controller;
@@ -126,6 +127,10 @@ Route::middleware('desencript')->group(function () {
             });
 
             Route::prefix('horometros-ubicaciones')->controller(WbHorometrosUbicacionesControlles::class)->group(function () {
+                Route::post('/insertar-paquete', 'postArray');
+            });
+
+            Route::prefix('transportes')->controller(WbTransporteRegistroController::class)->group(function () {
                 Route::post('/insertar-paquete', 'postArray');
             });
 
