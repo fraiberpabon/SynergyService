@@ -54,7 +54,8 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                         'material_id' => 'nullable',
                         'formula_id' => 'nullable',
                         'equipo_id' => 'required|numeric',
-                        'cantidad' => 'required',
+                        'conductor_dni' => 'nullable|numeric',
+                        'cantidad' => 'nullable',
                         'usuario_id' => 'required|string',
                         'ubicacion' => 'nullable|string',
                         'fecha' => 'required|string',
@@ -93,6 +94,8 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                     $model->fk_id_cost_center = isset($info['cost_center']) ? $info['cost_center'] : null;
                     $model->fk_id_material = isset($info['material_id']) ? $info['material_id'] : null;
                     $model->fk_id_formula = isset($info['formula_id']) ? $info['formula_id'] : null;
+                    $model->fk_id_equipo = isset($info['equipo_id']) ? $info['equipo_id'] : null;
+                    $model->chofer = isset($info['conductor_dni']) ? $info['conductor_dni'] : null;
                     $model->observacion = isset($info['observacion']) ? $info['observacion'] : null;
                     $model->cantidad = isset($info['cantidad']) ? $info['cantidad'] : null;
                     $model->fecha_registro = isset($info['fecha']) ? $info['fecha'] : null;
