@@ -125,6 +125,8 @@ return [
 
     'cipher' => 'AES-256-CBC',
 
+    'encrypt_key' => env('ENCRYPT_KEY'),
+
     /*
     |--------------------------------------------------------------------------
     | Maintenance Mode Driver

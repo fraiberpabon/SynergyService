@@ -1,9 +1,7 @@
 <?php
 
+use App\Http\Controllers\Transporte\TransporteTicketController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\QrCodeController;
-use App\Http\Controllers\ExportController;
-use App\Http\Controllers\WbInformeCampoController;
 
 
 
@@ -21,14 +19,8 @@ use App\Http\Controllers\WbInformeCampoController;
 Route::get('/', function () {
     return view('welcome');
 });
-Route::get('/generate-qrcode/{ids}', [QrCodeController::class, 'index']);
-Route::get('/generate-qrcode/{ids}/{proy}', [QrCodeController::class, 'index']);
-Route::get('/generate-qrcode-lab/{ids}', [QrCodeController::class, 'laboratorio_solicitud_muestras']);
 
-Route::get('/QR/{alt}/{anc}', function ($alt, $anc) {
-    return view('qrcode_ejemplo', ['alto' => $alt, 'ancho' => $anc]);
-});
+/* Route::get("/transport/{ticket}", function () {
+}); */
 
-
-//Route::get('/', [ExportController::class, 'index']);
-Route::get('/informe_hallazgo_excel', [WbInformeCampoController::class, 'get'])->name('export');
+Route::get('/transport/{ticket}', [TransporteTicketController::class, 'index'])->name("export");
