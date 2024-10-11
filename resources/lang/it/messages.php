@@ -383,5 +383,42 @@ return [
     'solicitud_no_existe' => 'La solicitud no existe',
     'no_tiene_permiso' => 'No tiene permiso para efectuar la solicitud',
     'viaje_anulado_correcto' => 'El viaje fue anulado correctamente',
-    'error_anular_viaje' => 'Error al anular el viaje'
+    'error_anular_viaje' => 'Error al anular el viaje',
+
+    //ticket de transporte
+    'title_ticket_transport' => 'Voucher di trasporto Synergy',
+    'numero_voucher_card' => 'Numero del voucher:',
+    'material_card' => 'Materiale:',
+    'formula_card' => 'Formula:',
+    'solicitud_card' => 'Richiesta:',
+    'equipo_card' => 'Attrezzatura:',
+    'placa_card' => 'Targa:',
+    'cubicaje_m3_card' => 'Cubicatura (m³):',
+    'contratista_card' => 'Appaltatore:',
+    'chofer_card' => 'Autista:',
+    'tipo_card' => 'Tipo:',
+    'llegada' => 'Arrivo',
+    'salida' => 'Partenza',
+    'cantidad_card' => 'Quantità:',
+    'fecha_card' => 'Data:',
+
+    'origen_card' => 'Origine:',
+    'frente_card' => 'Fronte:',
+    'zona_card' => 'Zona:',
+    'abscisa_card' => 'Ascissa:',
+    'destino_card' => 'Destinazione:',
+
+    'wbe_origen_card' => 'Origine WBE:',
+    'wbe_destino_card' => 'Destinazione WBE:',
+
+    'creado_por_card' => 'Creato da:',
+    'observaciones_card' => 'Osservazioni:',
+    'solicitante_card' => 'Richiedente:',
+
+    'fecha_programacion_card' => 'Data di programmazione:',
+
+    'ups_registro_no_encontrado' => 'Ops! Registro non trovato',
+    'msg_no_ha_sincronizado_transporte' => 'Sembra che il trasporto non sia stato sincronizzato'
+
+
 ];

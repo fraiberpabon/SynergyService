@@ -396,6 +396,41 @@ return [
 
     //Sms Controller
     'error_envio_cabeceras' => 'Error al enviar las cabeceras.',
-    'usuario_prueba' => 'usuario prueba prueba mensahje'
+    'usuario_prueba' => 'usuario prueba prueba mensahje',
+
+    //ticket de transporte
+    'title_ticket_transport' => 'Synergy vale de transporte',
+    'numero_voucher_card' => 'Numero de voucher:',
+    'material_card' => 'Material:',
+    'formula_card' => 'Formula:',
+    'solicitud_card' => 'Solicitud:',
+    'equipo_card' => 'Equipo:',
+    'placa_card' => 'Placa:',
+    'cubicaje_m3_card' => 'Cubicaje (m³):',
+    'contratista_card' => 'Contratista:',
+    'chofer_card' => 'Conductor:',
+    'tipo_card' => 'Tipo:',
+    'llegada' => 'Llegada',
+    'salida' => 'Salida',
+    'cantidad_card' => 'Cantidad:',
+    'fecha_card' => 'Fecha:',
+
+    'origen_card' => 'Origen:',
+    'frente_card' => 'Frente:',
+    'zona_card' => 'Zona:',
+    'abscisa_card' => 'Abscisa:',
+    'destino_card' => 'Destino:',
+
+    'wbe_origen_card' => 'WBE origen:',
+    'wbe_destino_card' => 'WBE destino:',
+
+    'creado_por_card' => 'Creado por:',
+    'observaciones_card' => 'Observaciones:',
+    'solicitante_card' => 'Solicitante:',
+
+    'fecha_programacion_card' => 'Fecha de programacion:',
+
+    'ups_registro_no_encontrado' => '¡Ups! registro no encontrado',
+    'msg_no_ha_sincronizado_transporte' => 'Al paracer el transporte no ha sido sincronizado'
 
 ];

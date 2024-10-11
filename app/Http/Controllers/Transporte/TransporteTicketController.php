@@ -39,7 +39,7 @@ class TransporteTicketController extends BaseController
             $transporte = WbTransporteRegistro::where('ticket', $ticket)->orderBy('tipo', 'DESC')->get();
 
             if ($transporte->isEmpty()) {
-                return view('transporteTicket2');
+                return view('transporteTicket3');
             }
 
             $item = null;
@@ -113,7 +113,7 @@ class TransporteTicketController extends BaseController
                 $viaje->push($mapping);
             }
 
-            return view('transporteTicket2', ["transport" => $viaje]); //, ['equipos' => $equipos]);
+            return view('transporteTicket3', ["transport" => $viaje]); //, ['equipos' => $equipos]);
         } catch (\Exception $e) {
             return $this->handleError("Error al procesar ticket", $e->getMessage());
         }

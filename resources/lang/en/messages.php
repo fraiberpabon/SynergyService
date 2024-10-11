@@ -384,6 +384,42 @@ return [
     'solicitud_no_existe' => 'The request does not exist',
     'no_tiene_permiso' => 'You do not have permission to make the request',
     'viaje_anulado_correcto' => 'The trip was canceled successfully',
-    'error_anular_viaje' => 'Error canceling the trip'
+    'error_anular_viaje' => 'Error canceling the trip',
+
+
+    //ticket de transporte
+    'title_ticket_transport' => 'Synergy transport voucher',
+    'numero_voucher_card' => 'Voucher number:',
+    'material_card' => 'Material:',
+    'formula_card' => 'Formula:',
+    'solicitud_card' => 'Request:',
+    'equipo_card' => 'Equipment:',
+    'placa_card' => 'Plate:',
+    'cubicaje_m3_card' => 'Cubic capacity (m³):',
+    'contratista_card' => 'Contractor:',
+    'chofer_card' => 'Driver:',
+    'tipo_card' => 'Type:',
+    'llegada' => 'Arrival',
+    'salida' => 'Departure',
+    'cantidad_card' => 'Quantity:',
+    'fecha_card' => 'Date:',
+
+    'origen_card' => 'Origin:',
+    'frente_card' => 'Front:',
+    'zona_card' => 'Zone:',
+    'abscisa_card' => 'Abscissa:',
+    'destino_card' => 'Destination:',
+
+    'wbe_origen_card' => 'WBE origin:',
+    'wbe_destino_card' => 'WBE destination:',
+
+    'creado_por_card' => 'Created by:',
+    'observaciones_card' => 'Observations:',
+    'solicitante_card' => 'Requester:',
+
+    'fecha_programacion_card' => 'Scheduling date:',
+
+    'ups_registro_no_encontrado' => 'Oops! Record not found',
+    'msg_no_ha_sincronizado_transporte' => 'It seems the transport has not been synchronized'
 
 ];
