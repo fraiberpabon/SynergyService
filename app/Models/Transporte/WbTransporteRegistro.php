@@ -28,7 +28,7 @@ class WbTransporteRegistro extends Model implements Auditable
     public $incrementing = true;
     public $timestamps = true;
 
-    protected $dateFormat = 'd-m-Y H:i:s.v'; //activar solo en pruebas
+    protected $dateFormat = 'd-m-Y H:i:s.v'; //activar solo en servidor 3
 
     public $module = 'Transporte registro';
 

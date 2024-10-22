@@ -218,7 +218,7 @@ Route::prefix('')->group(function () {
     // ---------------------------------------------------------------------------------------------------------------------------
 
     // rutas para pruebas en desarrollo
-    Route::prefix('equipos-dev')->group(function () {
+    /* Route::prefix('equipos-dev')->group(function () {
         Route::get('/', [WbEquipoControlles::class, 'equiposActivos']);
     });
 
@@ -232,7 +232,7 @@ Route::prefix('')->group(function () {
 
     Route::prefix('formula-materiales-dev')->group(function () {
         Route::get('/', [WbFormulasController::class, 'get']);
-    });
+    }); */
 
     // ----------------------------------------------------------------------------------------------------------------------------
 });
