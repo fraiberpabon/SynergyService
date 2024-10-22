@@ -7,7 +7,10 @@
 namespace App\Http\Controllers\Transporte;
 
 use App\Http\interfaces\Vervos;
+use App\Models\Equipos\WbEquipo;
 use App\Models\Transporte\WbTransporteRegistro;
+use App\Models\WbSolicitudMateriales;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\BaseController;
@@ -26,7 +29,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                 'datos' => 'required',
             ]);
 
-            if ($validate->fails()){
+            if ($validate->fails()) {
                 return $this->handleAlert($validate->errors());
             }
 
@@ -105,15 +108,23 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                     $model->user_created = isset($info['usuario_id']) ? $info['usuario_id'] : null;
                     $model->hash = isset($info['hash']) ? $info['hash'] : null;
 
-                    if (!$model->save()) continue;
+                    if (!$model->save()) {
+                        continue;
+                    }
 
                     $guardados++;
                     $itemRespuesta = collect();
                     $itemRespuesta->put('identificador', $info['identificador']);
                     $itemRespuesta->put('estado', '1');
                     $respuesta->push($itemRespuesta);
+
+                    $this->actualizarSolicitud($model);
                 }
-                if ($guardados == 0) return $this->handleAlert("empty");
+
+                if ($guardados == 0) {
+                    return $this->handleAlert("empty");
+                }
+
                 return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));
             } else {
                 return $this->handleAlert("empty");
@@ -121,6 +132,45 @@ class WbTransporteRegistroController extends BaseController implements Vervos
         } catch (\Throwable $th) {
             return $this->handleAlert($th->getMessage());
         }
+    }
+
+
+    private function actualizarSolicitud(WbTransporteRegistro $item)
+    {
+        $solicitud = WbSolicitudMateriales::where('id_solicitud_Materiales', $item->fk_id_solicitud)
+            ->where('fk_id_project_Company', $item->fk_id_project_Company)
+            ->first();
+
+        if (!$solicitud) {
+            return;
+        }
+
+        // Obtener directamente los IDs de los equipos con `pluck`
+        $equiposIds = WbTransporteRegistro::where('fk_id_solicitud', $solicitud->id_solicitud_Materiales)
+            ->where('tipo', 2)
+            ->where('fk_id_project_Company', $solicitud->fk_id_project_Company)
+            ->pluck('fk_id_equipo');
+
+        if ($equiposIds->isEmpty()) {
+            return;
+        }
+
+        // Calcular la suma del cubicaje solo si hay equipos
+        $cubicaje = WbEquipo::whereIn('id', $equiposIds)->sum('cubicaje');
+
+        // Convertir el valor de la cantidad fuera del condicional
+        $convertCantidad = floatval($solicitud->Cantidad);
+
+        if ($convertCantidad > $cubicaje) {
+            return;
+        }
+
+        // Asignar valores y guardar la solicitud solo si pasa la validación
+        $solicitud->fecha_cierre = Carbon::now()->format('d/m/Y h:i:s A');
+        $solicitud->fk_id_estados = 15;
+        $solicitud->fk_id_usuarios_update = $item->user_created;
+
+        $solicitud->save();
     }
 
     /**

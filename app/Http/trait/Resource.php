@@ -1508,7 +1508,7 @@ trait Resource
     public function WbHorometrosUbicacionestoArray($lista): Collection|\Illuminate\Support\Collection
     {
         return $lista->map(function ($data) {
-            return $this->toModel($data);
+            return $this->WbHorometrosUbicacionestoModel($data);
         });
     }
 

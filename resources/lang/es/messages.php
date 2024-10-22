@@ -400,7 +400,7 @@ return [
 
     //ticket de transporte
     'title_ticket_transport' => 'Synergy vale de transporte',
-    'numero_voucher_card' => 'Numero de voucher:',
+    'numero_boucher_card' => 'Numero de boucher:',
     'material_card' => 'Material:',
     'formula_card' => 'Formula:',
     'solicitud_card' => 'Solicitud:',

@@ -7,17 +7,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\interfaces\Vervos;
-use App\Http\Resources\EquipementsCollection;
-use App\Http\Resources\Wb_horometros_ubicaciones_resource;
-use App\Models\Compania;
 use App\Models\Equipos\WbEquipoHorometrosUbicaciones;
-use App\Models\SyncRelacionVehiculoPesos;
-use App\Models\ts_Equipement;
-use App\Models\Equipos\WbEquipo;
-use App\Models\Equipos\wbTipoEquipo;
-use App\Models\WbCompanieProyecto;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 

@@ -143,10 +143,15 @@ Route::middleware('desencript')->group(function () {
         /*
          * End endpoint para WebuApp
          */
+
+
         /*
          * Start endpoint para la pagina web
          */
 
+        /*
+         * End endpoint para la pagina web
+         */
     });
 
     /*
@@ -228,6 +233,7 @@ Route::prefix('')->group(function () {
     Route::prefix('formula-materiales-dev')->group(function () {
         Route::get('/', [WbFormulasController::class, 'get']);
     });
+
     // ----------------------------------------------------------------------------------------------------------------------------
 });
 /*

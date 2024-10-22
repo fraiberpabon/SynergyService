@@ -389,7 +389,7 @@ return [
 
     //ticket de transporte
     'title_ticket_transport' => 'Synergy transport voucher',
-    'numero_voucher_card' => 'Voucher number:',
+    'numero_boucher_card' => 'Voucher number:',
     'material_card' => 'Material:',
     'formula_card' => 'Formula:',
     'solicitud_card' => 'Request:',

@@ -2,8 +2,18 @@
 
 namespace App\Models\Transporte;
 
+use App\Models\CostCode;
+use App\Models\Equipos\WbEquipo;
+use App\Models\Materiales\WbMaterialLista;
+use App\Models\Usuarios\usuarios_M;
+use App\Models\UsuPlanta;
+use App\Models\WbFormulaLista;
+use App\Models\WbHitos;
+use App\Models\WbSolicitudMateriales;
+use App\Models\WbTramos;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use OwenIt\Auditing\Contracts\Auditable;
 use Illuminate\Support\Arr;
 
@@ -33,4 +43,74 @@ class WbTransporteRegistro extends Model implements Auditable
             $this->module
         ];
     }
+
+    /**** Relaciones ****/
+    public function solicitud()
+    {
+        return $this->hasOne(WbSolicitudMateriales::class, 'id_solicitud_Materiales', 'fk_id_solicitud');
+    }
+
+    public function origenPlanta()
+    {
+        return $this->belongsTo(UsuPlanta::class, 'fk_id_planta_origen', 'id_plata');
+    }
+
+    public function origenTramo()
+    {
+        return $this->belongsTo(WbTramos::class, 'fk_id_tramo_origen', 'Id_Tramo');
+    }
+
+    public function origenHito()
+    {
+        return $this->belongsTo(WbHitos::class, 'fk_id_hito_origen', 'Id_Hitos');
+    }
+
+    public function destinoPlanta()
+    {
+        return $this->belongsTo(UsuPlanta::class, 'fk_id_planta_destino', 'id_plata');
+    }
+
+    public function destinoTramo()
+    {
+        return $this->belongsTo(WbTramos::class, 'fk_id_tramo_destino', 'Id_Tramo');
+    }
+
+    public function destinoHito()
+    {
+        return $this->belongsTo(WbHitos::class, 'fk_id_hito_destino', 'Id_Hitos');
+    }
+
+    public function cdc()
+    {
+        return $this->belongsTo(CostCode::class, 'fk_id_cost_center', 'CostCode');
+    }
+
+    public function material()
+    {
+        return $this->belongsTo(WbMaterialLista::class, 'fk_id_material', 'id_material_lista');
+    }
+
+    public function formula()
+    {
+        return $this->belongsTo(WbFormulaLista::class, 'fk_id_formula', 'id_formula_lista');
+    }
+
+    public function user_created()
+    {
+        return $this->belongsTo(usuarios_M::class, 'user_created');
+    }
+
+    public function user_updated()
+    {
+        return $this->belongsTo(usuarios_M::class, 'user_updated');
+    }
+
+    public function equipo()
+    {
+        return $this->belongsTo(WbEquipo::class, 'fk_id_equipo');
+    }
+
+    /* public function chofer() {
+        return $this->belongsTo(WbSolicitudMateriales::class, 'id_solicitud_Materiales', 'chofer');
+    } */
 }

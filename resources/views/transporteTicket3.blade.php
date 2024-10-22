@@ -36,7 +36,7 @@
                         @if (!empty($transport[$posicion]['voucher']))
                             <div class="row">
                                 <div class="col">
-                                    <strong>{{ __('messages.numero_voucher_card') }}</strong>
+                                    <strong>{{ __('messages.numero_boucher_card') }}</strong>
                                 </div>
                                 <div class="col">
                                     <p>{{ $transport[$posicion]['voucher'] }}</p>
