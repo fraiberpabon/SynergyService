@@ -145,6 +145,10 @@ class WbTransporteRegistroController extends BaseController implements Vervos
             return;
         }
 
+        if ($solicitud->fk_id_estados && $solicitud->fk_id_estados == 15) {
+            return;
+        }
+
         // Obtener directamente los IDs de los equipos con `pluck`
         $equiposIds = WbTransporteRegistro::where('fk_id_solicitud', $solicitud->id_solicitud_Materiales)
             ->where('tipo', 2)

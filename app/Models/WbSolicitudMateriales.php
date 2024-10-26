@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Models\Equipos\WbEquipo;
 use App\Models\Materiales\WbMaterialLista;
+use App\Models\Transporte\WbTransporteRegistro;
 use App\Models\Usuarios\usuarios_M;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -108,5 +110,9 @@ class WbSolicitudMateriales extends Model implements Auditable
     public function formula_cdc()
     {
         return $this->hasOne(WbFormulaCentroProduccion::class, 'fk_id_formula_lista', 'fk_id_formula');
+    }
+
+    public function transporte() {
+        return $this->hasMany(WbTransporteRegistro::class,  'fk_id_solicitud', 'id_solicitud_Materiales',);
     }
 }

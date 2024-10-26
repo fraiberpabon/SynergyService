@@ -1465,6 +1465,7 @@ trait Resource
             'fechaProgramacion' => $modelo->fechaProgramacion,
             'fechaCreacion' => $modelo->dateCreation,
             'proyecto' => $modelo->fk_id_project_Company,
+            'cant_despachada' => $modelo->cant_despachada,
         ];
     }
 

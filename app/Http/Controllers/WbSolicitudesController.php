@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\interfaces\Vervos;
+use App\Models\Equipos\WbEquipo;
+use App\Models\Transporte\WbTransporteRegistro;
 use App\Models\WbFormulaCentroProduccion;
 use App\Models\WbSolicitudMateriales;
 use Carbon\Carbon;
@@ -75,12 +77,16 @@ class WbSolicitudesController extends BaseController implements Vervos
             },
             'plantas_destino' => function ($sub) {
                 $sub->select('id_plata', 'NombrePlanta', 'descripcion');
+            },
+            'transporte' => function ($sub) {
+                $sub->with('equipo');
             }
         ])
             ->whereDate('fechaProgramacion', '>=', Carbon::now()->subDays(3)->toDateString())
             ->where('fk_id_estados', 12)
             ->select(
                 'id_solicitud_Materiales as identificador',
+                'id_solicitud_Materiales',
                 DB::raw("'M' as tipo"), // Ponemos el tipo de la solicitud, en este caso solicitud de material
                 'fk_id_usuarios',
                 'fk_id_usuarios_update',
@@ -118,6 +124,18 @@ class WbSolicitudesController extends BaseController implements Vervos
                 ->first();
 
             $item->fk_formula_cdp = $info->codigoFormulaCdp ?? null;
+
+            if ($item->transporte) {
+
+                $cubicaje = 0;
+
+                $cubicaje = $item->transporte->filter(fn($tr) => $tr->equipo && $tr->equipo->cubicaje != null)
+                    ->sum(fn($tr) => $tr->equipo->cubicaje ?? 0);
+
+                $item->cant_despachada = $cubicaje ?? 0;
+            } else {
+                $item->cant_despachada = 0;
+            }
 
             return $this->solicitudesAppToModel($item);
         });
