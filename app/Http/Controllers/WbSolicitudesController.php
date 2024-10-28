@@ -79,7 +79,7 @@ class WbSolicitudesController extends BaseController implements Vervos
                 $sub->select('id_plata', 'NombrePlanta', 'descripcion');
             },
             'transporte' => function ($sub) {
-                $sub->with('equipo');
+                $sub->with('equipo')->where('tipo', 2);
             }
         ])
             ->whereDate('fechaProgramacion', '>=', Carbon::now()->subDays(3)->toDateString())
