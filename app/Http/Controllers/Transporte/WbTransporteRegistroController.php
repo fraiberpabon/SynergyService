@@ -139,33 +139,39 @@ class WbTransporteRegistroController extends BaseController implements Vervos
     {
         $solicitud = WbSolicitudMateriales::where('id_solicitud_Materiales', $item->fk_id_solicitud)
             ->where('fk_id_project_Company', $item->fk_id_project_Company)
+            ->with([
+                'transporte' => function ($sub) {
+                    $sub->with('equipo')->where('tipo', 2);
+                }
+            ])
             ->first();
 
+        // Consultamos si encontramos una solicitud
         if (!$solicitud) {
             return;
         }
 
+        // Consultamos que la solicitud no ha sido despachada en su totalidad
         if ($solicitud->fk_id_estados && $solicitud->fk_id_estados == 15) {
             return;
         }
 
-        // Obtener directamente los IDs de los equipos con `pluck`
-        $equiposIds = WbTransporteRegistro::where('fk_id_solicitud', $solicitud->id_solicitud_Materiales)
-            ->where('tipo', 2)
-            ->where('fk_id_project_Company', $solicitud->fk_id_project_Company)
-            ->pluck('fk_id_equipo');
-
-        if ($equiposIds->isEmpty()) {
+        // Consultamos si la solicitud tiene por lo menos algun transporte registrado
+        if (!$solicitud->transporte) {
             return;
         }
 
-        // Calcular la suma del cubicaje solo si hay equipos
-        $cubicaje = WbEquipo::whereIn('id', $equiposIds)->sum('cubicaje');
+        $cubicaje = 0;
+
+        $cubicaje = $solicitud->transporte->filter(fn($tr) => $tr->equipo && $tr->equipo->cubicaje != null)
+            ->sum(fn($tr) => $tr->equipo->cubicaje ?? 0);
+
+        $redondear = ceil($cubicaje ?? 0);
 
         // Convertir el valor de la cantidad fuera del condicional
         $convertCantidad = floatval($solicitud->Cantidad);
 
-        if ($convertCantidad > $cubicaje) {
+        if ($convertCantidad > $redondear) {
             return;
         }
 
