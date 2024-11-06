@@ -128,13 +128,18 @@ class WbSolicitudesController extends BaseController implements Vervos
             if ($item->transporte) {
 
                 $cubicaje = 0;
+                $viajes = 0;
+
+                $viajes = $item->transporte->count();
 
                 $cubicaje = $item->transporte->filter(fn($tr) => $tr->equipo && $tr->equipo->cubicaje != null)
                     ->sum(fn($tr) => $tr->equipo->cubicaje ?? 0);
 
                 $item->cant_despachada = $cubicaje ?? 0;
+                $item->cant_viajes = $viajes ?? 0;
             } else {
                 $item->cant_despachada = 0;
+                $item->cant_viajes = 0;
             }
 
             return $this->solicitudesAppToModel($item);
