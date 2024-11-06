@@ -134,6 +134,10 @@ Route::middleware('desencript')->group(function () {
                 Route::post('/insertar-paquete', 'postArray');
             });
 
+            Route::prefix('bascula-movil')->controller(WbTransporteRegistroController::class)->group(function () {
+                Route::post('/transporte-insertar-paquete', 'postArray');
+            });
+
             // configuraciones
             Route::prefix('configuracion')->group(function () {
                 Route::get('/liberacion_capa/fecha', [WbConfiguracionController::class, 'getfecha_liberacion_capa']);
