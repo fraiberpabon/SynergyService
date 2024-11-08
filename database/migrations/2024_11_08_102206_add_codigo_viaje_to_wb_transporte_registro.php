@@ -19,12 +19,8 @@ return new class extends Migration {
      */
     public function up()
     {
-        Schema::create('Wb_conductor_transporte', function (Blueprint $table) {
-            $table->string('cedula')->primary();
-            $table->string('nombre');
-            $table->integer('estado')->default(1);
-            $table->integer('fk_id_project_Company')->default(1);
-            $table->timestamps();
+        Schema::table('Wb_transporte_registro', function (Blueprint $table) {
+            $table->string('codigo_viaje')->nullable()->comment('codigo unico del viaje para enlazar cuando no tienen ticket registro el transporte');
         });
     }
 
@@ -35,6 +31,8 @@ return new class extends Migration {
      */
     public function down()
     {
-        Schema::dropIfExists('Wb_conductor_transporte');
+        Schema::table('Wb_transporte_registro', function (Blueprint $table) {
+            $table->dropColumn('codigo_viaje');
+        });
     }
 };

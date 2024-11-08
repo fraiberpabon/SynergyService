@@ -253,12 +253,12 @@
                                                         <p>{{ $key['costCenter'] }}</p>
                                                     </div>
                                                 @else
-                                                    {{-- <div class="col-12 col-sm-6">
-                                                    <strong>WBE origen:</strong>
-                                                </div>
-                                                <div class="col-12 col-sm-6">
-                                                    <p>{{ $key['costCenter'] }}</p>
-                                                </div> --}}
+                                                    <div class="col-12 col-sm-6">
+                                                        <strong>{{ __('messages.wbe_origen_card') }}</strong>
+                                                    </div>
+                                                    <div class="col-12 col-sm-6">
+                                                        <p>{{ $key['costCenter'] }}</p>
+                                                    </div>
                                                 @endif
                                             </div>
                                         @endif

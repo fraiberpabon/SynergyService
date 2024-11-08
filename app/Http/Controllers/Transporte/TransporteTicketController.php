@@ -36,26 +36,49 @@ class TransporteTicketController extends BaseController
 
             //$proy = isset($info[18]) ? $info[18] : (isset($info[17]) ? $info[17] : "" );
 
-            $transporte = WbTransporteRegistro::where('ticket', $ticket)->orderBy('tipo', 'DESC')->get();
+            //$transporte = WbTransporteRegistro::where('ticket', $ticket)->orderBy('tipo', 'DESC')->get();
+
+            $transporte = WbTransporteRegistro::where('ticket', $ticket)
+                ->with([
+                    'solicitud' => function ($sub) {
+                        $sub->with('usuario');
+                    },
+                    'origenPlanta',
+                    'origenTramo',
+                    'origenTramoId',
+                    'origenHito',
+                    'origenHitoId',
+                    'destinoPlanta',
+                    'destinoTramo',
+                    'destinoTramoId',
+                    'destinoHito',
+                    'destinoHitoId',
+                    'cdc',
+                    'material',
+                    'formula',
+                    'usuario_created',
+                    'equipo'
+                ])
+                ->orderBy('tipo', 'DESC')->get();
 
             if ($transporte->isEmpty()) {
                 return view('transporteTicket3');
             }
 
-            $item = null;
-            $solicitante = null;
             $viaje = collect();
 
-            $item = WbSolicitudMateriales::where('id_solicitud_Materiales', $transporte[0]->fk_id_solicitud)
-                ->where('fk_id_project_Company', $transporte[0]->fk_id_project_Company)->first();
+            /* $item = WbSolicitudMateriales::where('id_solicitud_Materiales', $transporte[0]->fk_id_solicitud)
+                ->where('fk_id_project_Company', $transporte[0]->fk_id_project_Company)->first(); */
 
-            if ($item != null && $item->fk_id_usuarios != null) {
-                $solicitante = usuarios_M::where('id_usuarios', $item->fk_id_usuarios)->where('fk_id_project_Company', $item->fk_id_project_Company)->first();
+            $item = $transporte->first();
+
+            if ($item->solicitud) {
 
                 // Array con los datos para la vista
                 $mapping = [
-                    'fechaProgramacion' => $item ? $item->fechaProgramacion : null,
-                    'solicitante' => $solicitante ? $solicitante->Nombre . ' ' . $solicitante->Apellido : null,
+                    'fechaProgramacion' => $item->solicitud ? $item->solicitud->fechaProgramacion : null,
+                    'solicitante' => $item->solicitud && $item->solicitud->usuario ?
+                        $item->solicitud->usuario->Nombre . ' ' . $item->solicitud->usuario->Apellido : null,
                 ];
 
                 $viaje->push($mapping);
@@ -65,22 +88,22 @@ class TransporteTicketController extends BaseController
                 $voucher = $key->ticket;
                 $solicitud = $key->fk_id_solicitud;
                 $tipo = $key->tipo;
-                $plantaOrigen = UsuPlanta::where('id_plata', $key->fk_id_planta_origen)->where('fk_id_project_Company', $key->fk_id_project_Company)->first();
-                $tramoOrigen = WbTramos::where('Id_Tramo', $key->fk_id_tramo_origen)->where('fk_id_project_Company', $key->fk_id_project_Company)->first();
-                $hitoOrigen = WbHitos::where('Id_Hitos', $key->fk_id_hito_origen)->where('fk_id_project_Company', $key->fk_id_project_Company)->first();
+                $plantaOrigen = $key->origenPlanta ? $key->origenPlanta : null;
+                $tramoOrigen = $key->origenTramoId ? $key->origenTramoId : ($key->origenTramo ? $key->origenTramo : null);
+                $hitoOrigen = $key->origenHitoId ? $key->origenHitoId : ($key->origenHito ? $key->origenHito : null);
                 $abscisaOrigen = $key->abscisa_origen;
-                $plantaDestino = UsuPlanta::where('id_plata', $key->fk_id_planta_destino)->where('fk_id_project_Company', $key->fk_id_project_Company)->first();
-                $tramoDestino = WbTramos::where('Id_Tramo', $key->fk_id_tramo_destino)->where('fk_id_project_Company', $key->fk_id_project_Company)->first();
-                $hitoDestino = WbHitos::where('Id_Hitos', $key->fk_id_hito_destino)->where('fk_id_project_Company', $key->fk_id_project_Company)->first();
+                $plantaDestino = $key->destinoPlanta ? $key->destinoPlanta : null;
+                $tramoDestino = $key->destinoTramoId ? $key->destinoTramoId : ($key->destinoTramo ? $key->destinoTramo : null);
+                $hitoDestino = $key->destinoHitoId ? $key->destinoHitoId : ($key->destinoHito ? $key->destinoHito : null);
                 $abscisaDestino = $key->abscisa_destino;
                 $costCenter = $key->fk_id_cost_center;
-                $material = WbMaterialLista::where('id_material_lista', $key->fk_id_material)->where('fk_id_project_Company', $key->fk_id_project_Company)->first();
-                $formula = WbFormulaLista::where('id_formula_lista', $key->fk_id_formula)->where('fk_id_project_Company', $key->fk_id_project_Company)->first();
+                $material = $key->material ? $key->material : null;
+                $formula = $key->formula ? $key->formula : null;
                 $cantidad = $key->cantidad;
                 $observacion = $key->observacion;
                 $fechaRegistro = $key->fecha_registro;
-                $creadoPor = usuarios_M::where('id_usuarios', $key->user_created)->where('fk_id_project_Company', $key->fk_id_project_Company)->first();
-                $equipo = WbEquipo::with("compania")->where('id', $key->fk_id_equipo)->where('fk_id_project_Company', $key->fk_id_project_Company)->first();
+                $creadoPor = $key->usuario_created ? $key->usuario_created : null;
+                $equipo = $key->equipo ? $key->equipo : null;
                 $chofer = $key->chofer;
 
                 // Array con los datos para la vista

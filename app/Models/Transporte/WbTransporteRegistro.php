@@ -65,6 +65,16 @@ class WbTransporteRegistro extends Model implements Auditable
         return $this->belongsTo(WbHitos::class, 'fk_id_hito_origen', 'Id_Hitos');
     }
 
+    public function origenTramoId()
+    {
+        return $this->belongsTo(WbTramos::class, 'id_tramo_origen', 'id');
+    }
+
+    public function origenHitoId()
+    {
+        return $this->belongsTo(WbHitos::class, 'id_hito_origen', 'Id');
+    }
+
     public function destinoPlanta()
     {
         return $this->belongsTo(UsuPlanta::class, 'fk_id_planta_destino', 'id_plata');
@@ -78,6 +88,16 @@ class WbTransporteRegistro extends Model implements Auditable
     public function destinoHito()
     {
         return $this->belongsTo(WbHitos::class, 'fk_id_hito_destino', 'Id_Hitos');
+    }
+
+    public function destinoTramoId()
+    {
+        return $this->belongsTo(WbTramos::class, 'id_tramo_destino', 'id');
+    }
+
+    public function destinoHitoId()
+    {
+        return $this->belongsTo(WbHitos::class, 'id_hito_destino', 'Id');
     }
 
     public function cdc()
@@ -95,12 +115,12 @@ class WbTransporteRegistro extends Model implements Auditable
         return $this->belongsTo(WbFormulaLista::class, 'fk_id_formula', 'id_formula_lista');
     }
 
-    public function user_created()
+    public function usuario_created()
     {
         return $this->belongsTo(usuarios_M::class, 'user_created');
     }
 
-    public function user_updated()
+    public function usuario_updated()
     {
         return $this->belongsTo(usuarios_M::class, 'user_updated');
     }
