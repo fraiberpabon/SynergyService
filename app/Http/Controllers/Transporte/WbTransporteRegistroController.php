@@ -47,11 +47,15 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                         'solicitud_id' => 'required|numeric',
                         'origen_planta_id' => 'nullable',
                         'origen_tramo_id' => 'nullable',
+                        'origen_tramo_fk_id' => 'nullable',
                         'origen_hito_id' => 'nullable',
+                        'origen_hito_fk_id' => 'nullable',
                         'origen_abscisa' => 'nullable',
                         'destino_planta_id' => 'nullable',
                         'destino_tramo_id' => 'nullable',
+                        'destino_tramo_fk_id' => 'nullable',
                         'destino_hito_id' => 'nullable',
+                        'destino_hito_fk_id' => 'nullable',
                         'destino_abscisa' => 'nullable',
                         'cost_center' => 'required',
                         'material_id' => 'nullable',
@@ -89,7 +93,13 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                     $model->fk_id_solicitud = isset($info['solicitud_id']) ? $info['solicitud_id'] : null;
                     $model->fk_id_planta_origen = isset($info['origen_planta_id']) ? $info['origen_planta_id'] : null;
 
-                    if (isset($info['origen_tramo_id'])) {
+                    $model->fk_id_tramo_origen = isset($info['origen_tramo_id']) ? $info['origen_tramo_id'] : null;
+                    $model->id_tramo_origen = isset($info['origen_tramo_fk_id']) ? $info['origen_tramo_fk_id'] : null;
+
+                    $model->fk_id_hito_origen = isset($info['origen_hito_id']) ? $info['origen_hito_id'] : null;
+                    $model->id_hito_origen = isset($info['origen_hito_fk_id']) ? $info['origen_hito_fk_id'] : null;
+
+                    /* if (isset($info['origen_tramo_id'])) {
                         if (isset($info['unique_code'])) {
                             $model->id_tramo_origen = $info['origen_tramo_id'];
                         } else {
@@ -97,9 +107,9 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                         }
                     } else {
                         $model->fk_id_tramo_origen = null;
-                    }
+                    } */
 
-                    if (isset($info['origen_hito_id'])) {
+                    /* if (isset($info['origen_hito_id'])) {
                         if (isset($info['unique_code'])) {
                             $model->id_hito_origen = $info['origen_hito_id'];
                         } else {
@@ -107,12 +117,19 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                         }
                     } else {
                         $model->fk_id_hito_origen = null;
-                    }
+                    } */
 
                     $model->abscisa_origen = isset($info['origen_abscisa']) ? $info['origen_abscisa'] : null;
+
                     $model->fk_id_planta_destino = isset($info['destino_planta_id']) ? $info['destino_planta_id'] : null;
 
-                    if (isset($info['destino_tramo_id'])) {
+                    $model->fk_id_tramo_destino = isset($info['destino_tramo_id']) ? $info['destino_tramo_id'] : null;
+                    $model->id_tramo_destino = isset($info['destino_tramo_fk_id']) ? $info['destino_tramo_fk_id'] : null;
+
+                    $model->fk_id_hito_destino = isset($info['destino_hito_id']) ? $info['destino_hito_id'] : null;
+                    $model->id_hito_destino = isset($info['destino_hito_fk_id']) ? $info['destino_hito_fk_id'] : null;
+
+                    /* if (isset($info['destino_tramo_id'])) {
                         if (isset($info['unique_code'])) {
                             $model->id_tramo_destino = $info['destino_tramo_id'];
                         } else {
@@ -120,9 +137,9 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                         }
                     } else {
                         $model->fk_id_tramo_destino = null;
-                    }
+                    } */
 
-                    if (isset($info['destino_hito_id'])) {
+                    /* if (isset($info['destino_hito_id'])) {
                         if (isset($info['unique_code'])) {
                             $model->id_hito_destino = $info['destino_hito_id'];
                         } else {
@@ -130,9 +147,10 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                         }
                     } else {
                         $model->fk_id_hito_destino = null;
-                    }
+                    } */
 
                     $model->abscisa_destino = isset($info['destino_abscisa']) ? $info['destino_abscisa'] : null;
+
                     $model->fk_id_cost_center = isset($info['cost_center']) ? $info['cost_center'] : null;
                     $model->fk_id_material = isset($info['material_id']) ? $info['material_id'] : null;
                     $model->fk_id_formula = isset($info['formula_id']) ? $info['formula_id'] : null;
