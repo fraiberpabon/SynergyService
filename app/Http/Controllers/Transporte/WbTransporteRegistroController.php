@@ -99,26 +99,6 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                     $model->fk_id_hito_origen = isset($info['origen_hito_id']) ? $info['origen_hito_id'] : null;
                     $model->id_hito_origen = isset($info['origen_hito_fk_id']) ? $info['origen_hito_fk_id'] : null;
 
-                    /* if (isset($info['origen_tramo_id'])) {
-                        if (isset($info['unique_code'])) {
-                            $model->id_tramo_origen = $info['origen_tramo_id'];
-                        } else {
-                            $model->fk_id_tramo_origen = $info['origen_tramo_id'];
-                        }
-                    } else {
-                        $model->fk_id_tramo_origen = null;
-                    } */
-
-                    /* if (isset($info['origen_hito_id'])) {
-                        if (isset($info['unique_code'])) {
-                            $model->id_hito_origen = $info['origen_hito_id'];
-                        } else {
-                            $model->fk_id_hito_origen = $info['origen_hito_id'];
-                        }
-                    } else {
-                        $model->fk_id_hito_origen = null;
-                    } */
-
                     $model->abscisa_origen = isset($info['origen_abscisa']) ? $info['origen_abscisa'] : null;
 
                     $model->fk_id_planta_destino = isset($info['destino_planta_id']) ? $info['destino_planta_id'] : null;
@@ -128,26 +108,6 @@ class WbTransporteRegistroController extends BaseController implements Vervos
 
                     $model->fk_id_hito_destino = isset($info['destino_hito_id']) ? $info['destino_hito_id'] : null;
                     $model->id_hito_destino = isset($info['destino_hito_fk_id']) ? $info['destino_hito_fk_id'] : null;
-
-                    /* if (isset($info['destino_tramo_id'])) {
-                        if (isset($info['unique_code'])) {
-                            $model->id_tramo_destino = $info['destino_tramo_id'];
-                        } else {
-                            $model->fk_id_tramo_destino = $info['destino_tramo_id'];
-                        }
-                    } else {
-                        $model->fk_id_tramo_destino = null;
-                    } */
-
-                    /* if (isset($info['destino_hito_id'])) {
-                        if (isset($info['unique_code'])) {
-                            $model->id_hito_destino = $info['destino_hito_id'];
-                        } else {
-                            $model->fk_id_hito_destino = $info['destino_hito_id'];
-                        }
-                    } else {
-                        $model->fk_id_hito_destino = null;
-                    } */
 
                     $model->abscisa_destino = isset($info['destino_abscisa']) ? $info['destino_abscisa'] : null;
 
@@ -236,7 +196,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
         // Asignar valores y guardar la solicitud solo si pasa la validación
         $solicitud->fecha_cierre = Carbon::now()->format('d/m/Y h:i:s A');
         $solicitud->fk_id_estados = 15;
-        $solicitud->fk_id_usuarios_update = $item->user_created;
+        $solicitud->user_despacho = $item->user_created;
 
         $solicitud->save();
     }

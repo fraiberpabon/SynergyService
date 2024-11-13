@@ -34,12 +34,12 @@ return new class extends Migration {
         $datos->each(function ($dato) {
             // Actualizar tramo y hito de origen si están definidos
             if (!is_null($dato->fk_id_tramo_origen)) {
-                $tramoOrigen = DB::table('Wb_Tramos')
+                $tramoOrigen = DB::connection('sqlsrv2')->table('Wb_Tramos')
                     ->where('Id_Tramo', $dato->fk_id_tramo_origen)
                     ->where('fk_id_project_Company', $dato->fk_id_project_Company)
                     ->first();
 
-                $hitoOrigen = DB::table('Wb_Hitos')
+                $hitoOrigen = DB::connection('sqlsrv2')->table('Wb_Hitos')
                     ->where('Id_Hitos', $dato->fk_id_hito_origen)
                     ->where('fk_id_project_Company', $dato->fk_id_project_Company)
                     ->first();
@@ -50,12 +50,12 @@ return new class extends Migration {
 
             // Actualizar tramo y hito de destino si están definidos
             if (!is_null($dato->fk_id_tramo_destino)) {
-                $tramoDestino = DB::table('Wb_Tramos')
+                $tramoDestino = DB::connection('sqlsrv2')->table('Wb_Tramos')
                     ->where('Id_Tramo', $dato->fk_id_tramo_destino)
                     ->where('fk_id_project_Company', $dato->fk_id_project_Company)
                     ->first();
 
-                $hitoDestino = DB::table('Wb_Hitos')
+                $hitoDestino = DB::connection('sqlsrv2')->table('Wb_Hitos')
                     ->where('Id_Hitos', $dato->fk_id_hito_destino)
                     ->where('fk_id_project_Company', $dato->fk_id_project_Company)
                     ->first();
