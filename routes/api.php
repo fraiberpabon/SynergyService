@@ -85,9 +85,6 @@ Route::prefix('app')->middleware('isAndroid')->group(function () {
  * Start endpoint encriptados
  */
 Route::middleware('desencript')->group(function () {
-    /*
-     * Aqui deben caer las solicitudes de versiones de WebuApp nueva
-     */
     Route::prefix('app/v1/')->middleware('isAndroid')->group(function () {
         Route::prefix('users')->group(function () {
             Route::patch('/bloquear-usuario/{imei}', [UsuarioController::class, 'bloquearPorImei']);
@@ -97,11 +94,12 @@ Route::middleware('desencript')->group(function () {
         Route::prefix('control-version')->group(function () {
             Route::post('/', [WbControlVersionesController::class, 'getByVersion']);
         });
+
+        Route::prefix('transportes')->group(function() {
+            Route::post('/insertar', [WbTransporteRegistroController::class, 'post']);
+        });
     });
     Route::middleware(['token', 'habilitado', 'proyecto'])->group(function () {
-        /*
-         * Aqui deben caer las solicitudes de versiones de WebuApp nueva
-         */
         Route::prefix('app/v1/')->group(function () {
             Route::prefix('cost-code')->group(function () {
                 Route::get('/activos', [CostCodeController::class, 'getActivos']);
