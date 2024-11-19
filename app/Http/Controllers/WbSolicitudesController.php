@@ -238,11 +238,18 @@ class WbSolicitudesController extends BaseController implements Vervos
 
                 $viajes = $query->transporte->count();
 
+                /* $cubicaje = $query->transporte->filter(fn($tr) => $tr->tipo = 2 && $tr->equipo && $tr->equipo->cubicaje != null)
+                    ->sum(fn($tr) => $tr->equipo->cubicaje ?? 0);
+
+                $cubicaje = $query->transporte->filter(fn($tr) => $tr->tipo = 1 && $tr->equipo && $tr->equipo->cubicaje != null)
+                    ->sum(fn($tr) => $tr->equipo->cubicaje ?? 0); */
+
                 $cubicaje = $query->transporte->filter(fn($tr) => $tr->equipo && $tr->equipo->cubicaje != null)
                     ->sum(fn($tr) => $tr->equipo->cubicaje ?? 0);
 
                 $query->cant_despachada = $cubicaje ?? 0;
                 $query->cant_viajes = $viajes ?? 0;
+
             } else {
                 $query->cant_despachada = 0;
                 $query->cant_viajes = 0;
