@@ -414,7 +414,7 @@ return [
     'creado_por_card' => 'Creato da:',
     'observaciones_card' => 'Osservazioni:',
     'solicitante_card' => 'Richiedente:',
-
+    'observacion' => 'osservazione', 
     'fecha_programacion_card' => 'Data di programmazione:',
 
     'ups_registro_no_encontrado' => 'Ops! Registro non trovato',

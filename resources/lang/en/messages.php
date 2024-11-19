@@ -416,7 +416,7 @@ return [
     'creado_por_card' => 'Created by:',
     'observaciones_card' => 'Observations:',
     'solicitante_card' => 'Requester:',
-
+    'observacion' => 'observation', 
     'fecha_programacion_card' => 'Scheduling date:',
 
     'ups_registro_no_encontrado' => 'Oops! Record not found',
