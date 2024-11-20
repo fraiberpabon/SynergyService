@@ -108,7 +108,6 @@
                         $alignLeft = 'false'; //$loop->index % 2 == 0 ? 'true' : 'false';
                         $icon = !empty($key['tipo']) ? ($key['tipo'] == '1' ? 'inbox-arrow-down' : 'truck') : '';
                         $last = $loop->index + 1 == sizeof($transport) ? 'true' : false;
-                        $hasSolicitudValida = empty($transport[$posicion]['solicitud'])
                     @endphp
 
                     @if (!empty($key['tipo']))
@@ -117,13 +116,13 @@
                             <x-slot:content>
                                 <div class="timeline-content">
                                     <x-bladewind::card>
-                                        @if (!empty($transport[$posicion]['voucher']))
+                                        @if (!empty($key['voucher']))
                                             <div class="row">
                                                 <div class="col">
                                                     <strong>{{ __('messages.numero_boucher_card') }}</strong>
                                                 </div>
                                                 <div class="col">
-                                                    <p>{{ $transport[$posicion]['voucher'] }}</p>
+                                                    <p>{{ $key['voucher'] }}</p>
                                                 </div>
                                             </div>
                                         @endif
