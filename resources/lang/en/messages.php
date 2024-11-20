@@ -420,6 +420,6 @@ return [
     'fecha_programacion_card' => 'Scheduling date:',
 
     'ups_registro_no_encontrado' => 'Oops! Record not found',
-    'msg_no_ha_sincronizado_transporte' => 'It seems the transport has not been synchronized'
-
+    'msg_no_ha_sincronizado_transporte' => 'It seems the transport has not been synchronized',
+    'no_sincronizado'=>'Not synchronized'
 ];

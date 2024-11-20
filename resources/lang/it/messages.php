@@ -418,7 +418,7 @@ return [
     'fecha_programacion_card' => 'Data di programmazione:',
 
     'ups_registro_no_encontrado' => 'Ops! Registro non trovato',
-    'msg_no_ha_sincronizado_transporte' => 'Sembra che il trasporto non sia stato sincronizzato'
-
+    'msg_no_ha_sincronizado_transporte' => 'Sembra che il trasporto non sia stato sincronizzato',
+     'no_sincronizado'=>'Non sincronizzato'
 
 ];

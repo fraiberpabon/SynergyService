@@ -86,6 +86,7 @@ class TransporteTicketController extends BaseController
             } else {
                 return $this->processTransportData($transporteFiltrado);
             }
+           
         } catch (\Exception $e) {
             return $this->handleError("Error al procesar ticket", $e->getMessage());
         }
@@ -98,14 +99,54 @@ class TransporteTicketController extends BaseController
         }
         $viaje = collect();
         $item = $transporte->first();
-        if ($item->solicitud) {
+        if ($item->solicitud!=null) {
             $mapping = [
                 'fechaProgramacion' => $item->solicitud ? $item->solicitud->fechaProgramacion : null,
                 'nota_usuario' => $item->solicitud ? $item->solicitud->notaUsuario : null,
+                'cantidad' => $item->solicitud ? $item->solicitud->Cantidad : null,
                 'solicitante' => $item->solicitud && $item->solicitud->usuario ?
                     $item->solicitud->usuario->Nombre . ' ' . $item->solicitud->usuario->Apellido : null,
             ];
             $viaje->push($mapping);
+        }else{
+                $map2 = [
+                    'solicitud' => __('messages.solicitud_no_encontrada'),
+                ];
+                $viaje->push($map2);
+        }
+
+        $item2 = $transporte->first();
+        $mapping2 = null;
+
+        if ($item2) {
+            $mapping2 = [
+                'voucher' => $item2->ticket,
+                 'solicitud' => $item2->fk_id_solicitud,
+                'solicitante' => $item2->solicitud && $item2->solicitud->usuario ? $item2->solicitud->usuario->Nombre . " " . $item2->solicitud->usuario->Apellido : null,
+                'tipo' => $item2->tipo,
+                'plantaOrigen' => $item2->origenPlanta ? $item2->origenPlanta->NombrePlanta : null,
+                'tramoOrigen' => $item2->origenTramoId ? $item2->origenTramoId->Id_Tramo . " - " . $item2->origenTramoId->Descripcion : ($item2->origenTramo ? $item2->origenTramo->Id_Tramo . " - " . $item2->origenTramo->Descripcion : null),
+                'hitoOrigen' => $item2->origenHitoId ? $item2->origenHitoId->Id_Hitos . " - " . $item2->origenHitoId->Descripcion : ($item2->origenHito ? $item2->origenHito->Id_Hitos . " - " . $item2->origenHito->Descripcion : null),
+                'abscisaOrigen' => $item2->abscisa_origen ? 'K' . substr($item2->abscisa_origen, 0, 2) . '+' . substr($item2->abscisa_origen, 2, 3) : null,
+                'plantaDestino' => $item2->destinoPlanta ? $item2->destinoPlanta->NombrePlanta : null,
+                'tramoDestino' => $item2->destinoTramoId ? $item2->destinoTramoId->Id_Tramo . " - " . $item2->destinoTramoId->Descripcion : ($item2->destinoTramo ? $item2->destinoTramo->Id_Tramo . " - " . $item2->destinoTramo->Descripcion : null),
+                'hitoDestino' => $item2->destinoHitoId ? $item2->destinoHitoId->Id_Hitos . " - " . $item2->destinoHitoId->Descripcion : ($item2->destinoHito ? $item2->destinoHito->Id_Hitos . " - " . $item2->destinoHito->Descripcion : null),
+                'abscisaDestino' => $item2->abscisa_destino ? 'K' . substr($item2->abscisa_destino, 0, 2) . '+' . substr($item2->abscisa_destino, 2, 3) : null,
+                'costCenter' => $item2->fk_id_cost_center,
+                'material' => $item2->material ? $item2->material->Nombre . " (" . $item2->material->id_material_lista . ")" : null,
+                'formula' => $item2->formula ? $item2->formula->Nombre . " (" . $item2->formula->id_formula_lista . ")" : null,
+                'cantidad' => $item2->cantidad && $item2->material ? $item2->cantidad . " " . $item2->material->unidadMedida : ($item2->cantidad && $item2->formula ? $item2->cantidad . " " . $item2->formula->unidadMedida : null),
+                'observacion' => $item2->observacion,
+                'fechaRegistro' => $item2->fecha_registro,
+                'creadoPor' => $item2->usuario_created ? $item2->usuario_created->Nombre . " " . $item2->usuario_created->Apellido : null,
+                'equipo' => $item2->equipo && $item2->equipo->equiment_id ? $item2->equipo->equiment_id : null,
+                'placa' => $item2->equipo && $item2->equipo->placa ? $item2->equipo->placa : null,
+                'cubicaje' => $item2->equipo && $item2->equipo->cubicaje ? $item2->equipo->cubicaje : null,
+                'contratista' => $item2->equipo && $item2->equipo->compania ? $item2->equipo->compania->nombreCompañia : null,
+                'chofer' => $item2->chofer,
+                'icon' => $item2->tipo == 1 ? 'inbox-arrow-down' : 'truck'
+            ];
+          
         }    
         // Procesa los datos del transporte
         foreach ($transporte as $key) {
@@ -134,9 +175,34 @@ class TransporteTicketController extends BaseController
                 'cubicaje' => $key->equipo && $key->equipo->cubicaje ? $key->equipo->cubicaje : null,
                 'contratista' => $key->equipo && $key->equipo->compania ? $key->equipo->compania->nombreCompañia : null,
                 'chofer' => $key->chofer,
+                'icon' => $key->tipo == 1 ? 'inbox-arrow-down' : 'truck'
             ];
             $viaje->push($mapping);
         }
-        return view('transporteTicket3', ["transport" => $viaje]);
+
+        if (($transporte)->get(0)) {
+            $map = [
+                'tipo' =>$transporte->get(0)->tipo==1 ?  2 : 1,
+                'observacion' => __('messages.no_sincronizado'),
+                'icon' =>  $transporte->get(0)->tipo==1 ? 'truck' :'inbox-arrow-down' ,
+            ];
+            if ($transporte->get(0)->tipo == 1) {
+                $viaje->splice(1, 0, [$map]);
+            } else if ($transporte->get(0)->tipo == 2) {
+                $viaje->splice($viaje->count(), 0, [$map]);
+            }
+        } 
+        $tipo1Count = $transporte->where('tipo', 1)->count();
+        $tipo2Count = $transporte->where('tipo', 2)->count();
+        $conteoTipos = [
+            'tipo1' => $tipo1Count,
+            'tipo2' => $tipo2Count,
+        ];
+   //  dd($viaje);
+        return view('transporteTicket3', [
+            "transport" => $viaje,
+            "conteoTipos" => $conteoTipos,
+            "card" => $mapping2,
+        ]);
     }
 }
