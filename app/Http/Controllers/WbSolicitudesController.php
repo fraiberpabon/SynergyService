@@ -83,7 +83,10 @@ class WbSolicitudesController extends BaseController implements Vervos
             }
         ])
             ->whereDate('fechaProgramacion', '>=', Carbon::now()->subDays(3)->toDateString())
-            ->where('fk_id_estados', 12)
+            ->where(function ($q) {
+                $q->where('fk_id_estados', 12)
+                    ->orWhereNotNull('user_despacho');
+            })
             ->select(
                 'id_solicitud_Materiales as identificador',
                 'id_solicitud_Materiales',
@@ -126,17 +129,39 @@ class WbSolicitudesController extends BaseController implements Vervos
             $item->fk_formula_cdp = $info->codigoFormulaCdp ?? null;
 
             if ($item->transporte) {
+                //$cubicaje = 0;
+                //$viajes = 0;
 
-                $cubicaje = 0;
-                $viajes = 0;
+                $vLlegada = $vSalida = $cLlegada = $cSalida = 0;
 
-                $viajes = $item->transporte->count();
+                foreach ($item->transporte as $tr) {
+                    if ($tr->tipo == 1) {
+                        $vLlegada++;
+                        $cLlegada += $tr->equipo && $tr->equipo->cubicaje ? $tr->equipo->cubicaje : 0;
+                    } else if ($tr->tipo == 2) {
+                        $vSalida++;
+                        $cSalida += $tr->equipo && $tr->equipo->cubicaje ? $tr->equipo->cubicaje : 0;
+                    }
+                }
 
-                $cubicaje = $item->transporte->filter(fn($tr) => $tr->equipo && $tr->equipo->cubicaje != null)
+                $item->cant_despachada = max($cLlegada, $cSalida);
+                $item->cant_viajes = max($vLlegada, $vSalida);
+
+
+                /* $vEntrada = $item->transporte->where('tipo', 1)->count();
+                $vSalida = $item->transporte->where('tipo', 2)->count(); */
+                //$viajes = $vEntrada > $vSalida ? $vEntrada : $vSalida;
+
+                /* $cSalida = $item->transporte->filter(fn($tr) => $tr->tipo = 2 && $tr->equipo && $tr->equipo->cubicaje != null)
                     ->sum(fn($tr) => $tr->equipo->cubicaje ?? 0);
 
-                $item->cant_despachada = $cubicaje ?? 0;
-                $item->cant_viajes = $viajes ?? 0;
+                $cLlegada = $item->transporte->filter(fn($tr) => $tr->tipo = 1 && $tr->equipo && $tr->equipo->cubicaje != null)
+                    ->sum(fn($tr) => $tr->equipo->cubicaje ?? 0);
+
+                $cubicaje = $cLlegada > $cSalida ? $cLlegada : $cSalida; */
+
+                /* $item->cant_despachada = $cubicaje ?? 0;
+                $item->cant_viajes = $viajes ?? 0; */
             } else {
                 $item->cant_despachada = 0;
                 $item->cant_viajes = 0;
@@ -233,10 +258,25 @@ class WbSolicitudesController extends BaseController implements Vervos
 
             if ($query->transporte) {
 
-                $cubicaje = 0;
+                $vLlegada = $vSalida = $cLlegada = $cSalida = 0;
+
+                foreach ($query->transporte as $tr) {
+                    if ($tr->tipo == 1) {
+                        $vLlegada++;
+                        $cLlegada += $tr->equipo && $tr->equipo->cubicaje ? $tr->equipo->cubicaje : 0;
+                    } else if ($tr->tipo == 2) {
+                        $vSalida++;
+                        $cSalida += $tr->equipo && $tr->equipo->cubicaje ? $tr->equipo->cubicaje : 0;
+                    }
+                }
+
+                $query->cant_despachada = max($cLlegada, $cSalida);
+                $query->cant_viajes = max($vLlegada, $vSalida);
+
+                /* $cubicaje = 0;
                 $viajes = 0;
 
-                $viajes = $query->transporte->count();
+                $viajes = $query->transporte->count(); */
 
                 /* $cubicaje = $query->transporte->filter(fn($tr) => $tr->tipo = 2 && $tr->equipo && $tr->equipo->cubicaje != null)
                     ->sum(fn($tr) => $tr->equipo->cubicaje ?? 0);
@@ -244,11 +284,11 @@ class WbSolicitudesController extends BaseController implements Vervos
                 $cubicaje = $query->transporte->filter(fn($tr) => $tr->tipo = 1 && $tr->equipo && $tr->equipo->cubicaje != null)
                     ->sum(fn($tr) => $tr->equipo->cubicaje ?? 0); */
 
-                $cubicaje = $query->transporte->filter(fn($tr) => $tr->equipo && $tr->equipo->cubicaje != null)
+                /* $cubicaje = $query->transporte->filter(fn($tr) => $tr->equipo && $tr->equipo->cubicaje != null)
                     ->sum(fn($tr) => $tr->equipo->cubicaje ?? 0);
 
                 $query->cant_despachada = $cubicaje ?? 0;
-                $query->cant_viajes = $viajes ?? 0;
+                $query->cant_viajes = $viajes ?? 0; */
 
             } else {
                 $query->cant_despachada = 0;
