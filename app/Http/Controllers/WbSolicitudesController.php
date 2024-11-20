@@ -79,7 +79,7 @@ class WbSolicitudesController extends BaseController implements Vervos
                 $sub->select('id_plata', 'NombrePlanta', 'descripcion');
             },
             'transporte' => function ($sub) {
-                $sub->with('equipo')->where('tipo', 2);
+                $sub->with('equipo')->where('estado', 1);
             }
         ])
             ->whereDate('fechaProgramacion', '>=', Carbon::now()->subDays(3)->toDateString())
@@ -209,7 +209,7 @@ class WbSolicitudesController extends BaseController implements Vervos
                     $sub->select('id_plata', 'NombrePlanta', 'descripcion');
                 },
                 'transporte' => function ($sub) {
-                    $sub->with('equipo')->where('tipo', 2);
+                    $sub->with('equipo')->where('estado', 1);
                 }
             ])
                 ->where('id_solicitud_Materiales', $id)
