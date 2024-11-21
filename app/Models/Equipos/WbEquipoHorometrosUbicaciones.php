@@ -17,8 +17,8 @@ class WbEquipoHorometrosUbicaciones extends Model implements Auditable
     protected $connection = 'sqlsrv2';
     protected $table = 'Wb_equipos_horometros_ubicaciones';
     protected $primaryKey = 'id_equipos_horometros_ubicaciones';
-    /* public $incrementing = true;
-    public $timestamps = true; */
+    public $incrementing = true;
+    public $timestamps = true;
 
     protected $dateFormat = 'd-m-Y H:i:s.v'; //activar solo en pruebas
 

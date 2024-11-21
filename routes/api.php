@@ -12,7 +12,7 @@ use App\Http\Controllers\WbConfiguracionController;
 use App\Http\Controllers\WbControlVersionesController;
 use App\Http\Controllers\WbEquipoControlles;
 use App\Http\Controllers\WbFormulasController;
-use App\Http\Controllers\WbHorometrosUbicacionesControlles;
+use App\Http\Controllers\WbHorometrosUbicacionesController;
 use App\Http\Controllers\WbMaterialListaController;
 use App\Http\Controllers\WbSolicitudesController;
 use App\Http\Controllers\WbTipoFormatoController;
@@ -96,7 +96,7 @@ Route::middleware('desencript')->group(function () {
                 Route::get('/', 'get');
             });
 
-            Route::prefix('horometros-ubicaciones')->controller(WbHorometrosUbicacionesControlles::class)->group(function () {
+            Route::prefix('horometros-ubicaciones')->controller(WbHorometrosUbicacionesController::class)->group(function () {
                 Route::post('/insertar-paquete', 'postArray');
             });
 
