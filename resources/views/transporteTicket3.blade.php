@@ -190,7 +190,7 @@
                                             </div>
                                         @endif
 
-                                        @if (!empty($key['tipo']) && $key['tipo'] == '1' && $conteoTipos['tipo1'] != 0)
+                                        @if (!empty($key['tipo']) && $key['tipo'] == '1' && $conteoTipos['tipo1'] != 0 && !empty($key['tramoDestino']))
                                             <div class="row">
                                                 <div class="col-12 col-sm-6">
                                                     <strong>{{ __('messages.destino_card') }}</strong>
@@ -248,10 +248,10 @@
 
                                         @if (!empty($key['observacion']))
                                             <div class="row">
-                                                <div class="col-12">
-                                                    <strong>{{ __('messages.observaciones_card') }}</strong>
+                                                <div class="col-12 col-sm-6">
+                                                    <strong>{{ __('messages.observacion_card') }}</strong>
                                                 </div>
-                                                <div class="col-12">
+                                                <div class="col-12 col-sm-6">
                                                     <p>{{ $key['observacion'] }}</p>
                                                 </div>
                                             </div>
@@ -265,9 +265,7 @@
                             last="{{ $last }}">
                             <x-slot:content>
                                 <div class="timeline-content">
-                                    <x-bladewind::card>
-                                       
-                                       
+                                    <x-bladewind::card>                 
                                     @if (!empty($transport[$posicion]['solicitud']))
                                     <div class="row">
                                         <div class="col">
@@ -283,7 +281,7 @@
                                                 <strong>{{ __('messages.solicitud_card') }}</strong>
                                             </div>
                                             <div class="col">
-                                                <p>{{ __('messages.solicitud_no_encontrada') }}</p>
+                                                <p>{{$solicitudes = collect($transport)->pluck('solicitud2')->get(0);}}</p>  
                                             </div>
                                         </div>    
                                         @endif
@@ -342,7 +340,7 @@
                                         @if (!empty($key['nota_usuario']))
                                         <div class="row">
                                             <div class="col-12 col-sm-6">
-                                                <strong>{{ __('messages.observacion') }}</strong>
+                                                <strong>{{ __('messages.observacion_card') }}</strong>
                                             </div>
                                             <div class="col-12 col-sm-6">
                                                 <p>{{ $key['nota_usuario'] }}</p>

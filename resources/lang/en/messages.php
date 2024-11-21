@@ -414,12 +414,12 @@ return [
     'wbe_destino_card' => 'WBE destination:',
 
     'creado_por_card' => 'Created by:',
-    'observaciones_card' => 'Observations:',
+    'observacion_card' => 'Observation:',
     'solicitante_card' => 'Requester:',
     'observacion' => 'observation', 
     'fecha_programacion_card' => 'Scheduling date:',
-
+    'no_sincronizado'=>'Not synchronized',
     'ups_registro_no_encontrado' => 'Oops! Record not found',
     'msg_no_ha_sincronizado_transporte' => 'It seems the transport has not been synchronized',
-    'no_sincronizado'=>'Not synchronized'
+    
 ];

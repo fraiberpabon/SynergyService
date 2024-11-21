@@ -1,25 +1,12 @@
 <?php
-
 namespace App\Http\Controllers\Transporte;
-
 use App\Http\Controllers\BaseController;
-use App\Http\Controllers\encryptUrl;
-use App\Models\CostCode;
-use App\Models\Equipos\WbEquipo;
-use App\Models\Materiales\WbMaterialLista;
 use App\Models\Transporte\WbTransporteRegistro;
-use App\Models\Usuarios\usuarios_M;
-use App\Models\UsuPlanta;
-use App\Models\WbFormulaLista;
-use App\Models\WbHitos;
-use App\Models\WbMaterialFormula;
-use App\Models\WbSolicitudMateriales;
-use App\Models\WbTramos;
-use Illuminate\Http\Request;
-
 class TransporteTicketController extends BaseController
 {
-    public function index($ticket, Request $req)
+   
+
+    public function index($ticket)
     {
         try {
             // Primera consulta: basada en el ticket
@@ -81,7 +68,7 @@ class TransporteTicketController extends BaseController
             }
 
             // Comparar las dos consultas y usar la que tenga más registros
-            if ($transporteInicial->count() >= $transporteFiltrado->count()) {
+            if (empty($codigoViaje) || $transporteInicial->count() >= $transporteFiltrado->count()) {
                 return $this->processTransportData($transporteInicial);
             } else {
                 return $this->processTransportData($transporteFiltrado);
@@ -94,23 +81,27 @@ class TransporteTicketController extends BaseController
 
     private function processTransportData($transporte)
     {
+
+        $lang = request()->getPreferredLanguage(['es', 'en', 'it']);
+        app()->setLocale($lang);
         if ($transporte->isEmpty()) {
             return view('transporteTicket3');
         }
         $viaje = collect();
         $item = $transporte->first();
-        if ($item->solicitud!=null) {
+        if ($item->solicitud) {
             $mapping = [
                 'fechaProgramacion' => $item->solicitud ? $item->solicitud->fechaProgramacion : null,
                 'nota_usuario' => $item->solicitud ? $item->solicitud->notaUsuario : null,
                 'cantidad' => $item->solicitud ? $item->solicitud->Cantidad : null,
                 'solicitante' => $item->solicitud && $item->solicitud->usuario ?
                     $item->solicitud->usuario->Nombre . ' ' . $item->solicitud->usuario->Apellido : null,
+                'solicitud' => $item->fk_id_solicitud
             ];
             $viaje->push($mapping);
         }else{
                 $map2 = [
-                    'solicitud' => __('messages.solicitud_no_encontrada'),
+                    'solicitud2' => __('messages.solicitud_no').$item->fk_id_solicitud . __('messages.solicitud_no_encontrada'),
                 ];
                 $viaje->push($map2);
         }
@@ -121,7 +112,7 @@ class TransporteTicketController extends BaseController
         if ($item2) {
             $mapping2 = [
                 'voucher' => $item2->ticket,
-                 'solicitud' => $item2->fk_id_solicitud,
+                'solicitud' => $item2->fk_id_solicitud,
                 'solicitante' => $item2->solicitud && $item2->solicitud->usuario ? $item2->solicitud->usuario->Nombre . " " . $item2->solicitud->usuario->Apellido : null,
                 'tipo' => $item2->tipo,
                 'plantaOrigen' => $item2->origenPlanta ? $item2->origenPlanta->NombrePlanta : null,
@@ -180,25 +171,25 @@ class TransporteTicketController extends BaseController
             $viaje->push($mapping);
         }
 
-        if (($transporte)->get(0)) {
-            $map = [
-                'tipo' =>$transporte->get(0)->tipo==1 ?  2 : 1,
-                'observacion' => __('messages.no_sincronizado'),
-                'icon' =>  $transporte->get(0)->tipo==1 ? 'truck' :'inbox-arrow-down' ,
-            ];
-            if ($transporte->get(0)->tipo == 1) {
-                $viaje->splice(1, 0, [$map]);
-            } else if ($transporte->get(0)->tipo == 2) {
-                $viaje->splice($viaje->count(), 0, [$map]);
-            }
-        } 
         $tipo1Count = $transporte->where('tipo', 1)->count();
         $tipo2Count = $transporte->where('tipo', 2)->count();
         $conteoTipos = [
             'tipo1' => $tipo1Count,
             'tipo2' => $tipo2Count,
         ];
-   //  dd($viaje);
+        if (($transporte)->get(0)) {
+            $map = [
+                'tipo' =>$transporte->get(0)->tipo==1 ?  2 : 1,
+               'observacion' => __('messages.no_sincronizado'),
+                'icon' =>  $transporte->get(0)->tipo==1 ? 'truck' :'inbox-arrow-down' ,
+            ];
+            if ($transporte->get(0)->tipo == 1 && $conteoTipos['tipo1']==1  && $conteoTipos['tipo2']==0 ) {
+                $viaje->splice(1, 0, [$map]);
+            } else if ($transporte->get(0)->tipo == 2 && $conteoTipos['tipo2']==1 && $conteoTipos['tipo1']==0) {
+                $viaje->splice($viaje->count(), 0, [$map]);
+            }
+        } 
+    
         return view('transporteTicket3', [
             "transport" => $viaje,
             "conteoTipos" => $conteoTipos,
