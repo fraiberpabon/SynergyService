@@ -423,14 +423,16 @@ return [
 
     'wbe_origen_card' => 'WBE origen:',
     'wbe_destino_card' => 'WBE destino:',
-
+    'observacion_card' => 'Observacion:',
     'creado_por_card' => 'Creado por:',
     'observaciones_card' => 'Observaciones:',
     'solicitante_card' => 'Solicitante:',
-
+    'observacion' => 'Observación',
     'fecha_programacion_card' => 'Fecha de programacion:',
 
     'ups_registro_no_encontrado' => '¡Ups! registro no encontrado',
-    'msg_no_ha_sincronizado_transporte' => 'Al paracer el transporte no ha sido sincronizado'
-
+    'msg_no_ha_sincronizado_transporte' => 'Al paracer el transporte no ha sido sincronizado',
+    'no_sincronizado'=>'No sincronizado',
+    'solicitud_no'=>'La solicitud número ',
+    'solicitud_no_encontrada'=>' no fue encontrada.'
 ];

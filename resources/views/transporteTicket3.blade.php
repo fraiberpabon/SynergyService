@@ -20,118 +20,71 @@
             text-align: left !important;
             max-width: 700px;
         }
+
+        .description_machine{
+            padding-left: 3rem;
+            width: 70%;
+        }
     </style>
 </head>
 
 <body class="container mt-2" style="max-width: 1140px;">
-    @if (isset($transport))
-        @php
-            $posicion = sizeof($transport) > 1 ? 1 : 0;
-        @endphp
-
-        <div class="bg-white mb-3">
+         @if (isset($card))
+        <div class="bg-white mb-3 description_machine">
             <x-bladewind::card>
-                <div class="row p-1">
-                    <div class="col-12 col-md-6">
-                        @if (!empty($transport[$posicion]['voucher']))
-                            <div class="row">
-                                <div class="col">
-                                    <strong>{{ __('messages.numero_boucher_card') }}</strong>
-                                </div>
-                                <div class="col">
-                                    <p>{{ $transport[$posicion]['voucher'] }}</p>
-                                </div>
-                            </div>
-                        @endif
-
-
-                        @if (!empty($transport[$posicion]['material']))
-                            <div class="row">
-                                <div class="col">
-                                    <strong>{{ __('messages.material_card') }}</strong>
-                                </div>
-                                <div class="col">
-                                    <p>{{ $transport[$posicion]['material'] }}</p>
-                                </div>
-                            </div>
-                        @endif
-
-                        @if (!empty($transport[$posicion]['formula']))
-                            <div class="row">
-                                <div class="col">
-                                    <strong>{{ __('messages.formula_card') }}</strong>
-                                </div>
-                                <div class="col">
-                                    <p>{{ $transport[$posicion]['formula'] }}</p>
-                                </div>
-                            </div>
-                        @endif
-
-                        @if (!empty($transport[$posicion]['solicitud']))
-                            <div class="row">
-                                <div class="col">
-                                    <strong>{{ __('messages.solicitud_card') }}</strong>
-                                </div>
-                                <div class="col">
-                                    <p>{{ $transport[$posicion]['solicitud'] }}</p>
-                                </div>
-                            </div>
-                        @endif
-
-                    </div>
-                    <div class="col-12 col-md-6">
-
-                        @if (!empty($transport[$posicion]['equipo']))
+                <div class="row p-2">
+                    <div class="col-12 col-md-11">
+                        @if (!empty($card['equipo']))
                             <div class="row">
                                 <div class="col">
                                     <strong>{{ __('messages.equipo_card') }}</strong>
                                 </div>
                                 <div class="col">
-                                    <p>{{ $transport[$posicion]['equipo'] }}</p>
+                                    <p>{{ $card['equipo'] }}</p>
                                 </div>
                             </div>
                         @endif
 
-                        @if (!empty($transport[$posicion]['placa']))
+                        @if (!empty($card['placa']))
                             <div class="row">
                                 <div class="col">
                                     <strong>{{ __('messages.placa_card') }}</strong>
                                 </div>
                                 <div class="col">
-                                    <p>{{ $transport[$posicion]['placa'] }}</p>
+                                    <p>{{ $card['placa'] }}</p>
                                 </div>
                             </div>
                         @endif
 
-                        @if (!empty($transport[$posicion]['cubicaje']))
+                        @if (!empty($card['cubicaje']))
                             <div class="row">
                                 <div class="col">
                                     <strong>{{ __('messages.cubicaje_m3_card') }}</strong>
                                 </div>
                                 <div class="col">
-                                    <p>{{ $transport[$posicion]['cubicaje'] }}</p>
+                                    <p>{{ $card['cubicaje'] }}</p>
                                 </div>
                             </div>
                         @endif
 
-                        @if (!empty($transport[$posicion]['contratista']))
+                        @if (!empty($card['contratista']))
                             <div class="row">
                                 <div class="col">
                                     <strong>{{ __('messages.contratista_card') }}</strong>
                                 </div>
                                 <div class="col">
-                                    <p>{{ $transport[$posicion]['contratista'] }}</p>
+                                    <p>{{ $card['contratista'] }}</p>
                                 </div>
                             </div>
                         @endif
 
-                        @if (!empty($transport[$posicion]['chofer']))
+                        @if (!empty($card['chofer']))
                             <div class="row">
                                 <div class="col">
                                     <strong>{{ __('messages.chofer_card') }}</strong>
                                 </div>
                                 <div class="col">
-                                    <p>{{ $transport[$posicion]['chofer'] }}</p>
+                                    <p>{{ $card['chofer'] }}</p>
                                 </div>
                             </div>
                         @endif
@@ -140,15 +93,24 @@
                 </div>
             </x-bladewind::card>
         </div>
+        @endif
 
+        @if (isset($transport))
+        @php
+        $posicion = sizeof($transport) > 1 ? 1 : 0;
+    @endphp
         <div class="justify-content-center">
             <x-bladewind::timeline-group stacked="false" anchor="big" completed="true" color="blue" position="left"
                 stacked="true">
+                @php
+                     $mostrarElemento =true;
+                @endphp
                 @foreach ($transport as $key)
                     @php
                         $alignLeft = 'false'; //$loop->index % 2 == 0 ? 'true' : 'false';
                         $icon = !empty($key['tipo']) ? ($key['tipo'] == '1' ? 'inbox-arrow-down' : 'truck') : '';
                         $last = $loop->index + 1 == sizeof($transport) ? 'true' : false;
+                       // $last = false;
                     @endphp
 
                     @if (!empty($key['tipo']))
@@ -157,6 +119,16 @@
                             <x-slot:content>
                                 <div class="timeline-content">
                                     <x-bladewind::card>
+                                        @if (!empty($key['voucher']))
+                                            <div class="row">
+                                                <div class="col">
+                                                    <strong>{{ __('messages.numero_boucher_card') }}</strong>
+                                                </div>
+                                                <div class="col">
+                                                    <p>{{ $key['voucher'] }}</p>
+                                                </div>
+                                            </div>
+                                        @endif
                                         @if (!empty($key['tipo']))
                                             <div class="row">
                                                 <div class="col-12 col-sm-6">
@@ -195,7 +167,7 @@
                                             </div>
                                         @endif
 
-                                        @if (!empty($key['tipo']) && $key['tipo'] == '2')
+                                        @if (!empty($key['tipo']) && $key['tipo'] == '2' && $conteoTipos['tipo2'] != 0)
                                             <div class="row">
                                                 <div class="col-12 col-sm-6">
                                                     <strong>{{ __('messages.origen_card') }}</strong>
@@ -207,7 +179,7 @@
                                                         <p>
                                                             {{ __('messages.frente_card') }} {{ $key['tramoOrigen'] }}
                                                             {{ __('messages.zona_card') }}
-                                                            {{ $key['hitoOrigen'] }}
+                                                            {{ $key['hitoOrigen']}}
                                                             @if (!empty($key['abscisaOrigen']))
                                                                 {{ __('messages.abscisa_card') }}
                                                                 {{ $key['abscisaOrigen'] }}
@@ -218,7 +190,7 @@
                                             </div>
                                         @endif
 
-                                        @if (!empty($key['tipo']) && $key['tipo'] == '1')
+                                        @if (!empty($key['tipo']) && $key['tipo'] == '1' && $conteoTipos['tipo1'] != 0 && !empty($key['tramoDestino']))
                                             <div class="row">
                                                 <div class="col-12 col-sm-6">
                                                     <strong>{{ __('messages.destino_card') }}</strong>
@@ -229,9 +201,9 @@
                                                     @else
                                                         <p>
                                                             {{ __('messages.frente_card') }}
-                                                            {{ $key['tramoDestino'] }}
+                                                            {{ $key['tramoDestino']}}
                                                             {{ __('messages.zona_card') }}
-                                                            {{ $key['hitoDestino'] }}
+                                                            {{ $key['hitoDestino']}}
                                                             @if (!empty($key['abscisaDestino']))
                                                                 {{ __('messages.abscisa_card') }}
                                                                 {{ $key['abscisaDestino'] }}
@@ -276,10 +248,10 @@
 
                                         @if (!empty($key['observacion']))
                                             <div class="row">
-                                                <div class="col-12">
-                                                    <strong>{{ __('messages.observaciones_card') }}</strong>
+                                                <div class="col-12 col-sm-6">
+                                                    <strong>{{ __('messages.observacion_card') }}</strong>
                                                 </div>
-                                                <div class="col-12">
+                                                <div class="col-12 col-sm-6">
                                                     <p>{{ $key['observacion'] }}</p>
                                                 </div>
                                             </div>
@@ -288,12 +260,31 @@
                                 </div>
                             </x-slot:content>
                         </x-bladewind::timeline>
-                    @else
+                        @else
                         <x-bladewind::timeline align_left="{{ $alignLeft }}" icon="clipboard"
                             last="{{ $last }}">
                             <x-slot:content>
                                 <div class="timeline-content">
-                                    <x-bladewind::card>
+                                    <x-bladewind::card>                 
+                                    @if (!empty($transport[$posicion]['solicitud']))
+                                    <div class="row">
+                                        <div class="col">
+                                            <strong>{{ __('messages.solicitud_card') }}</strong>
+                                        </div>
+                                        <div class="col">
+                                            <p>{{ $transport[$posicion]['solicitud'] }}</p>
+                                        </div>
+                                    </div>    
+                                        @else
+                                        <div class="row">
+                                            <div class="col">
+                                                <strong>{{ __('messages.solicitud_card') }}</strong>
+                                            </div>
+                                            <div class="col">
+                                                <p>{{$solicitudes = collect($transport)->pluck('solicitud2')->get(0);}}</p>  
+                                            </div>
+                                        </div>    
+                                        @endif
 
                                         @if (!empty($key['fechaProgramacion']))
                                             <div class="row">
@@ -305,7 +296,37 @@
                                                 </div>
                                             </div>
                                         @endif
+                                        @if (!empty($transport[$posicion]['material']) &&!empty($transport[$posicion]['solicitud']))
+                                            <div class="row">
+                                                <div class="col">
+                                                    <strong>{{ __('messages.material_card') }}</strong>
+                                                </div>
+                                                <div class="col">
+                                                    <p>{{ $transport[$posicion]['material'] }}</p>
+                                                </div>
+                                            </div>
+                                        @endif
 
+                                        @if (!empty($transport[$posicion]['formula']))
+                                            <div class="row">
+                                                <div class="col">
+                                                    <strong>{{ __('messages.formula_card') }}</strong>
+                                                </div>
+                                                <div class="col">
+                                                    <p>{{ $transport[$posicion]['formula'] }}</p>
+                                                </div>
+                                            </div>
+                                        @endif
+                                        @if (!empty($key['cantidad']))
+                                        <div class="row">
+                                            <div class="col-12 col-sm-6">
+                                                <strong>{{ __('messages.cantidad_card') }}</strong>
+                                            </div>
+                                            <div class="col-12 col-sm-6">
+                                                <p>{{ $key['cantidad'] }}</p>
+                                            </div>
+                                        </div>
+                                    @endif
                                         @if (!empty($key['solicitante']))
                                             <div class="row">
                                                 <div class="col-12 col-sm-6">
@@ -316,14 +337,24 @@
                                                 </div>
                                             </div>
                                         @endif
+                                        @if (!empty($key['nota_usuario']))
+                                        <div class="row">
+                                            <div class="col-12 col-sm-6">
+                                                <strong>{{ __('messages.observacion_card') }}</strong>
+                                            </div>
+                                            <div class="col-12 col-sm-6">
+                                                <p>{{ $key['nota_usuario'] }}</p>
+                                            </div>
+                                        </div>
+                                    @endif
                                     </x-bladewind::card>
                                 </div>
                             </x-slot:content>
                         </x-bladewind::timeline>
                     @endif
-                @endforeach
-            </x-bladewind::timeline-group>
+                    @endforeach
         </div>
+    </x-bladewind::timeline-group>
     @else
         <div class="container mt-3" style="max-width: 800px;">
             <x-bladewind::empty-state show_image="true" heading="{{ __('messages.ups_registro_no_encontrado') }}"
