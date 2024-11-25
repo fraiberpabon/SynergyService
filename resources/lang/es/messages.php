@@ -423,6 +423,7 @@ return [
 
     'wbe_origen_card' => 'WBE origen:',
     'wbe_destino_card' => 'WBE destino:',
+
     'observacion_card' => 'Observacion:',
     'creado_por_card' => 'Creado por:',
     'observaciones_card' => 'Observaciones:',

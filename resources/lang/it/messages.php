@@ -411,14 +411,16 @@ return [
     'wbe_origen_card' => 'Origine WBE:',
     'wbe_destino_card' => 'Destinazione WBE:',
 
-    'creado_por_card' => 'Creato da:',
     'observacion_card' => 'Osservazioni:',
+    'creado_por_card' => 'Creato da:',
+    'observaciones_card' => 'Osservazioni:',
     'solicitante_card' => 'Richiedente:',
-    'observacion' => 'osservazione', 
+    'observacion' => 'osservazione',
     'fecha_programacion_card' => 'Data di programmazione:',
-'no_sincronizado'=>'Non sincronizzato',
+
     'ups_registro_no_encontrado' => 'Ops! Registro non trovato',
     'msg_no_ha_sincronizado_transporte' => 'Sembra che il trasporto non sia stato sincronizzato',
-     
-
+    'no_sincronizado'=>'Non sincronizzato',
+    'solicitud_no' => 'La richiesta numero ',
+    'solicitud_no_encontrada' => ' non è stata trovata.',
 ];
