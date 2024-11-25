@@ -65,7 +65,7 @@ class WbEquiposLiquidacionController extends BaseController implements Vervos
                 ->orWhere('fk_id_estado', $this->estados['Error'])
                 ->max(DB::raw("CAST(liq_fecha_final AS DATE)"));
             if ($liquidacion == null) {
-                return $this->handleAlert('', true);
+                return $this->handleAlert('1999-01-01', true);
             }
             return $this->handleAlert($liquidacion, true);
         } catch (\Throwable $th) {

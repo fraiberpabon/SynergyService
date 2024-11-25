@@ -21,6 +21,8 @@ class WbHorometrosUbicacionesController extends BaseController implements Vervos
 
     public function postArray(Request $req)
     {
+        $usuario = $this->traitGetIdUsuarioToken($req);
+        $general = $req->all();
         try {
             $validate = Validator::make($req->all(), [
                 'datos' => 'required',
@@ -80,7 +82,10 @@ class WbHorometrosUbicacionesController extends BaseController implements Vervos
                     $model->user_created = isset($info['usuario']) ? $info['usuario'] : null;
                     $model->hash = isset($info['hash']) ? $info['hash'] : null;
 
-                    if (!$model->save()) continue;
+                    if (!$model->save()) {
+                        \Log::error('sync_array_horometers ' . ' Usuario:'.$usuario . ' Error: ' . $info);
+                        continue;
+                    }
 
                     $guardados++;
                     $itemRespuesta = collect();
@@ -94,6 +99,7 @@ class WbHorometrosUbicacionesController extends BaseController implements Vervos
                 return $this->handleAlert("empty");
             }
         } catch (\Throwable $th) {
+            \Log::error('sync_array_horometers ' . ' Usuario:'.$usuario . ' info: ' . $general. ' Error: ' . $th->getMessage());
             \Log::error($th->getMessage());
             return $this->handleAlert(__('messages.error_interno_del_servidor'));
         }

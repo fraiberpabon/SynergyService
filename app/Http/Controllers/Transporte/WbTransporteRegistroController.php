@@ -110,6 +110,8 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                     return $this->handleAlert(__('messages.no_se_pudo_realizar_el_registro'), false);
                 }
 
+                $this->actualizarSolicitud($model);
+
                 $solicitud = (new WbSolicitudesController())->findForId($model->fk_id_solicitud);
             }
 
@@ -118,6 +120,8 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                 $respuesta->put('cant_despachada', $solicitud['cant_despachada']);
                 $respuesta->put('cant_viajes', $solicitud['cant_viajes']);
             }
+
+
 
             return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));
         } catch (\Throwable $th) {
