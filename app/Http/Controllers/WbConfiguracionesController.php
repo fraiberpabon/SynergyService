@@ -8,14 +8,15 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class WbConfiguracionesController extends BaseController implements  Vervos
+class WbConfiguracionesController extends BaseController implements Vervos
 {
     /**
      * Inserta un registro de area a la base de datos
      * @param Request $req
      * @return JsonResponse|void
      */
-    public function post(Request $req) {
+    public function post(Request $req)
+    {
 
     }
 
@@ -24,15 +25,18 @@ class WbConfiguracionesController extends BaseController implements  Vervos
      * @param $id
      * @return JsonResponse
      */
-    public function delete(Request $request, $id) {
+    public function delete(Request $request, $id)
+    {
 
     }
 
-    public function bloquear(Request $request, $id) {
+    public function bloquear(Request $request, $id)
+    {
 
     }
 
-    public function desbloquear(Request $request, $id) {
+    public function desbloquear(Request $request, $id)
+    {
 
     }
 
@@ -40,13 +44,30 @@ class WbConfiguracionesController extends BaseController implements  Vervos
      * Consulta de todas las areas
      * @return JsonResponse
      */
-    public function get(Request $request) {
-       $consulta = WbConfiguraciones::select('Wb_configuraciones.*');
-        $consulta = $this->filtrar($request, $consulta)->first();
-        if ($consulta != null) {
-            $consulta->porcentaje_concreto = number_format($consulta->porcentaje_concreto, 2, '.', ',');
+    public function get(Request $req)
+    {
+        $result = collect([]);
+
+        $query = WbConfiguraciones::select(
+            'transporte_max_peso',
+            'transporte_min_peso',
+            'transporte_usar_equipo_peso',
+        );
+
+        $query = $this->filtrar($req, $query)->first();
+        if ($query != null) {
+            //$query->porcentaje_concreto = number_format($query->porcentaje_concreto, 2, '.', ',');
+
+            $result = collect($query->toArray())
+            ->map(function ($value, $key) {
+                return [
+                    'config_name' => $key,
+                    'config_value' => $value,
+                ];
+            })->values();
         }
-       return $this->handleResponse($request, $this->configuracionesToModel($consulta),  __("messages.consultado"));
+
+        return $this->handleResponse($req, $result, __("messages.consultado"));
     }
 
     public function update(Request $req, $id)

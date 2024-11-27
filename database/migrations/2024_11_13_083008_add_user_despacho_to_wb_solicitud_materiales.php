@@ -33,7 +33,7 @@ return new class extends Migration
     public function down()
     {
         Schema::table('Wb_Solicitud_Materiales', function (Blueprint $table) {
-            $table->integer('user_despacho');
+            $table->dropColumn('user_despacho');
         });
     }
 };
