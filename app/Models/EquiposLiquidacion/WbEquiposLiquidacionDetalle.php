@@ -20,7 +20,7 @@ class WbEquiposLiquidacionDetalle extends Model implements Auditable
     public $module = 'Liquidacion de equipos detalle';
 
     use HasFactory;
-    protected $connection = 'sqlsrv3';
+    protected $connection = 'sqlsrv2';
     protected $table = 'Wb_equipos_liquidacion_detalle';
     protected $primaryKey = 'id_equipos_liquidacion_detalle';
     public $timestamps = true;

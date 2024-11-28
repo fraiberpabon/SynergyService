@@ -6,6 +6,7 @@
 
 namespace App\Http\Controllers\Transporte;
 
+use App\Http\Controllers\WbSolicitudesController;
 use App\Http\interfaces\Vervos;
 use App\Models\Equipos\WbEquipo;
 use App\Models\Transporte\WbTransporteRegistro;
@@ -20,6 +21,112 @@ class WbTransporteRegistroController extends BaseController implements Vervos
 
     public function post(Request $req)
     {
+        try {
+            $validator = Validator::make($req->all(), [
+                'identificador' => 'required|numeric',
+                'numero_vale' => 'required|string',
+                'tipo' => 'required|numeric',
+                'solicitud_id' => 'required|numeric',
+                'origen_planta_id' => 'nullable',
+                'origen_tramo_id' => 'nullable',
+                'origen_tramo_fk_id' => 'nullable',
+                'origen_hito_id' => 'nullable',
+                'origen_hito_fk_id' => 'nullable',
+                'origen_abscisa' => 'nullable',
+                'destino_planta_id' => 'nullable',
+                'destino_tramo_id' => 'nullable',
+                'destino_tramo_fk_id' => 'nullable',
+                'destino_hito_id' => 'nullable',
+                'destino_hito_fk_id' => 'nullable',
+                'destino_abscisa' => 'nullable',
+                'cost_center' => 'required',
+                'material_id' => 'nullable',
+                'formula_id' => 'nullable',
+                'equipo_id' => 'required|numeric',
+                'conductor_dni' => 'nullable|numeric',
+                'cantidad' => 'nullable',
+                'usuario_id' => 'required|string',
+                'ubicacion' => 'nullable|string',
+                'fecha' => 'required|string',
+                'observacion' => 'nullable|string',
+                'proyecto' => 'required|string',
+                'hash' => 'required|string',
+                'unique_code' => 'nullable|string'
+            ]);
+
+            if ($validator->fails()) {
+                return $this->handleAlert($validator->errors());
+            }
+
+            $solicitud = null;
+            $respuesta = collect();
+            $respuesta->put('hash', $req->hash);
+
+            $find = WbTransporteRegistro::select('id', 'fk_id_solicitud')->where('hash', $req->hash)->first();
+            if ($find != null) {
+                $solicitud = (new WbSolicitudesController())->findForId($find->fk_id_solicitud);
+            } else {
+                $model = new WbTransporteRegistro();
+
+                $model->tipo = $req->tipo ? $req->tipo : null;
+                $model->ticket = $req->numero_vale ? $req->numero_vale : null;
+                $model->fk_id_solicitud = $req->solicitud_id ? $req->solicitud_id : null;
+                $model->fk_id_planta_origen = $req->origen_planta_id ? $req->origen_planta_id : null;
+
+                $model->fk_id_tramo_origen = $req->origen_tramo_id ? $req->origen_tramo_id : null;
+                $model->id_tramo_origen = $req->origen_tramo_fk_id ? $req->origen_tramo_fk_id : null;
+
+                $model->fk_id_hito_origen = $req->origen_hito_id ? $req->origen_hito_id : null;
+                $model->id_hito_origen = $req->origen_hito_fk_id ? $req->origen_hito_fk_id : null;
+
+                $model->abscisa_origen = $req->origen_abscisa ? $req->origen_abscisa : null;
+
+                $model->fk_id_planta_destino = $req->destino_planta_id ? $req->destino_planta_id : null;
+
+                $model->fk_id_tramo_destino = $req->destino_tramo_id ? $req->destino_tramo_id : null;
+                $model->id_tramo_destino = $req->destino_tramo_fk_id ? $req->destino_tramo_fk_id : null;
+
+                $model->fk_id_hito_destino = $req->destino_hito_id ? $req->destino_hito_id : null;
+                $model->id_hito_destino = $req->destino_hito_fk_id ? $req->destino_hito_fk_id : null;
+
+                $model->abscisa_destino = $req->destino_abscisa ? $req->destino_abscisa : null;
+
+                $model->fk_id_cost_center = $req->cost_center ? $req->cost_center : null;
+                $model->fk_id_material = $req->material_id ? $req->material_id : null;
+                $model->fk_id_formula = $req->formula_id ? $req->formula_id : null;
+                $model->fk_id_equipo = $req->equipo_id ? $req->equipo_id : null;
+                $model->chofer = $req->conductor_dni ? $req->conductor_dni : null;
+                $model->observacion = $req->observacion ? $req->observacion : null;
+                $model->cantidad = $req->cantidad ? $req->cantidad : null;
+                $model->fecha_registro = $req->fecha ? $req->fecha : null;
+                $model->estado = 1;
+                $model->fk_id_project_Company = $req->proyecto ? $req->proyecto : null;
+                $model->ubicacion_gps = $req->ubicacion ? $req->ubicacion : null;
+                $model->user_created = $req->usuario_id ? $req->usuario_id : null;
+                $model->hash = $req->hash ? $req->hash : null;
+                $model->codigo_viaje = $req->unique_code ? $req->unique_code : null;
+
+                if (!$model->save()) {
+                    return $this->handleAlert(__('messages.no_se_pudo_realizar_el_registro'), false);
+                }
+
+                $this->actualizarSolicitud($model);
+
+                $solicitud = (new WbSolicitudesController())->findForId($model->fk_id_solicitud);
+            }
+
+            if ($solicitud != null) {
+                $respuesta->put('solicitud', $solicitud['identificador']);
+                $respuesta->put('cant_despachada', $solicitud['cant_despachada']);
+                $respuesta->put('cant_viajes', $solicitud['cant_viajes']);
+            }
+
+
+
+            return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));
+        } catch (\Throwable $th) {
+            return $this->handleAlert($th->getMessage());
+        }
     }
 
     public function postArray(Request $req)

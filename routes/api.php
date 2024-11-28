@@ -1,39 +1,21 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\CnfCostCenterController;
 use App\Http\Controllers\CompaniaController;
-use App\Http\Controllers\ContratistaController;
 use App\Http\Controllers\CostCodeController;
 use App\Http\Controllers\encrypt;
-use App\Http\Controllers\EnviarCorreo;
-use App\Http\Controllers\EquipementsController;
 use App\Http\Controllers\EquiposLiquidacion\WbEquiposLiquidacionController;
-use App\Http\Controllers\generatePDF_C;
-use App\Http\Controllers\HtrUsuariosController;
-use App\Http\Controllers\NotificacionSMS;
-use App\Http\Controllers\preoperacional_actividad_C;
-use App\Http\Controllers\preoperacional_C;
 use App\Http\Controllers\ProjectCompanyController;
-use App\Http\Controllers\SolicitudConcretoController;
 use App\Http\Controllers\Transporte\WbTransporteRegistroController;
 use App\Http\Controllers\UsuarioController;
-use App\Http\Controllers\Wb_Liberaciones_Reponsable;
-use App\Http\Controllers\Wb_solicitud_liberaciones_act_controller;
-use App\Http\Controllers\WbAsfaltAsignController;
 use App\Http\Controllers\WbConfiguracionController;
 use App\Http\Controllers\WbControlVersionesController;
 use App\Http\Controllers\WbEquipoControlles;
 use App\Http\Controllers\WbFormulasController;
-use App\Http\Controllers\WbHitosController;
-use App\Http\Controllers\WbHorometrosUbicacionesControlles;
-use App\Http\Controllers\WbLiberacionesFormatosActController;
+use App\Http\Controllers\WbHorometrosUbicacionesController;
 use App\Http\Controllers\WbMaterialListaController;
-use App\Http\Controllers\WbSolicitudLiberacionesFirmasController;
 use App\Http\Controllers\WbSolicitudesController;
 use App\Http\Controllers\WbTipoFormatoController;
-use App\Http\Controllers\WbTramosController;
-use App\Http\Controllers\WbTramosHitosAsignController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
@@ -72,22 +54,9 @@ Route::prefix('tipo-formato')->group(function () {
     Route::get('/', [WbTipoFormatoController::class, 'get']);
 });
 /*
- * Start endpoint para soportar la version anterior
- * Eliminar en la proxima actualizacion
- */
-Route::prefix('app')->middleware('isAndroid')->group(function () {
-
-});
-/*
- * End endpoint para soportar la version anterior
- */
-/*
  * Start endpoint encriptados
  */
 Route::middleware('desencript')->group(function () {
-    /*
-     * Aqui deben caer las solicitudes de versiones de WebuApp nueva
-     */
     Route::prefix('app/v1/')->middleware('isAndroid')->group(function () {
         Route::prefix('users')->group(function () {
             Route::patch('/bloquear-usuario/{imei}', [UsuarioController::class, 'bloquearPorImei']);
@@ -97,11 +66,12 @@ Route::middleware('desencript')->group(function () {
         Route::prefix('control-version')->group(function () {
             Route::post('/', [WbControlVersionesController::class, 'getByVersion']);
         });
+
+        Route::prefix('transportes')->group(function() {
+            Route::post('/insertar', [WbTransporteRegistroController::class, 'post']);
+        });
     });
     Route::middleware(['token', 'habilitado', 'proyecto'])->group(function () {
-        /*
-         * Aqui deben caer las solicitudes de versiones de WebuApp nueva
-         */
         Route::prefix('app/v1/')->group(function () {
             Route::prefix('cost-code')->group(function () {
                 Route::get('/activos', [CostCodeController::class, 'getActivos']);
@@ -126,7 +96,7 @@ Route::middleware('desencript')->group(function () {
                 Route::get('/', 'get');
             });
 
-            Route::prefix('horometros-ubicaciones')->controller(WbHorometrosUbicacionesControlles::class)->group(function () {
+            Route::prefix('horometros-ubicaciones')->controller(WbHorometrosUbicacionesController::class)->group(function () {
                 Route::post('/insertar-paquete', 'postArray');
             });
 

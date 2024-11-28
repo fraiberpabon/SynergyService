@@ -57,6 +57,7 @@ class WbEquiposLiquidacionController extends BaseController implements Vervos
 
     public function getFechaUltimoCierre(Request $request)
     {
+        $usuario = $this->traitGetIdUsuarioToken($request);
         try {
             $proyecto = $this->traitGetProyectoCabecera($request);
             $liquidacion = WbEquiposLiquidacion::where('fk_id_project_Company', $proyecto)
@@ -64,11 +65,12 @@ class WbEquiposLiquidacionController extends BaseController implements Vervos
                 ->orWhere('fk_id_estado', $this->estados['Error'])
                 ->max(DB::raw("CAST(liq_fecha_final AS DATE)"));
             if ($liquidacion == null) {
-                return $this->handleAlert('empty');
+                return $this->handleAlert('1999-01-01', true);
             }
             return $this->handleAlert($liquidacion, true);
         } catch (\Throwable $th) {
-            return $this->handleAlert($th->getMessage());
+            \Log::error('sync_fecha_liquidacion ' . ' Usuario:'.$usuario . ' Error: ' . $th->getMessage());
+            return $this->handleAlert(__('messages.error_interno_del_servidor'));
         }
     }
 }
