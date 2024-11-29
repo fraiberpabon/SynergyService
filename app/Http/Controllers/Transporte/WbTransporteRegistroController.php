@@ -18,8 +18,6 @@ use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\SmsController;
 use Illuminate\Support\Facades\Log;
-use App\Http\Resources\solicitudMaterialesResource;
-use App\Http\Resources\transporteRegistroResource;
 class WbTransporteRegistroController extends BaseController implements Vervos
 {
 
@@ -53,7 +51,6 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                 'material_id' => 'nullable',
                 'formula_id' => 'nullable',
                 'equipo_id' => 'required|numeric',
-                'equipo_cubicaje' => 'required',
                 'conductor_dni' => 'nullable|numeric',
                 'cantidad' => 'nullable',
                 'usuario_id' => 'required|string',
@@ -116,9 +113,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                 $model->user_created = $req->usuario_id ? $req->usuario_id : null;
                 $model->hash = $req->hash ? $req->hash : null;
                 $model->codigo_viaje = $req->unique_code ? $req->unique_code : null;
-
                 $model->cubicaje = $req->equipo_cubicaje ? $req->equipo_cubicaje : null;
-
                 if (!$model->save()) {
                     return $this->handleAlert(__('messages.no_se_pudo_realizar_el_registro'), false);
                 }
@@ -148,30 +143,27 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                     $usuarioId = data_get($solicitudesTransporte, 'solicitud.fk_id_usuarios', null);
                     $placa = data_get($solicitudesTransporte, 'equipo.placa', null);
                     $id_usuarios = $usuarioId;
-                    if($placa){
-                        $mensaje = __('messages.sms_synergy_despacho',[
+                    if ($req->tipo == 1) {
+                        $equipoDescripcion = $placa ? $equipoId . ' (' . $placa . ')' : $equipoId;
+                        $mensaje = __('messages.sms_synergy_llegada', [
                             'cantidad' => $req->cantidad,
-                            'material' =>$material,
-                            'equipoid'=> $equipoId . ' (' . $placa .  ' )',
-                            'solicitud'=> $req->solicitud_id
-                        ]);
-
-                        $nota = __('messages.sms_synergy_despacho_nota');
-                    }
-                    else{
-                        $mensaje = __('messages.sms_synergy_despacho',[
-                            'cantidad' => $req->cantidad,
-                            'material' =>$material,
+                            'material' => $material,
                             'equipoid'=> $equipoId,
-                            'solicitud'=> $req->solicitud_id
+                            'solicitud' => $req->solicitud_id,
                         ]);
-                        $nota = __('messages.sms_synergy_despacho_nota');
+                    } else  {
+                        $equipoDescripcion = $placa ? $equipoId . ' (' . $placa . ')' : $equipoId;
+                        $mensaje = __('messages.sms_synergy_despacho', [
+                            'cantidad' => $req->cantidad,
+                            'material' => $material,
+                            'equipoid' => $equipoDescripcion,
+                            'solicitud' => $req->solicitud_id,
+                        ]);
                     }
+                    $nota = __('messages.sms_synergy_despacho_nota');                    
                     $confirmationController = new SmsController();
                     $confirmationController->Enviar_Sms_Por_IdUsuarios($mensaje, $nota, $id_usuarios);
-                } else {
-                    Log::info('No se permite enviar mensajes');
-                }
+                } 
             } catch (\Throwable $e) {
                 Log::error($e);
             }
@@ -303,19 +295,38 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                 if ($guardados == 0) {
                     return $this->handleAlert("empty");
                 }
-                if ($guardados == 0) {
-                 return $this->handleAlert("empty");
-                }
-                    
-                // Agrupar por solicitud_id
+                
                 $agrupados = collect($listaGuardar)->groupBy('solicitud_id')->map(function ($items) {
-                                    return [
-                                        'cantidad_total' => $items->sum('cantidad'),
-                                        'registros' => $items->count(),
-                                        'usuarios' => $items->pluck('usuario_id')->unique(),
-                                    ];
-                                });
-                Log::info($agrupados);
+                    return [
+                        'cantidad_total' => round($items->sum('equipo_cubicaje'), 2), 
+                        'registros' => $items->count() 
+                    ];
+                });
+                try {
+                    $enviar_sms = WbConfiguraciones::select('enviar_mensajes')
+                        ->where('fk_id_project_Company', $this->traitGetProyectoCabecera($req))
+                        ->first();
+                
+                    if ($enviar_sms && $enviar_sms->enviar_mensajes == 1) {
+                        foreach ($agrupados as $solicitudId => $datos) {
+                            $solicitudesTransporte = $this->getTransporte($model->hash);
+                            $usuarioId = data_get($solicitudesTransporte, 'solicitud.fk_id_usuarios', null);
+                            if ($usuarioId) {
+                                $mensaje = __('messages.sms_resumen_solicitud', [
+                                    'registros' => $datos['registros'], 
+                                    'cantidad' => $datos['cantidad_total'],
+                                    'solicitud' => $solicitudId 
+                                ]);
+                                $nota = __('messages.sms_resumen_nota');
+                                $confirmationController = new SmsController();
+                                $confirmationController->Enviar_Sms_Por_IdUsuarios($mensaje, $nota, $usuarioId);
+                            }
+                        }
+                    } 
+                } catch (\Throwable $e) {
+                    Log::error($e);
+                }
+                
                 return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));
             } else {
                 return $this->handleAlert("empty");
@@ -325,128 +336,6 @@ class WbTransporteRegistroController extends BaseController implements Vervos
             return $this->handleAlert($th->getMessage());
         }
     }
-
-
-//     public function postArray(Request $req)
-// {
-//     try {
-//         $validate = Validator::make($req->all(), [
-//             'datos' => 'required',
-//         ]);
-
-//         if ($validate->fails()) {
-//             return $this->handleAlert($validate->errors());
-//         }
-
-//         $respuesta = collect();
-//         $listaGuardar = json_decode($req->datos, true);
-
-//         if (is_array($listaGuardar) && sizeof($listaGuardar) > 0) {
-//             $guardados = 0;
-
-//             // Eliminar duplicados por hash
-//            // $listaGuardar = collect($listaGuardar)->unique('hash')->toArray();
-
-//             foreach ($listaGuardar as $info) {
-//                 $validacion = Validator::make($info, [
-//                     'identificador' => 'required|numeric',
-//                     'numero_vale' => 'required|string',
-//                     'tipo' => 'required|numeric',
-//                     'solicitud_id' => 'required|numeric',
-//                     'cost_center' => 'required',
-//                     'equipo_id' => 'required|numeric',
-//                     'usuario_id' => 'required|string',
-//                     'fecha' => 'required|string',
-//                     'proyecto' => 'required|string',
-//                     'hash' => 'required|string',
-//                     'cantidad' => 'nullable|numeric',
-//                 ]);
-
-//                 if ($validacion->fails()) {
-//                     continue;
-//                 }
-
-//                 $find = WbTransporteRegistro::select('id')->where('hash', $info['hash'])->first();
-//                 if ($find) {
-//                     $guardados++;
-//                     $respuesta->push(['identificador' => $info['identificador'], 'estado' => '1']);
-//                     continue;
-//                 }
-
-//                 $model = new WbTransporteRegistro();
-//                 $model->fill([
-//                     'tipo' => $info['tipo'],
-//                     'ticket' => $info['numero_vale'],
-//                     'fk_id_solicitud' => $info['solicitud_id'],
-//                     'fk_id_cost_center' => $info['cost_center'],
-//                     'fk_id_equipo' => $info['equipo_id'],
-//                     'fecha_registro' => $info['fecha'],
-//                     'fk_id_project_Company' => $info['proyecto'],
-//                     'user_created' => $info['usuario_id'],
-//                     'hash' => $info['hash'],
-//                     'cantidad' => $info['cantidad'] ?? 0,
-//                 ]);
-
-//                 if (!$model->save()) {
-//                     continue;
-//                 }
-
-//                 $guardados++;
-//                 $respuesta->push(['identificador' => $info['identificador'], 'estado' => '1']);
-//                 $this->actualizarSolicitud($model);
-//             }
-
-//             if ($guardados == 0) {
-//                 return $this->handleAlert("empty");
-//             }
-
-//             // Agrupar por solicitud_id
-//             $agrupados = collect($listaGuardar)->groupBy('solicitud_id')->map(function ($items) {
-//                 return [
-//                     'cantidad_total' => $items->sum('cantidad'),
-//                     'registros' => $items->count(),
-//                     'usuarios' => $items->pluck('usuario_id')->unique(),
-//                 ];
-//             });
-
-
-
-//             $enviar_sms = WbConfiguraciones::select('enviar_mensajes')
-//             ->where('fk_id_project_Company', $this->traitGetProyectoCabecera($req))
-//             ->first();
-//             // Enviar SMS
-//             if ($enviar_sms && $enviar_sms->enviar_mensajes == 1) {
-//                 $solicitudesTransporte = $this->getTransporte($req->hash);
-//                 $usuarioId = data_get($solicitudesTransporte, 'solicitud.fk_id_usuarios', null);
-//                 foreach ($agrupados as $solicitudId => $datos) {
-//                     $usuarios = $datos['usuarios'];
-//                     foreach ($usuarios as $usuarioId) {
-//                         $mensaje = __("messages.sms_resumen_solicitud", [
-//                             'solicitud' => $solicitudId,
-//                             'registros' => $datos['registros'],
-//                             'cantidad' => $datos['cantidad_total'],
-//                         ]);
-//                         $nota = __("messages.sms_resumen_nota");
-                      
-//                     }
-                    
-//                 }
-//                 $smsController = new SmsController();
-//                 $smsController->Enviar_Sms_Por_IdUsuarios($mensaje, $nota, $usuarioId);
-//             }
-           
-//             return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));
-//         } else {
-//             return $this->handleAlert("empty");
-//         }
-//     } catch (\Throwable $th) {
-//         Log::info($th->getMessage());
-//        // return $this->handleAlert($th->getMessage());
-      
-//     }
-// }
-
-
 
  /**
   * Get por transporte de materiales 

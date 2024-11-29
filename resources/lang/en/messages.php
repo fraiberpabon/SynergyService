@@ -426,7 +426,8 @@ return [
     'solicitud_no' => 'The request number ',
     'solicitud_no_encontrada' => ' was not found.',
     'sms_synergy_despacho'=>'Synergy, :cantidad m3 of :material were dispatched in vehicle :equipoid, request No. :solicitud',
+    'sms_synergy_llegada'=>'Synergy, :cantidad m3 of :material were received in the vehicle :equipoid for request No. :solicitud',
     'sms_synergy_despacho_nota'=>'Synergy transport record',
-    'messages.sms_resumen_solicitud'=>'Synergy, Su solicitud :solicitud se han despachado un total de viajes de:registros con una cantidad total despachada de:cantidad ',
-    'messages.sms_resumen_nota'=>'Resumen Transporte'
+    'sms_resumen_solicitud'=>'Synergy, :registros trips were synchronized, amounting to :cantidad m3 for your request No. :solicitud',
+    'sms_resumen_nota'=>'Transport Summary'
 ];
