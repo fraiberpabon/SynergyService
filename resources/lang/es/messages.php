@@ -440,6 +440,8 @@ return [
     'sms_synergy_despacho_nota'=>'Registro transporte Synergy',
 
     'sms_synergy_despacho_cerrar'=>'Synergy, Su solicitud :solicitud se ha despachado en su totalidad',
-    'sms_synergy_despacho_nota_cerrar'=>'Registro transporte Synergy'
+    'sms_synergy_despacho_nota_cerrar'=>'Registro transporte Synergy',
+    'messages.sms_resumen_solicitud'=>'Synergy, Su solicitud :solicitud se han despachado un total de viajes de:registros con una cantidad total despachada de:cantidad ',
+    'messages.sms_resumen_nota'=>'Resumen Transporte'
 
 ];
