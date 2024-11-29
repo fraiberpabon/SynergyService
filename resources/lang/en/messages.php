@@ -425,4 +425,6 @@ return [
     'no_sincronizado'=>'Not synchronized',
     'solicitud_no' => 'The request number ',
     'solicitud_no_encontrada' => ' was not found.',
+    'sms_synergy_despacho'=>'Synergy, :cantidad m3 of :material were dispatched in vehicle :equipoid, request No. :solicitud',
+    'sms_synergy_despacho_nota'=>'Synergy transport record'
 ];
