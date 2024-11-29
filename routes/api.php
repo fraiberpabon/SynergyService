@@ -9,6 +9,7 @@ use App\Http\Controllers\ProjectCompanyController;
 use App\Http\Controllers\Transporte\WbTransporteRegistroController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\WbConfiguracionController;
+use App\Http\Controllers\WbConfiguracionesController;
 use App\Http\Controllers\WbControlVersionesController;
 use App\Http\Controllers\WbEquipoControlles;
 use App\Http\Controllers\WbFormulasController;
@@ -109,9 +110,8 @@ Route::middleware('desencript')->group(function () {
             });
 
             // configuraciones
-            Route::prefix('configuracion')->group(function () {
-                Route::get('/liberacion_capa/fecha', [WbConfiguracionController::class, 'getfecha_liberacion_capa']);
-                Route::get('/', [WbConfiguracionController::class, 'get']);
+            Route::prefix('configuraciones')->group(function () {
+                Route::get('/app', [WbConfiguracionesController::class, 'get']);
             });
         });
         /*

@@ -53,6 +53,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                 'material_id' => 'nullable',
                 'formula_id' => 'nullable',
                 'equipo_id' => 'required|numeric',
+                'equipo_cubicaje' => 'required',
                 'conductor_dni' => 'nullable|numeric',
                 'cantidad' => 'nullable',
                 'usuario_id' => 'required|string',
@@ -115,6 +116,8 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                 $model->user_created = $req->usuario_id ? $req->usuario_id : null;
                 $model->hash = $req->hash ? $req->hash : null;
                 $model->codigo_viaje = $req->unique_code ? $req->unique_code : null;
+
+                $model->cubicaje = $req->equipo_cubicaje ? $req->equipo_cubicaje : null;
 
                 if (!$model->save()) {
                     return $this->handleAlert(__('messages.no_se_pudo_realizar_el_registro'), false);
@@ -281,6 +284,8 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                     $model->user_created = isset($info['usuario_id']) ? $info['usuario_id'] : null;
                     $model->hash = isset($info['hash']) ? $info['hash'] : null;
                     $model->codigo_viaje = isset($info['unique_code']) ? $info['unique_code'] : null;
+
+                    $model->cubicaje = isset($info['equipo_cubicaje']) ? $info['equipo_cubicaje'] : null;
 
                     if (!$model->save()) {
                         continue;
