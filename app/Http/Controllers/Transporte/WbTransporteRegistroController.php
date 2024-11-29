@@ -178,243 +178,268 @@ class WbTransporteRegistroController extends BaseController implements Vervos
         }
     }
 
-    // public function postArray(Request $req)
-    // {
-    //     try {
-    //         $validate = Validator::make($req->all(), [
-    //             'datos' => 'required',
-    //         ]);
-
-    //         if ($validate->fails()) {
-    //             return $this->handleAlert($validate->errors());
-    //         }
-
-    //         $respuesta = collect();
-
-    //         $listaGuardar = json_decode($req->datos, true);
-
-    //         if (is_array($listaGuardar) && sizeof($listaGuardar) > 0) {
-    //             $guardados = 0;
-    //             foreach ($listaGuardar as $key => $info) {
-    //                 $validacion = Validator::make($info, [
-    //                     'identificador' => 'required|numeric',
-    //                     'numero_vale' => 'required|string',
-    //                     'tipo' => 'required|numeric',
-    //                     'solicitud_id' => 'required|numeric',
-    //                     'origen_planta_id' => 'nullable',
-    //                     'origen_tramo_id' => 'nullable',
-    //                     'origen_tramo_fk_id' => 'nullable',
-    //                     'origen_hito_id' => 'nullable',
-    //                     'origen_hito_fk_id' => 'nullable',
-    //                     'origen_abscisa' => 'nullable',
-    //                     'destino_planta_id' => 'nullable',
-    //                     'destino_tramo_id' => 'nullable',
-    //                     'destino_tramo_fk_id' => 'nullable',
-    //                     'destino_hito_id' => 'nullable',
-    //                     'destino_hito_fk_id' => 'nullable',
-    //                     'destino_abscisa' => 'nullable',
-    //                     'cost_center' => 'required',
-    //                     'material_id' => 'nullable',
-    //                     'formula_id' => 'nullable',
-    //                     'equipo_id' => 'required|numeric',
-    //                     'conductor_dni' => 'nullable|numeric',
-    //                     'cantidad' => 'nullable',
-    //                     'usuario_id' => 'required|string',
-    //                     'ubicacion' => 'nullable|string',
-    //                     'fecha' => 'required|string',
-    //                     'observacion' => 'nullable|string',
-    //                     'proyecto' => 'required|string',
-    //                     'hash' => 'required|string',
-    //                     'unique_code' => 'nullable|string'
-    //                 ]);
-
-    //                 if ($validacion->fails()) {
-    //                     continue;
-    //                 }
-
-    //                 $find = WbTransporteRegistro::select('id')->where('hash', $info['hash'])->first();
-    //                 if ($find != null) {
-    //                     $guardados++;
-    //                     $itemRespuesta = collect();
-    //                     $itemRespuesta->put('identificador', $info['identificador']);
-    //                     $itemRespuesta->put('estado', '1');
-    //                     $respuesta->push($itemRespuesta);
-    //                     continue;
-    //                 }
-
-    //                 $model = new WbTransporteRegistro();
-    //                 //$model->id_equipos_horometros_ubicaciones = $info['identificador'];
-    //                 $model->tipo = isset($info['tipo']) ? $info['tipo'] : null;
-    //                 $model->ticket = isset($info['numero_vale']) ? $info['numero_vale'] : null;
-    //                 $model->fk_id_solicitud = isset($info['solicitud_id']) ? $info['solicitud_id'] : null;
-    //                 $model->fk_id_planta_origen = isset($info['origen_planta_id']) ? $info['origen_planta_id'] : null;
-
-    //                 $model->fk_id_tramo_origen = isset($info['origen_tramo_id']) ? $info['origen_tramo_id'] : null;
-    //                 $model->id_tramo_origen = isset($info['origen_tramo_fk_id']) ? $info['origen_tramo_fk_id'] : null;
-
-    //                 $model->fk_id_hito_origen = isset($info['origen_hito_id']) ? $info['origen_hito_id'] : null;
-    //                 $model->id_hito_origen = isset($info['origen_hito_fk_id']) ? $info['origen_hito_fk_id'] : null;
-
-    //                 $model->abscisa_origen = isset($info['origen_abscisa']) ? $info['origen_abscisa'] : null;
-
-    //                 $model->fk_id_planta_destino = isset($info['destino_planta_id']) ? $info['destino_planta_id'] : null;
-
-    //                 $model->fk_id_tramo_destino = isset($info['destino_tramo_id']) ? $info['destino_tramo_id'] : null;
-    //                 $model->id_tramo_destino = isset($info['destino_tramo_fk_id']) ? $info['destino_tramo_fk_id'] : null;
-
-    //                 $model->fk_id_hito_destino = isset($info['destino_hito_id']) ? $info['destino_hito_id'] : null;
-    //                 $model->id_hito_destino = isset($info['destino_hito_fk_id']) ? $info['destino_hito_fk_id'] : null;
-
-    //                 $model->abscisa_destino = isset($info['destino_abscisa']) ? $info['destino_abscisa'] : null;
-
-    //                 $model->fk_id_cost_center = isset($info['cost_center']) ? $info['cost_center'] : null;
-    //                 $model->fk_id_material = isset($info['material_id']) ? $info['material_id'] : null;
-    //                 $model->fk_id_formula = isset($info['formula_id']) ? $info['formula_id'] : null;
-    //                 $model->fk_id_equipo = isset($info['equipo_id']) ? $info['equipo_id'] : null;
-    //                 $model->chofer = isset($info['conductor_dni']) ? $info['conductor_dni'] : null;
-    //                 $model->observacion = isset($info['observacion']) ? $info['observacion'] : null;
-    //                 $model->cantidad = isset($info['cantidad']) ? $info['cantidad'] : null;
-    //                 $model->fecha_registro = isset($info['fecha']) ? $info['fecha'] : null;
-    //                 $model->estado = 1;
-    //                 $model->fk_id_project_Company = isset($info['proyecto']) ? $info['proyecto'] : null;
-    //                 $model->ubicacion_gps = isset($info['ubicacion']) ? $info['ubicacion'] : null;
-    //                 $model->user_created = isset($info['usuario_id']) ? $info['usuario_id'] : null;
-    //                 $model->hash = isset($info['hash']) ? $info['hash'] : null;
-    //                 $model->codigo_viaje = isset($info['unique_code']) ? $info['unique_code'] : null;
-
-    //                 if (!$model->save()) {
-    //                     continue;
-    //                 }
-
-    //                 $guardados++;
-    //                 $itemRespuesta = collect();
-    //                 $itemRespuesta->put('identificador', $info['identificador']);
-    //                 $itemRespuesta->put('estado', '1');
-    //                 $respuesta->push($itemRespuesta);
-
-    //                 $this->actualizarSolicitud($model);
-    //             }
-
-    //             if ($guardados == 0) {
-    //                 return $this->handleAlert("empty");
-    //             }
-
-    //             return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));
-    //         } else {
-    //             return $this->handleAlert("empty");
-    //         }
-    //     } catch (\Throwable $th) {
-    //         return $this->handleAlert($th->getMessage());
-    //     }
-    // }
-
-
     public function postArray(Request $req)
-{
-    try {
-        $validate = Validator::make($req->all(), [
-            'datos' => 'required',
-        ]);
+    {
+        try {
+            $validate = Validator::make($req->all(), [
+                'datos' => 'required',
+            ]);
 
-        if ($validate->fails()) {
-            return $this->handleAlert($validate->errors());
-        }
-
-        $respuesta = collect();
-        $listaGuardar = json_decode($req->datos, true);
-
-        if (is_array($listaGuardar) && sizeof($listaGuardar) > 0) {
-            $guardados = 0;
-
-            // Eliminar duplicados por hash
-            $listaGuardar = collect($listaGuardar)->unique('hash')->toArray();
-
-            foreach ($listaGuardar as $info) {
-                $validacion = Validator::make($info, [
-                    'identificador' => 'required|numeric',
-                    'numero_vale' => 'required|string',
-                    'tipo' => 'required|numeric',
-                    'solicitud_id' => 'required|numeric',
-                    'cost_center' => 'required',
-                    'equipo_id' => 'required|numeric',
-                    'usuario_id' => 'required|string',
-                    'fecha' => 'required|string',
-                    'proyecto' => 'required|string',
-                    'hash' => 'required|string',
-                    'cantidad' => 'nullable|numeric',
-                ]);
-
-                if ($validacion->fails()) {
-                    continue;
-                }
-
-                $find = WbTransporteRegistro::select('id')->where('hash', $info['hash'])->first();
-                if ($find) {
-                    $guardados++;
-                    $respuesta->push(['identificador' => $info['identificador'], 'estado' => '1']);
-                    continue;
-                }
-
-                $model = new WbTransporteRegistro();
-                $model->fill([
-                    'tipo' => $info['tipo'],
-                    'ticket' => $info['numero_vale'],
-                    'fk_id_solicitud' => $info['solicitud_id'],
-                    'fk_id_cost_center' => $info['cost_center'],
-                    'fk_id_equipo' => $info['equipo_id'],
-                    'fecha_registro' => $info['fecha'],
-                    'fk_id_project_Company' => $info['proyecto'],
-                    'user_created' => $info['usuario_id'],
-                    'hash' => $info['hash'],
-                    'cantidad' => $info['cantidad'] ?? 0,
-                ]);
-
-                if (!$model->save()) {
-                    continue;
-                }
-
-                $guardados++;
-                $respuesta->push(['identificador' => $info['identificador'], 'estado' => '1']);
-                $this->actualizarSolicitud($model);
+            if ($validate->fails()) {
+                return $this->handleAlert($validate->errors());
             }
 
-            if ($guardados == 0) {
+            $respuesta = collect();
+
+            $listaGuardar = json_decode($req->datos, true);
+
+            if (is_array($listaGuardar) && sizeof($listaGuardar) > 0) {
+                $guardados = 0;
+                foreach ($listaGuardar as $key => $info) {
+                    $validacion = Validator::make($info, [
+                        'identificador' => 'required|numeric',
+                        'numero_vale' => 'required|string',
+                        'tipo' => 'required|numeric',
+                        'solicitud_id' => 'required|numeric',
+                        'origen_planta_id' => 'nullable',
+                        'origen_tramo_id' => 'nullable',
+                        'origen_tramo_fk_id' => 'nullable',
+                        'origen_hito_id' => 'nullable',
+                        'origen_hito_fk_id' => 'nullable',
+                        'origen_abscisa' => 'nullable',
+                        'destino_planta_id' => 'nullable',
+                        'destino_tramo_id' => 'nullable',
+                        'destino_tramo_fk_id' => 'nullable',
+                        'destino_hito_id' => 'nullable',
+                        'destino_hito_fk_id' => 'nullable',
+                        'destino_abscisa' => 'nullable',
+                        'cost_center' => 'required',
+                        'material_id' => 'nullable',
+                        'formula_id' => 'nullable',
+                        'equipo_id' => 'required|numeric',
+                        'conductor_dni' => 'nullable|numeric',
+                        'cantidad' => 'nullable',
+                        'usuario_id' => 'required|string',
+                        'ubicacion' => 'nullable|string',
+                        'fecha' => 'required|string',
+                        'observacion' => 'nullable|string',
+                        'proyecto' => 'required|string',
+                        'hash' => 'required|string',
+                        'unique_code' => 'nullable|string'
+                    ]);
+
+                    if ($validacion->fails()) {
+                        continue;
+                    }
+
+                    $find = WbTransporteRegistro::select('id')->where('hash', $info['hash'])->first();
+                    if ($find != null) {
+                        $guardados++;
+                        $itemRespuesta = collect();
+                        $itemRespuesta->put('identificador', $info['identificador']);
+                        $itemRespuesta->put('estado', '1');
+                        $respuesta->push($itemRespuesta);
+                        continue;
+                    }
+
+                    $model = new WbTransporteRegistro();
+                    //$model->id_equipos_horometros_ubicaciones = $info['identificador'];
+                    $model->tipo = isset($info['tipo']) ? $info['tipo'] : null;
+                    $model->ticket = isset($info['numero_vale']) ? $info['numero_vale'] : null;
+                    $model->fk_id_solicitud = isset($info['solicitud_id']) ? $info['solicitud_id'] : null;
+                    $model->fk_id_planta_origen = isset($info['origen_planta_id']) ? $info['origen_planta_id'] : null;
+
+                    $model->fk_id_tramo_origen = isset($info['origen_tramo_id']) ? $info['origen_tramo_id'] : null;
+                    $model->id_tramo_origen = isset($info['origen_tramo_fk_id']) ? $info['origen_tramo_fk_id'] : null;
+
+                    $model->fk_id_hito_origen = isset($info['origen_hito_id']) ? $info['origen_hito_id'] : null;
+                    $model->id_hito_origen = isset($info['origen_hito_fk_id']) ? $info['origen_hito_fk_id'] : null;
+
+                    $model->abscisa_origen = isset($info['origen_abscisa']) ? $info['origen_abscisa'] : null;
+
+                    $model->fk_id_planta_destino = isset($info['destino_planta_id']) ? $info['destino_planta_id'] : null;
+
+                    $model->fk_id_tramo_destino = isset($info['destino_tramo_id']) ? $info['destino_tramo_id'] : null;
+                    $model->id_tramo_destino = isset($info['destino_tramo_fk_id']) ? $info['destino_tramo_fk_id'] : null;
+
+                    $model->fk_id_hito_destino = isset($info['destino_hito_id']) ? $info['destino_hito_id'] : null;
+                    $model->id_hito_destino = isset($info['destino_hito_fk_id']) ? $info['destino_hito_fk_id'] : null;
+
+                    $model->abscisa_destino = isset($info['destino_abscisa']) ? $info['destino_abscisa'] : null;
+
+                    $model->fk_id_cost_center = isset($info['cost_center']) ? $info['cost_center'] : null;
+                    $model->fk_id_material = isset($info['material_id']) ? $info['material_id'] : null;
+                    $model->fk_id_formula = isset($info['formula_id']) ? $info['formula_id'] : null;
+                    $model->fk_id_equipo = isset($info['equipo_id']) ? $info['equipo_id'] : null;
+                    $model->chofer = isset($info['conductor_dni']) ? $info['conductor_dni'] : null;
+                    $model->observacion = isset($info['observacion']) ? $info['observacion'] : null;
+                    $model->cantidad = isset($info['cantidad']) ? $info['cantidad'] : null;
+                    $model->fecha_registro = isset($info['fecha']) ? $info['fecha'] : null;
+                    $model->estado = 1;
+                    $model->fk_id_project_Company = isset($info['proyecto']) ? $info['proyecto'] : null;
+                    $model->ubicacion_gps = isset($info['ubicacion']) ? $info['ubicacion'] : null;
+                    $model->user_created = isset($info['usuario_id']) ? $info['usuario_id'] : null;
+                    $model->hash = isset($info['hash']) ? $info['hash'] : null;
+                    $model->codigo_viaje = isset($info['unique_code']) ? $info['unique_code'] : null;
+
+                    if (!$model->save()) {
+                        continue;
+                    }
+
+                    $guardados++;
+                    $itemRespuesta = collect();
+                    $itemRespuesta->put('identificador', $info['identificador']);
+                    $itemRespuesta->put('estado', '1');
+                    $respuesta->push($itemRespuesta);
+
+                    $this->actualizarSolicitud($model);
+                }
+
+                if ($guardados == 0) {
+                    return $this->handleAlert("empty");
+                }
+                if ($guardados == 0) {
+                 return $this->handleAlert("empty");
+                }
+                    
+                // Agrupar por solicitud_id
+                $agrupados = collect($listaGuardar)->groupBy('solicitud_id')->map(function ($items) {
+                                    return [
+                                        'cantidad_total' => $items->sum('cantidad'),
+                                        'registros' => $items->count(),
+                                        'usuarios' => $items->pluck('usuario_id')->unique(),
+                                    ];
+                                });
+                Log::info($agrupados);
+                return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));
+            } else {
                 return $this->handleAlert("empty");
             }
-
-            // Agrupar por solicitud_id
-            $agrupados = collect($listaGuardar)->groupBy('solicitud_id')->map(function ($items) {
-                return [
-                    'cantidad_total' => $items->sum('cantidad'),
-                    'registros' => $items->count(),
-                    'usuarios' => $items->pluck('usuario_id')->unique(),
-                ];
-            });
-
-            // Enviar SMS
-            foreach ($agrupados as $solicitudId => $datos) {
-                $usuarios = $datos['usuarios'];
-                foreach ($usuarios as $usuarioId) {
-                    $mensaje = __("messages.sms_resumen_solicitud", [
-                        'solicitud' => $solicitudId,
-                        'registros' => $datos['registros'],
-                        'cantidad' => $datos['cantidad_total'],
-                    ]);
-                    $nota = __("messages.sms_resumen_nota");
-
-                    $smsController = new SmsController();
-                    $smsController->Enviar_Sms_Por_IdUsuarios($mensaje, $nota, $usuarioId);
-                }
-            }
-
-            return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));
-        } else {
-            return $this->handleAlert("empty");
+        } catch (\Throwable $th) {
+            Log::info($th->getMessage());
+            return $this->handleAlert($th->getMessage());
         }
-    } catch (\Throwable $th) {
-        return $this->handleAlert($th->getMessage());
     }
-}
+
+
+//     public function postArray(Request $req)
+// {
+//     try {
+//         $validate = Validator::make($req->all(), [
+//             'datos' => 'required',
+//         ]);
+
+//         if ($validate->fails()) {
+//             return $this->handleAlert($validate->errors());
+//         }
+
+//         $respuesta = collect();
+//         $listaGuardar = json_decode($req->datos, true);
+
+//         if (is_array($listaGuardar) && sizeof($listaGuardar) > 0) {
+//             $guardados = 0;
+
+//             // Eliminar duplicados por hash
+//            // $listaGuardar = collect($listaGuardar)->unique('hash')->toArray();
+
+//             foreach ($listaGuardar as $info) {
+//                 $validacion = Validator::make($info, [
+//                     'identificador' => 'required|numeric',
+//                     'numero_vale' => 'required|string',
+//                     'tipo' => 'required|numeric',
+//                     'solicitud_id' => 'required|numeric',
+//                     'cost_center' => 'required',
+//                     'equipo_id' => 'required|numeric',
+//                     'usuario_id' => 'required|string',
+//                     'fecha' => 'required|string',
+//                     'proyecto' => 'required|string',
+//                     'hash' => 'required|string',
+//                     'cantidad' => 'nullable|numeric',
+//                 ]);
+
+//                 if ($validacion->fails()) {
+//                     continue;
+//                 }
+
+//                 $find = WbTransporteRegistro::select('id')->where('hash', $info['hash'])->first();
+//                 if ($find) {
+//                     $guardados++;
+//                     $respuesta->push(['identificador' => $info['identificador'], 'estado' => '1']);
+//                     continue;
+//                 }
+
+//                 $model = new WbTransporteRegistro();
+//                 $model->fill([
+//                     'tipo' => $info['tipo'],
+//                     'ticket' => $info['numero_vale'],
+//                     'fk_id_solicitud' => $info['solicitud_id'],
+//                     'fk_id_cost_center' => $info['cost_center'],
+//                     'fk_id_equipo' => $info['equipo_id'],
+//                     'fecha_registro' => $info['fecha'],
+//                     'fk_id_project_Company' => $info['proyecto'],
+//                     'user_created' => $info['usuario_id'],
+//                     'hash' => $info['hash'],
+//                     'cantidad' => $info['cantidad'] ?? 0,
+//                 ]);
+
+//                 if (!$model->save()) {
+//                     continue;
+//                 }
+
+//                 $guardados++;
+//                 $respuesta->push(['identificador' => $info['identificador'], 'estado' => '1']);
+//                 $this->actualizarSolicitud($model);
+//             }
+
+//             if ($guardados == 0) {
+//                 return $this->handleAlert("empty");
+//             }
+
+//             // Agrupar por solicitud_id
+//             $agrupados = collect($listaGuardar)->groupBy('solicitud_id')->map(function ($items) {
+//                 return [
+//                     'cantidad_total' => $items->sum('cantidad'),
+//                     'registros' => $items->count(),
+//                     'usuarios' => $items->pluck('usuario_id')->unique(),
+//                 ];
+//             });
+
+
+
+//             $enviar_sms = WbConfiguraciones::select('enviar_mensajes')
+//             ->where('fk_id_project_Company', $this->traitGetProyectoCabecera($req))
+//             ->first();
+//             // Enviar SMS
+//             if ($enviar_sms && $enviar_sms->enviar_mensajes == 1) {
+//                 $solicitudesTransporte = $this->getTransporte($req->hash);
+//                 $usuarioId = data_get($solicitudesTransporte, 'solicitud.fk_id_usuarios', null);
+//                 foreach ($agrupados as $solicitudId => $datos) {
+//                     $usuarios = $datos['usuarios'];
+//                     foreach ($usuarios as $usuarioId) {
+//                         $mensaje = __("messages.sms_resumen_solicitud", [
+//                             'solicitud' => $solicitudId,
+//                             'registros' => $datos['registros'],
+//                             'cantidad' => $datos['cantidad_total'],
+//                         ]);
+//                         $nota = __("messages.sms_resumen_nota");
+                      
+//                     }
+                    
+//                 }
+//                 $smsController = new SmsController();
+//                 $smsController->Enviar_Sms_Por_IdUsuarios($mensaje, $nota, $usuarioId);
+//             }
+           
+//             return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));
+//         } else {
+//             return $this->handleAlert("empty");
+//         }
+//     } catch (\Throwable $th) {
+//         Log::info($th->getMessage());
+//        // return $this->handleAlert($th->getMessage());
+      
+//     }
+// }
 
 
 
