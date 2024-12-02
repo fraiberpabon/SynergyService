@@ -248,8 +248,11 @@ class WbTransporteRegistroController extends BaseController implements Vervos
 
             if ($solicitud != null) {
                 $respuesta->put('solicitud', $solicitud['identificador']);
+                $respuesta->put('total_despachada', $solicitud['total_despachada']);
+                $respuesta->put('cant_recibida', $solicitud['cant_recibida']);
+                $respuesta->put('cant_viajes_llegada', $solicitud['cant_viajes_llegada']);
                 $respuesta->put('cant_despachada', $solicitud['cant_despachada']);
-                $respuesta->put('cant_viajes', $solicitud['cant_viajes']);
+                $respuesta->put('cant_viajes_salida', $solicitud['cant_viajes_salida']);
             }
 
 
