@@ -91,13 +91,12 @@ class TransporteTicketController extends BaseController
         $item = $transporte->first();
         if ($item->solicitud) {
             $mapping = [
-                'solicitud' => $item->fk_id_solicitud ,
                 'fechaProgramacion' => $item->solicitud ? $item->solicitud->fechaProgramacion : null,
                 'nota_usuario' => $item->solicitud ? $item->solicitud->notaUsuario : null,
-                'cantidad' => $item->solicitud ? $item->solicitud->Cantidad . ' '. $item->material->unidadMedida : null,
+                'cantidad' => $item->solicitud ? $item->solicitud->Cantidad : null,
                 'solicitante' => $item->solicitud && $item->solicitud->usuario ?
                     $item->solicitud->usuario->Nombre . ' ' . $item->solicitud->usuario->Apellido : null,
-
+                'solicitud' => $item->fk_id_solicitud
             ];
             $viaje->push($mapping);
         }else{
@@ -113,7 +112,7 @@ class TransporteTicketController extends BaseController
         if ($item2) {
             $mapping2 = [
                 'voucher' => $item2->ticket,
-                'solicitud' => $item2->fk_id_solicitud? $item2->fk_id_solicitud :null,
+                'solicitud' => $item2->fk_id_solicitud,
                 'solicitante' => $item2->solicitud && $item2->solicitud->usuario ? $item2->solicitud->usuario->Nombre . " " . $item2->solicitud->usuario->Apellido : null,
                 'tipo' => $item2->tipo,
                 'plantaOrigen' => $item2->origenPlanta ? $item2->origenPlanta->NombrePlanta : null,
@@ -144,7 +143,7 @@ class TransporteTicketController extends BaseController
         foreach ($transporte as $key) {
             $mapping = [
                 'voucher' => $key->ticket,
-                 'solicitud' => $key->fk_id_solicitud ,
+                 'solicitud' => $key->fk_id_solicitud,
                 'solicitante' => $key->solicitud && $key->solicitud->usuario ? $key->solicitud->usuario->Nombre . " " . $key->solicitud->usuario->Apellido : null,
                 'tipo' => $key->tipo,
                 'plantaOrigen' => $key->origenPlanta ? $key->origenPlanta->NombrePlanta : null,

@@ -400,10 +400,10 @@ return [
 
     //ticket de transporte
     'title_ticket_transport' => 'Synergy vale de transporte',
-    'numero_boucher_card' => 'Número de Boucher:',
+    'numero_boucher_card' => 'Numero de boucher:',
     'material_card' => 'Material:',
     'formula_card' => 'Formula:',
-    'solicitud_card' => 'Formula:',
+    'solicitud_card' => 'Solicitud:',
     'equipo_card' => 'Equipo:',
     'placa_card' => 'Placa:',
     'cubicaje_m3_card' => 'Cubicaje (m³):',
@@ -423,16 +423,17 @@ return [
 
     'wbe_origen_card' => 'WBE origen:',
     'wbe_destino_card' => 'WBE destino:',
-    'observacion_card' => 'Observación:',
+
+    'observacion_card' => 'Observacion:',
     'creado_por_card' => 'Creado por:',
     'observaciones_card' => 'Observaciones:',
     'solicitante_card' => 'Solicitante:',
     'observacion' => 'Observación',
-    'fecha_programacion_card' => 'Fecha de programación:',
+    'fecha_programacion_card' => 'Fecha de programacion:',
 
-    'ups_registro_no_encontrado' => '¡Ups! Registro no encontrado',
-    'msg_no_ha_sincronizado_transporte' => 'Al parecer, el transporte no ha sido sincronizado',
+    'ups_registro_no_encontrado' => '¡Ups! registro no encontrado',
+    'msg_no_ha_sincronizado_transporte' => 'Al paracer el transporte no ha sido sincronizado',
     'no_sincronizado'=>'No sincronizado',
-    'solicitud_no'=>'La solicitud número: ',
-    'solicitud_no_encontrada'=>' No fue encontrada.'
+    'solicitud_no'=>'La solicitud número ',
+    'solicitud_no_encontrada'=>' no fue encontrada.'
 ];
