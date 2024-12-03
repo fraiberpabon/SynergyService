@@ -434,6 +434,16 @@ return [
     'ups_registro_no_encontrado' => '¡Ups! registro no encontrado',
     'msg_no_ha_sincronizado_transporte' => 'Al paracer el transporte no ha sido sincronizado',
     'no_sincronizado'=>'No sincronizado',
-    'solicitud_no'=>'La solicitud número ',
-    'solicitud_no_encontrada'=>' no fue encontrada.'
+    'solicitud_no'=>'La solicitud número: ',
+    'solicitud_no_encontrada'=>' No fue encontrada.',
+
+    'sms_synergy_despacho'=>'Synergy, se despacho :cantidad m3 de :material en el vehiculo :equipoid solicitud No. :solicitud',
+    'sms_synergy_despacho_nota'=>'Registro transporte Synergy',
+    'sms_synergy_llegada'=>'Synergy, se recibieron :cantidad m3 de :material en el vehiculo :equipoid solicitud No. :solicitud',
+    'sms_synergy_despacho_cerrar'=>'Synergy, Su solicitud :solicitud se ha despachado en su totalidad',
+    'sms_synergy_despacho_nota_cerrar'=>'Registro transporte Synergy',
+    'sms_resumen_solicitud'=>'Synergy, Se sincronizaron :registros viajes que equivalen a :cantidad m3 de su solicitud No. :solicitud',
+    'sms_resumen_solicitud_tipo2'=>'Synergy, Se sincronizaron :registros viajes que equivalen a :cantidad m3 de su solicitud No. :solicitud',
+    'sms_resumen_nota'=>'Resumen Transporte'
+
 ];

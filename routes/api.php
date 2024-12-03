@@ -172,12 +172,12 @@ Route::prefix('')->group(function () {
 
         return response()->json($res);
     });
-
     Route::prefix('Login')->group(function () {
         Route::get('/confirmarNum', [UsuarioController::class, 'enviarCodigo']);
         Route::get('/confirmarCod', [UsuarioController::class, 'confirmarNumero']);
     });
 
+   
 
     Route::get('tables', function () {
     });
