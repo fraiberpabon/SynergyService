@@ -417,7 +417,7 @@ return [
     'solicitante_card' => 'Richiedente:',
     'observacion' => 'osservazione',
     'fecha_programacion_card' => 'Data di programmazione:',
-
+    'no_sincronizado'=>'Non sincronizzato',
     'ups_registro_no_encontrado' => 'Ops! Registro non trovato',
     'msg_no_ha_sincronizado_transporte' => 'Sembra che il trasporto non sia stato sincronizzato',
     'no_sincronizado'=>'Non sincronizzato',
