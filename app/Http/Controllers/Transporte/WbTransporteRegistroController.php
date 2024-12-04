@@ -141,47 +141,40 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                 $respuesta->put('cant_viajes', $solicitud['cant_viajes']);
             }
 
-            try {
-                $enviar_sms = WbConfiguraciones::select('enviar_mensajes')
-                    ->where('fk_id_project_Company', $this->traitGetProyectoCabecera($req))
-                    ->first();
-
-                if ($enviar_sms && $enviar_sms->enviar_mensajes == 1) {
-                    $solicitudesTransporte = $this->getTransporte($req->hash);
-                    $material = data_get($solicitudesTransporte, 'material.Nombre', null);
-                    $formula = data_get($solicitudesTransporte, 'formula.Nombre', null);
-                    $material = $material ?? $formula ?? 'Sin material ni fórmula';
-                    $equipoId = data_get($solicitudesTransporte, 'equipo.equiment_id', 'Equipo desconocido');
-                    $usuarioId = data_get($solicitudesTransporte, 'solicitud.fk_id_usuarios', null);
-                    $placa = data_get($solicitudesTransporte, 'equipo.placa', null);
-                    $cubicaje = data_get($solicitudesTransporte, 'equipo.cubicaje', null);
-                    $id_usuarios = $usuarioId;
-                    if ($req->tipo == 1) {
-                        $equipoDescripcion = $placa ? $equipoId . ' (' . $placa . ')' : $equipoId;
-                        $mensaje = __('messages.sms_synergy_llegada', [
-                            'cantidad' => $cubicaje,
-                            'material' => $material,
-                            'equipoid'=> $equipoId,
-                            'solicitud' => $req->solicitud_id,
-                        ]);
-                    } else  {
-                        $equipoDescripcion = $placa ? $equipoId . ' (' . $placa . ')' : $equipoId;
-                        $mensaje = __('messages.sms_synergy_despacho', [
-                            'cantidad' => $cubicaje,
-                            'material' => $material,
-                            'equipoid' => $equipoDescripcion,
-                            'solicitud' => $req->solicitud_id,
-                        ]);
-                    }
-                    $nota = __('messages.sms_synergy_despacho_nota');
-                    $confirmationController = new SmsController();
-                    $confirmationController->Enviar_Sms_Por_IdUsuarios($mensaje, $nota, $id_usuarios);
+            if ($this->isSendSmsConfig($this->traitGetProyectoCabecera($req))) {
+                $solicitudesTransporte = $this->getTransporte($req->hash);
+                $material = data_get($solicitudesTransporte, 'material.Nombre', null);
+                $formula = data_get($solicitudesTransporte, 'formula.Nombre', null);
+                $material = $material ?? $formula ?? 'Sin material ni fórmula';
+                $equipoId = data_get($solicitudesTransporte, 'equipo.equiment_id', 'Equipo desconocido');
+                $usuarioId = data_get($solicitudesTransporte, 'solicitud.fk_id_usuarios', null);
+                $placa = data_get($solicitudesTransporte, 'equipo.placa', null);
+                $cubicaje = data_get($solicitudesTransporte, 'equipo.cubicaje', null);
+                $id_usuarios = $usuarioId;
+                if ($req->tipo == 1) {
+                    $equipoDescripcion = $placa ? $equipoId . ' (' . $placa . ')' : $equipoId;
+                    $mensaje = __('messages.sms_synergy_llegada', [
+                        'cantidad' => $cubicaje,
+                        'material' => $material,
+                        'equipoid' => $equipoId,
+                        'solicitud' => $req->solicitud_id,
+                    ]);
                 } else {
-                    Log::info('No se permite enviar mensajes');
+                    $equipoDescripcion = $placa ? $equipoId . ' (' . $placa . ')' : $equipoId;
+                    $mensaje = __('messages.sms_synergy_despacho', [
+                        'cantidad' => $cubicaje,
+                        'material' => $material,
+                        'equipoid' => $equipoDescripcion,
+                        'solicitud' => $req->solicitud_id,
+                    ]);
                 }
-            } catch (\Throwable $e) {
-                Log::error($e);
+                $nota = __('messages.sms_synergy_despacho_nota');
+
+                $this->sendSms($mensaje, $nota, $id_usuarios);
+            } else {
+                \Log::info('No se permite enviar mensajes');
             }
+
             return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));
         } catch (\Throwable $th) {
             \Log::error('transport-background ' . $th->getMessage());
@@ -304,7 +297,39 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                 $respuesta->put('cant_viajes_salida', $solicitud['cant_viajes_salida']);
             }
 
+            if ($this->isSendSmsConfig($this->traitGetProyectoCabecera($req))) {
+                $solicitudesTransporte = $this->getTransporte($req->hash);
+                $material = data_get($solicitudesTransporte, 'material.Nombre', null);
+                $formula = data_get($solicitudesTransporte, 'formula.Nombre', null);
+                $material = $material ?? $formula ?? 'Sin material ni fórmula';
+                $equipoId = data_get($solicitudesTransporte, 'equipo.equiment_id', 'Equipo desconocido');
+                $usuarioId = data_get($solicitudesTransporte, 'solicitud.fk_id_usuarios', null);
+                $placa = data_get($solicitudesTransporte, 'equipo.placa', null);
+                $cubicaje = data_get($solicitudesTransporte, 'equipo.cubicaje', null);
+                $id_usuarios = $usuarioId;
+                if ($req->tipo == 1) {
+                    $equipoDescripcion = $placa ? $equipoId . ' (' . $placa . ')' : $equipoId;
+                    $mensaje = __('messages.sms_synergy_llegada', [
+                        'cantidad' => $cubicaje,
+                        'material' => $material,
+                        'equipoid' => $equipoId,
+                        'solicitud' => $req->solicitud_id,
+                    ]);
+                } else {
+                    $equipoDescripcion = $placa ? $equipoId . ' (' . $placa . ')' : $equipoId;
+                    $mensaje = __('messages.sms_synergy_despacho', [
+                        'cantidad' => $cubicaje,
+                        'material' => $material,
+                        'equipoid' => $equipoDescripcion,
+                        'solicitud' => $req->solicitud_id,
+                    ]);
+                }
+                $nota = __('messages.sms_synergy_despacho_nota');
 
+                $this->sendSms($mensaje, $nota, $id_usuarios);
+            } else {
+                \Log::info('No se permite enviar mensajes');
+            }
 
             return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));
         } catch (\Throwable $th) {
@@ -445,33 +470,26 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                 });
 
                 Log::info($agrupados);
-                try {
-                    $enviar_sms = WbConfiguraciones::select('enviar_mensajes')
-                        ->where('fk_id_project_Company', $this->traitGetProyectoCabecera($req))
-                        ->first();
 
-                    if ($enviar_sms && $enviar_sms->enviar_mensajes == 1) {
-                        foreach ($agrupados as $solicitudId => $datos) {
-                            $solicitudesTransporte = $this->getTransporte2($solicitudId);
-                            $usuarioId = data_get($solicitudesTransporte, 'solicitud.fk_id_usuarios', null);
-                            if ($usuarioId) {
-                                $mensaje = __('messages.sms_resumen_solicitud', [
-                                    'registros' => $datos['registros'],
-                                    'cantidad' => $datos['cantidad_total'],
-                                    'solicitud' => $solicitudId
-                                ]);
-                                $nota = __('messages.sms_resumen_nota');
-                                $confirmationController = new SmsController();
-                                $confirmationController->Enviar_Sms_Por_IdUsuarios($mensaje, $nota, $usuarioId);
-                            } else {
-                                Log::warning("Usuario no encontrado para solicitud ID: $solicitudId");
-                            }
+                if ($this->isSendSmsConfig($this->traitGetProyectoCabecera($req))) {
+                    foreach ($agrupados as $solicitudId => $datos) {
+                        $solicitudesTransporte = $this->getTransporte2($solicitudId);
+                        $usuarioId = data_get($solicitudesTransporte, 'solicitud.fk_id_usuarios', null);
+                        if ($usuarioId) {
+                            $mensaje = __('messages.sms_resumen_solicitud', [
+                                'registros' => $datos['registros'],
+                                'cantidad' => $datos['cantidad_total'],
+                                'solicitud' => $solicitudId
+                            ]);
+                            $nota = __('messages.sms_resumen_nota');
+
+                            $this->sendSms($mensaje, $nota, $usuarioId);
+                        } else {
+                            \Log::warning("Usuario no encontrado para solicitud ID: $solicitudId");
                         }
-                    } else {
-                        Log::info('No se permite enviar mensajes');
                     }
-                } catch (\Throwable $e) {
-                    Log::error($e);
+                } else {
+                    \Log::info('No se permite enviar mensajes');
                 }
 
                 return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));
@@ -484,31 +502,31 @@ class WbTransporteRegistroController extends BaseController implements Vervos
         }
     }
 
- /**
-  * Get por transporte de materiales
-  */
-  public function getTransporte($hash)
-  {
-      $consulta = WbTransporteRegistro::where('hash', $hash)->with(['equipo','material','solicitud','formula']);
-      $resultados = $consulta->first();
-      return $resultados;
-  }
+    /**
+     * Get por transporte de materiales
+     */
+    public function getTransporte($hash)
+    {
+        $consulta = WbTransporteRegistro::where('hash', $hash)->with(['equipo', 'material', 'solicitud', 'formula']);
+        $resultados = $consulta->first();
+        return $resultados;
+    }
 
 
-  public function getTransporte2($id_solicitud)
-  {
-      $consulta = WbTransporteRegistro::where('fk_id_solicitud', $id_solicitud)->with(['equipo','material','solicitud','formula']);
-      $resultados = $consulta->first();
-      return $resultados;
-  }
+    public function getTransporte2($id_solicitud)
+    {
+        $consulta = WbTransporteRegistro::where('fk_id_solicitud', $id_solicitud)->with(['equipo', 'material', 'solicitud', 'formula']);
+        $resultados = $consulta->first();
+        return $resultados;
+    }
 
 
 
 
-  /***
-   * Actualizar el estado de solicitud de material,
-   * si este fue despachado completamente
-   */
+    /***
+     * Actualizar el estado de solicitud de material,
+     * si este fue despachado completamente
+     */
     private function actualizarSolicitud(WbTransporteRegistro $item)
     {
         $solicitud = WbSolicitudMateriales::where('id_solicitud_Materiales', $item->fk_id_solicitud)
@@ -554,27 +572,50 @@ class WbTransporteRegistroController extends BaseController implements Vervos
         $solicitud->fk_id_estados = 15;
         $solicitud->user_despacho = $item->user_created;
 
-        $solicitud->save();
-        try {
-            $enviar_sms = WbConfiguraciones::select('enviar_mensajes')
-                ->where('fk_id_project_Company', $this->traitGetProyectoCabecera($item))
-                ->first();
-
-            if ($enviar_sms && $enviar_sms->enviar_mensajes == 1) {
+        if ($solicitud->save()) {
+            if ($this->isSendSmsConfig($item->fk_id_project_Company)) {
                 $solicitudesTransporte = $this->getTransporte($item->hash);
                 $usuarioId = data_get($solicitudesTransporte, 'solicitud.fk_id_usuarios', null);
                 $id_usuarios = $usuarioId;
-                $mensaje = __('messages.sms_synergy_despacho_cerrar',[
-                        'solicitud'=> $item->solicitud_id
+                $mensaje = __('messages.sms_synergy_despacho_cerrar', [
+                    'solicitud' => $item->solicitud_id
                 ]);
                 $nota = __('messages.sms_synergy_despacho_nota');
-                $confirmationController = new SmsController();
-                $confirmationController->Enviar_Sms_Por_IdUsuarios($mensaje, $nota, $id_usuarios);
+                $this->sendSms($mensaje, $nota, $id_usuarios);
             } else {
                 Log::info('No se permite enviar mensajes');
             }
+        }
+    }
+
+    /**
+     * Consulta por proyecto si en su configuracion esta disponible el envio de sms
+     * @param mixed $proyecto identificador del proyecto
+     * @return bool {true = si esta disponible enviar sms, false = no esta disponible para sms}
+     */
+    private function isSendSmsConfig($proyecto)
+    {
+        $enviar_sms = WbConfiguraciones::select('enviar_mensajes')
+            ->where('fk_id_project_Company', $proyecto)
+            ->first();
+
+        return $enviar_sms && $enviar_sms->enviar_mensajes == 1;
+    }
+
+    /**
+     * Envia mensaje de sms con la informacion suministrada
+     * @param mixed $mensaje
+     * @param mixed $nota
+     * @param mixed $usuarios
+     * @return void
+     */
+    private function sendSms($mensaje, $nota, $usuarios)
+    {
+        try {
+            $confirmationController = new SmsController();
+            $confirmationController->Enviar_Sms_Por_IdUsuarios($mensaje, $nota, $usuarios);
         } catch (\Throwable $e) {
-            Log::error($e);
+            \Log::error('sendSms error: ' . $e);
         }
     }
 
