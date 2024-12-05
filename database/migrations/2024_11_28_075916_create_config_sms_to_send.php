@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('config_sms_to_send');
+        Schema::dropColumn('enviar_mensajes');
     }
 };
