@@ -11,12 +11,13 @@ return new class extends Migration
      *
      * @return void
      */
-
     protected $connection = 'sqlsrv2';
+
+
     public function up()
     {
         Schema::table('Wb_configuraciones', function (Blueprint $table) {
-            $table->integer('enviar_mensajes')->nullable()->comment('permite enviar mensajes de texto');
+            $table->integer('enviar_mensajes')->default(0)->nullable()->comment('permite enviar mensajes de texto');
         });
     }
 
