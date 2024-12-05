@@ -19,6 +19,10 @@ return new class extends Migration {
      */
     public function up()
     {
+
+        //conexion con base de datos db_solicitudes
+        $con_db_cadu = 'sqlsrv2';
+
         Schema::table('Wb_transporte_registro', function (Blueprint $table) {
             $table->decimal('cubicaje', 5, 2)
                 ->nullable()
@@ -46,7 +50,7 @@ return new class extends Migration {
             $ids_equipos = $info->pluck('fk_id_equipo')->unique();
 
             // Obtener todos los equipos relacionados de una vez
-            $equipos = DB::table('Wb_equipos')
+            $equipos = DB::connection($con_db_cadu)->table('Wb_equipos')
                 ->whereIn('id', $ids_equipos)
                 ->get()
                 ->keyBy('id');

@@ -1536,4 +1536,55 @@ trait Resource
             'proyecto' => $modelo->nombre,
         ];
     }
+
+    public function solicitudesAppV2ToArray($lista): Collection|\Illuminate\Support\Collection
+    {
+        return $lista->map(function ($data) {
+            return $this->solicitudesAppV2ToModel($data);
+        });
+    }
+
+    public function solicitudesAppV2ToModel($modelo): array
+    {
+        return [
+            'identificador' => $modelo->identificador,
+            'tipo' => $modelo->tipo,
+            'capa_id' => $modelo->fk_id_tipo_capa,
+            'capa' => $modelo->tipoCapa ? $modelo->tipoCapa->Descripcion : null,
+            'material_id' => $modelo->fk_id_material,
+            'material' => $modelo->materialLista ? $modelo->materialLista->Nombre : null,
+            'tramo' => $modelo->fk_id_tramo,
+            'hito' => $modelo->fk_id_hito,
+            'abscisaInicial' => $modelo->abscisaInicialReferencia,
+            'abscisaFinal' => $modelo->abscisaFinalReferencia,
+            'carril' => $modelo->tipoCarril ? $modelo->tipoCarril->Descripcion : null,
+            'calzada' => $modelo->tipoCalzada ? $modelo->tipoCalzada->Descripcion : null,
+            'formula_id' => $modelo->fk_id_formula,
+            'fk_formula_cdp' => $modelo->fk_formula_cdp,
+            'formula' => $modelo->formulaLista ? $modelo->formulaLista->Nombre : null,
+            'formula_desc' => $modelo->formulaLista ? $modelo->formulaLista->formulaDescripcion : null,
+            'planta_id' => $modelo->fk_id_plantaReasig ? $modelo->fk_id_plantaReasig : $modelo->fk_id_planta,
+            'planta' => $modelo->plantaReasig ? $modelo->plantaReasig->NombrePlanta : $modelo->plantas->NombrePlanta,
+            'cantidad' => $modelo->cantidad_real ? $modelo->cantidad_real : $modelo->Cantidad,
+            'numeroCapa' => $modelo->numeroCapa,
+            'planta_destino_id' => $modelo->fk_id_planta_destino,
+            'planta_destino' => $modelo->plantas_destino ? $modelo->plantas_destino->NombrePlanta : null,
+            'usuario_crea' => $modelo->usuario ? ($modelo->usuario->Nombre ?? '') . ' ' . ($modelo->usuario->Apellido ?? '') : null,
+            'notaUsuario' => $modelo->notaUsuario,
+            'usuario_upd' => $modelo->usuarioAprobador ? ($modelo->usuarioAprobador->Nombre ?? '') . ' ' . ($modelo->usuarioAprobador->Apellido ?? '') : null,
+            'notaSU' => $modelo->notaSU,
+            //'notaCDC' => $modelo->notaCenProduccion,
+            //'cost_code' => $modelo->cost_code,
+            //'estructura_id' => $modelo->notaCenProduccion,
+            //'elemento_vaciar_id' => $modelo->cost_code,
+            'fechaProgramacion' => $modelo->fechaProgramacion,
+            'fechaCreacion' => $modelo->dateCreation,
+            'proyecto' => $modelo->fk_id_project_Company,
+            'total_despachada' => $modelo->total_despachada,
+            'cant_recibida' => $modelo->cant_recibida,
+            'cant_viajes_llegada' => $modelo->cant_viajes_llegada,
+            'cant_despachada' => $modelo->cant_despachada,
+            'cant_viajes_salida' => $modelo->cant_viajes_salida,
+        ];
+    }
 }

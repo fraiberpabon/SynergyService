@@ -70,6 +70,7 @@ Route::middleware('desencript')->group(function () {
 
         Route::prefix('transportes')->group(function() {
             Route::post('/insertar', [WbTransporteRegistroController::class, 'post']);
+            Route::post('/insertar-v2', [WbTransporteRegistroController::class, 'postV2']);
         });
     });
     Route::middleware(['token', 'habilitado', 'proyecto'])->group(function () {
@@ -91,6 +92,7 @@ Route::middleware('desencript')->group(function () {
 
             Route::prefix('solicitudes')->group(function () {
                 Route::get('/', [WbSolicitudesController::class, 'getApp']);
+                Route::get('/v2', [WbSolicitudesController::class, 'getAppV2']);
             });
 
             Route::prefix('material-lista')->controller(WbMaterialListaController::class)->group(function () {

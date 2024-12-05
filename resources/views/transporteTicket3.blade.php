@@ -190,7 +190,7 @@
                                             </div>
                                         @endif
 
-                                        @if (!empty($key['tipo']) && $key['tipo'] == '1' && $conteoTipos['tipo1'] != 0 )
+                                        @if (!empty($key['tipo']) && $key['tipo'] == '1' && $conteoTipos['tipo1'] != 0 && !empty($key['tramoDestino']))
                                             <div class="row">
                                                 <div class="col-12 col-sm-6">
                                                     <strong>{{ __('messages.destino_card') }}</strong>
@@ -263,19 +263,16 @@
                         @else
                         <x-bladewind::timeline align_left="{{ $alignLeft }}" icon="clipboard"
                             last="{{ $last }}">
-                            @php
-                               // dd($solicitudes = collect($transport)->pluck('solicitud')->get(0));
-                            @endphp
                             <x-slot:content>
                                 <div class="timeline-content">
                                     <x-bladewind::card>                 
-                                    @if (!empty($key['solicitud']))
+                                    @if (!empty($transport[$posicion]['solicitud']))
                                     <div class="row">
                                         <div class="col">
                                             <strong>{{ __('messages.solicitud_card') }}</strong>
                                         </div>
                                         <div class="col">
-                                            <p>{{ $key['solicitud'] }}</p>
+                                            <p>{{ $transport[$posicion]['solicitud'] }}</p>
                                         </div>
                                     </div>    
                                         @else
