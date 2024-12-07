@@ -13,7 +13,7 @@ class TransporteTicketController extends BaseController
             $transporteInicial = WbTransporteRegistro::where('ticket', $ticket)
                 ->with([
                     'solicitud' => function ($sub) {
-                        $sub->with('usuario');
+                        $sub->with('usuario','usuarioAprobador');
                     },
                     'origenPlanta',
                     'origenTramo',
@@ -96,7 +96,10 @@ class TransporteTicketController extends BaseController
                 'cantidad' => $item->solicitud ? $item->solicitud->Cantidad : null,
                 'solicitante' => $item->solicitud && $item->solicitud->usuario ?
                     $item->solicitud->usuario->Nombre . ' ' . $item->solicitud->usuario->Apellido : null,
-                'solicitud' => $item->fk_id_solicitud
+                'solicitud' => $item->fk_id_solicitud,
+                'nota_su' => $item->solicitud ? $item->solicitud->notaSU : null,
+                'super_aprobador' => $item->solicitud && $item->solicitud->usuarioAprobador ?
+                    $item->solicitud->usuarioAprobador->Nombre . ' ' . $item->solicitud->usuarioAprobador->Apellido : null,
             ];
             $viaje->push($mapping);
         }else{
@@ -135,6 +138,7 @@ class TransporteTicketController extends BaseController
                 'cubicaje' => $item2->equipo && $item2->equipo->cubicaje ? $item2->equipo->cubicaje : null,
                 'contratista' => $item2->equipo && $item2->equipo->compania ? $item2->equipo->compania->nombreCompañia : null,
                 'chofer' => $item2->chofer,
+                'nota_su' => $item->solicitud ? $item->solicitud->notaSU : null,
                 'icon' => $item2->tipo == 1 ? 'inbox-arrow-down' : 'truck'
             ];
           
@@ -166,6 +170,7 @@ class TransporteTicketController extends BaseController
                 'cubicaje' => $key->equipo && $key->equipo->cubicaje ? $key->equipo->cubicaje : null,
                 'contratista' => $key->equipo && $key->equipo->compania ? $key->equipo->compania->nombreCompañia : null,
                 'chofer' => $key->chofer,
+                'nota_su' => $item->solicitud ? $item->solicitud->notaSU : null,
                 'icon' => $key->tipo == 1 ? 'inbox-arrow-down' : 'truck'
             ];
             $viaje->push($mapping);

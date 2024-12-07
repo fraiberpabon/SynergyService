@@ -427,5 +427,7 @@ return [
     'sms_synergy_llegada'=>'Synergy, sono stati ricevuti :cantidad m3 di :material nel veicolo :equipoid per la richiesta n. :solicitud',
     'sms_synergy_despacho_nota'=>'Registro di trasporto Synergy',
     'sms_resumen_solicitud'=>'Synergy, sono stati sincronizzati :registros viaggi, equivalenti a :cantidad m3 per la richiesta n. :solicitud',
-    'sms_resumen_nota'=>'Riepilogo Trasporto'
+    'sms_resumen_nota'=>'Riepilogo Trasporto',
+    'observacion_card_aprobador'=>'Osservazione dell\'approvatore:',
+    'usuario_aprobador'=>'Utente approvatore:'
 ];

@@ -347,6 +347,26 @@
                                             </div>
                                         </div>
                                     @endif
+                                    @if (!empty($key['nota_su']))
+                                        <div class="row">
+                                            <div class="col-12 col-sm-6">
+                                                <strong>{{ __('messages.observacion_card_aprobador') }}</strong>
+                                            </div>
+                                            <div class="col-12 col-sm-6">
+                                                <p>{{ $key['nota_su'] }}</p>
+                                            </div>
+                                        </div>
+                                    @endif
+                                    @if (!empty($key['super_aprobador']))
+                                    <div class="row">
+                                        <div class="col-12 col-sm-6">
+                                            <strong>{{ __('messages.usuario_aprobador') }}</strong>
+                                        </div>
+                                        <div class="col-12 col-sm-6">
+                                            <p>{{ $key['super_aprobador'] }}</p>
+                                        </div>
+                                    </div>
+                                @endif
                                     </x-bladewind::card>
                                 </div>
                             </x-slot:content>
