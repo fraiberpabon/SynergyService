@@ -12,6 +12,7 @@ use App\Http\Controllers\WbConfiguracionController;
 use App\Http\Controllers\WbConfiguracionesController;
 use App\Http\Controllers\WbControlVersionesController;
 use App\Http\Controllers\WbEquipoControlles;
+use App\Http\Controllers\WbExcelController;
 use App\Http\Controllers\WbFormulasController;
 use App\Http\Controllers\WbHorometrosUbicacionesController;
 use App\Http\Controllers\WbMaterialListaController;
@@ -71,6 +72,7 @@ Route::middleware('desencript')->group(function () {
         Route::prefix('transportes')->group(function() {
             Route::post('/insertar', [WbTransporteRegistroController::class, 'post']);
             Route::post('/insertar-v2', [WbTransporteRegistroController::class, 'postV2']);
+            Route::post('/insertar-paquete-background', [WbTransporteRegistroController::class, 'postArray']);
         });
     });
     Route::middleware(['token', 'habilitado', 'proyecto'])->group(function () {
@@ -177,7 +179,7 @@ Route::prefix('')->group(function () {
         Route::get('/confirmarCod', [UsuarioController::class, 'confirmarNumero']);
     });
 
-   
+
 
     Route::get('tables', function () {
     });
@@ -194,22 +196,9 @@ Route::prefix('')->group(function () {
     // ---------------------------------------------------------------------------------------------------------------------------
 
     // rutas para pruebas en desarrollo
-    /* Route::prefix('equipos-dev')->group(function () {
-        Route::get('/', [WbEquipoControlles::class, 'equiposActivos']);
-    });
-
-    Route::prefix('material-lista-dev')->controller(WbMaterialListaController::class)->group(function () {
-        Route::get('/', 'get');
-    });
-
-    Route::prefix('solicitud-materiales-dev')->group(function () {
-        Route::get('/', [WbSolicitudesController::class, 'getApp']);
-    });
-
-    Route::prefix('formula-materiales-dev')->group(function () {
-        Route::get('/', [WbFormulasController::class, 'get']);
+    /* Route::prefix('csv-dev')->group(function () {
+        Route::post('/', [WbExcelController::class, 'post']);
     }); */
-
     // ----------------------------------------------------------------------------------------------------------------------------
 });
 /*
