@@ -8,14 +8,17 @@ namespace App\Http\Controllers\Transporte;
 
 use App\Http\interfaces\Vervos;
 use App\Models\Equipos\WbEquipo;
+use App\Models\Transporte\WbConductores;
 use App\Models\Transporte\WbTransporteRegistro;
 use App\Models\WbSolicitudMateriales;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\BaseController;
+use Log;
 
-class WbConductorTransporteController extends BaseController implements Vervos
+class WbConductoresController extends BaseController implements Vervos
 {
 
     public function post(Request $req)
@@ -134,55 +137,6 @@ class WbConductorTransporteController extends BaseController implements Vervos
         }
     }
 
-
-    private function actualizarSolicitud(WbTransporteRegistro $item)
-    {
-        $solicitud = WbSolicitudMateriales::where('id_solicitud_Materiales', $item->fk_id_solicitud)
-            ->where('fk_id_project_Company', $item->fk_id_project_Company)
-            ->with([
-                'transporte' => function ($sub) {
-                    $sub->with('equipo')->where('tipo', 2);
-                }
-            ])
-            ->first();
-
-        // Consultamos si encontramos una solicitud
-        if (!$solicitud) {
-            return;
-        }
-
-        // Consultamos que la solicitud no ha sido despachada en su totalidad
-        if ($solicitud->fk_id_estados && $solicitud->fk_id_estados == 15) {
-            return;
-        }
-
-        // Consultamos si la solicitud tiene por lo menos algun transporte registrado
-        if (!$solicitud->transporte) {
-            return;
-        }
-
-        $cubicaje = 0;
-
-        $cubicaje = $solicitud->transporte->filter(fn($tr) => $tr->equipo && $tr->equipo->cubicaje != null)
-            ->sum(fn($tr) => $tr->equipo->cubicaje ?? 0);
-
-        $redondear = ceil($cubicaje ?? 0);
-
-        // Convertir el valor de la cantidad fuera del condicional
-        $convertCantidad = floatval($solicitud->Cantidad);
-
-        if ($convertCantidad > $redondear) {
-            return;
-        }
-
-        // Asignar valores y guardar la solicitud solo si pasa la validación
-        $solicitud->fecha_cierre = Carbon::now()->format('d/m/Y h:i:s A');
-        $solicitud->fk_id_estados = 15;
-        $solicitud->fk_id_usuarios_update = $item->user_created;
-
-        $solicitud->save();
-    }
-
     /**
      * Funcion de update no tocar por la interface de vervos
      */
@@ -204,6 +158,15 @@ class WbConductorTransporteController extends BaseController implements Vervos
      */
     public function get(Request $request)
     {
+        try {
+            $query = WbConductores::where('estado', 1);
+            $query = $this->filtrar($request, $query)
+                ->get();
+
+            return $this->handleResponse($request, $this->WbConductorestoArray($query), __('messages.consultado'));
+        } catch (Exception $e) {
+            Log::error('error get conductores ' . $e->getMessage());
+        }
     }
 
     public function getPorProyecto(Request $request, $proyecto)

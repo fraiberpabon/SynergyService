@@ -6,6 +6,7 @@ use App\Http\Controllers\CostCodeController;
 use App\Http\Controllers\encrypt;
 use App\Http\Controllers\EquiposLiquidacion\WbEquiposLiquidacionController;
 use App\Http\Controllers\ProjectCompanyController;
+use App\Http\Controllers\Transporte\WbConductoresController;
 use App\Http\Controllers\Transporte\WbTransporteRegistroController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\WbConfiguracionController;
@@ -116,6 +117,11 @@ Route::middleware('desencript')->group(function () {
             // configuraciones
             Route::prefix('configuraciones')->group(function () {
                 Route::get('/app', [WbConfiguracionesController::class, 'get']);
+            });
+
+            // conductores
+            Route::prefix('conductores')->group(function () {
+                Route::get('/app', [WbConductoresController::class, 'get']);
             });
         });
         /*
