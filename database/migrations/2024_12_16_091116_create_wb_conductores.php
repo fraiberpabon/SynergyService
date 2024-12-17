@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Transporte\WbTransporteRegistro;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -33,50 +34,44 @@ return new class extends Migration {
             $table->integer('fk_user_creador')->nullable()->comment('id de usuario creador del registro');
             $table->integer('fk_user_update')->nullable()->comment('id de usuario que modifica el registro');
             $table->integer('fk_id_project_Company')->comment('proyecto al cual pertenece el conductor');
-            $table->integer('fk_compania')->default(1)->comment('compañia al cual pertenece el conductor');
             $table->timestamps();
         });
 
-        //establecemos el tamaño de registros por paquete de datos
-        $tamanio_paquete_registro = 1000;
+        $transportes = WbTransporteRegistro::select('chofer')
+            ->groupBy('chofer')
+            ->get();
 
-        //obtenemos el numero total de registros de la tabla
-        $total_registros = DB::connection($this->con_db_ts)->table($this->tb_employee)->count();
-
-        //obtenemos el numero total de paquetes de datos
-        $total_paquetes = ceil($total_registros / $tamanio_paquete_registro);
-
-        //recorremos la lista para ir copiando los datos
-        for ($i = 0; $i < $total_paquetes; $i++) {
-
-            //consultamos la informacion de la base de datos, lo dividiremos en paquetes de 1000
-            $datos = DB::connection($this->con_db_ts)
-                ->table($this->tb_employee)
-                ->where('EmployeeType', 'o')
-                ->offset($i * $tamanio_paquete_registro)
-                ->limit($tamanio_paquete_registro)
-                ->get();
-
-            //tomamos los registros y los mapeamos la informacion situando cada dato en la columna correspondiente a la nueva tabla
-            $datos->map(function ($dato) {
-                return [
-                    'dni' => $dato->EmployeeID,
-                    'nombreCompleto' => $dato->FirstName ? $dato->FirstName . ' ' . $dato->LastName : $dato->LastName,
-                    'estado' => $dato->Status == 'A' ? 1 : 0,
-                    //'fk_user_creador' => $dato->tamaño,
-                    'fk_id_project_Company' => 1,
-                    'fk_compania' => 1,
-                    // Formateamos las fechas en el formato requerido
-                    'created_at' => now()->format('d-m-Y H:i:s.v'),
-                    'updated_at' => now()->format('d-m-Y H:i:s.v'),
-                ];
-            })
-                //insertamos uno a uno la informacion dentro de la nueva tabla.
-                ->each(function ($dato) {
-                    DB::table('Wb_conductores')
-                        ->insert($dato);
-                });
+        if ($transportes->count() == 0) {
+            return;
         }
+
+
+        $datosGuardar = DB::connection($this->con_db_ts)
+            ->table($this->tb_employee)
+            ->whereIn('EmployeeID', $transportes)
+            ->get();
+
+        if ($datosGuardar->count() == 0) {
+            return;
+        }
+
+        $datosGuardar->map(function ($dato) {
+            return [
+                'dni' => $dato->EmployeeID ? preg_replace('/[.,\s]/', '', $dato->EmployeeID) : null,
+                'nombreCompleto' => $dato->FirstName ?
+                    mb_strtoupper($dato->FirstName . ' ' . $dato->LastName, 'UTF-8') :
+                    mb_strtoupper($dato->LastName, 'UTF-8'),
+                'estado' => $dato->Status == 'A' ? 1 : 0,
+                'fk_id_project_Company' => 1,
+                'created_at' => now()->format('d-m-Y H:i:s.v'),
+                'updated_at' => now()->format('d-m-Y H:i:s.v'),
+            ];
+        })->each(function ($dato) {
+            if ((strlen($dato['dni']) > 6) && (strlen($dato['nombreCompleto']) > 10)) {
+                DB::table('Wb_conductores')
+                    ->insert($dato);
+            }
+        });
     }
 
     /**

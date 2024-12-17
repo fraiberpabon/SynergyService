@@ -120,8 +120,9 @@ Route::middleware('desencript')->group(function () {
             });
 
             // conductores
-            Route::prefix('conductores')->group(function () {
-                Route::get('/app', [WbConductoresController::class, 'get']);
+            Route::prefix('conductores')->controller(WbConductoresController::class)->group(function () {
+                Route::get('/app', 'get');
+                Route::post('/insertar-paquete', 'postArray');
             });
         });
         /*
