@@ -115,6 +115,7 @@ class TransporteTicketController extends BaseController
         if ($item2) {
             $mapping2 = [
                 'voucher' => $item2->ticket,
+                'ubicacion_entrada' =>  $item2->ubicacion_gps,
                 'solicitud' => $item2->fk_id_solicitud,
                 'solicitante' => $item2->solicitud && $item2->solicitud->usuario ? $item2->solicitud->usuario->Nombre . " " . $item2->solicitud->usuario->Apellido : null,
                 'tipo' => $item2->tipo,
@@ -125,6 +126,8 @@ class TransporteTicketController extends BaseController
                 'plantaDestino' => $item2->destinoPlanta ? $item2->destinoPlanta->NombrePlanta : null,
                 'tramoDestino' => $item2->destinoTramoId ? $item2->destinoTramoId->Id_Tramo . " - " . $item2->destinoTramoId->Descripcion : ($item2->destinoTramo ? $item2->destinoTramo->Id_Tramo . " - " . $item2->destinoTramo->Descripcion : null),
                 'hitoDestino' => $item2->destinoHitoId ? $item2->destinoHitoId->Id_Hitos . " - " . $item2->destinoHitoId->Descripcion : ($item2->destinoHito ? $item2->destinoHito->Id_Hitos . " - " . $item2->destinoHito->Descripcion : null),
+                'tramoDestino2' => $item2->destinoTramoId ? $item2->destinoTramoId->Id_Tramo :'',
+                'hitoDestino2' => $item2->destinoHitoId ? $item2->destinoHitoId->Id_Hitos :'',
                 'abscisaDestino' => $item2->abscisa_destino ? 'K' . substr($item2->abscisa_destino, 0, 2) . '+' . substr($item2->abscisa_destino, 2, 3) : null,
                 'costCenter' => $item2->fk_id_cost_center,
                 'material' => $item2->material ? $item2->material->Nombre . " (" . $item2->material->id_material_lista . ")" : null,
@@ -139,15 +142,18 @@ class TransporteTicketController extends BaseController
                 'contratista' => $item2->equipo && $item2->equipo->compania ? $item2->equipo->compania->nombreCompañia : null,
                 'chofer' => $item2->chofer,
                 'nota_su' => $item->solicitud ? $item->solicitud->notaSU : null,
-                'icon' => $item2->tipo == 1 ? 'inbox-arrow-down' : 'truck'
+                'icon' => $item2->tipo == 1 ? 'inbox-arrow-down' : 'truck',
             ];
           
         }    
         // Procesa los datos del transporte
         foreach ($transporte as $key) {
-            $mapping = [
+            $ubicacion_entrada = isset($transporte[1]->ubicacion_gps) ? $transporte[1]->ubicacion_gps : '';
+            $ubicacion_salida = isset($transporte[0]->ubicacion_gps) ? $transporte[0]->ubicacion_gps : '';
+            $mapping = [  
+                // 'ubicacion_salida' => $key->tipo == 1 ? $item2->ubicacion_gps : $item2->ubicacion_gps,
                 'voucher' => $key->ticket,
-                 'solicitud' => $key->fk_id_solicitud,
+                'solicitud' => $key->fk_id_solicitud,
                 'solicitante' => $key->solicitud && $key->solicitud->usuario ? $key->solicitud->usuario->Nombre . " " . $key->solicitud->usuario->Apellido : null,
                 'tipo' => $key->tipo,
                 'plantaOrigen' => $key->origenPlanta ? $key->origenPlanta->NombrePlanta : null,
@@ -157,6 +163,8 @@ class TransporteTicketController extends BaseController
                 'plantaDestino' => $key->destinoPlanta ? $key->destinoPlanta->NombrePlanta : null,
                 'tramoDestino' => $key->destinoTramoId ? $key->destinoTramoId->Id_Tramo . " - " . $key->destinoTramoId->Descripcion : ($key->destinoTramo ? $key->destinoTramo->Id_Tramo . " - " . $key->destinoTramo->Descripcion : null),
                 'hitoDestino' => $key->destinoHitoId ? $key->destinoHitoId->Id_Hitos . " - " . $key->destinoHitoId->Descripcion : ($key->destinoHito ? $key->destinoHito->Id_Hitos . " - " . $key->destinoHito->Descripcion : null),
+                'tramoDestino2' => $item2->destinoTramoId ? $item2->destinoTramoId->Id_Tramo :'',
+                'hitoDestino2' => $item2->destinoHitoId ? $item2->destinoHitoId->Id_Hitos :'',
                 'abscisaDestino' => $key->abscisa_destino ? 'K' . substr($key->abscisa_destino, 0, 2) . '+' . substr($key->abscisa_destino, 2, 3) : null,
                 'costCenter' => $key->fk_id_cost_center,
                 'material' => $key->material ? $key->material->Nombre . " (" . $key->material->id_material_lista . ")" : null,
@@ -187,6 +195,7 @@ class TransporteTicketController extends BaseController
                 'tipo' =>$transporte->get(0)->tipo==1 ?  2 : 1,
                'observacion' => __('messages.no_sincronizado'),
                 'icon' =>  $transporte->get(0)->tipo==1 ? 'truck' :'inbox-arrow-down' ,
+                'plantaOrigen' => $key->origenPlanta ? $key->origenPlanta->NombrePlanta : null
             ];
             if ($transporte->get(0)->tipo == 1 && $conteoTipos['tipo1']==1  && $conteoTipos['tipo2']==0 ) {
                 $viaje->splice(1, 0, [$map]);
@@ -199,6 +208,8 @@ class TransporteTicketController extends BaseController
             "transport" => $viaje,
             "conteoTipos" => $conteoTipos,
             "card" => $mapping2,
+            "ubicacion_entrada"=>$ubicacion_entrada,
+            "ubicacion_salida"=>$ubicacion_salida,
         ]);
     }
 }
