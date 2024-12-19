@@ -7,11 +7,7 @@
 namespace App\Http\Controllers\Transporte;
 
 use App\Http\interfaces\Vervos;
-use App\Models\Equipos\WbEquipo;
 use App\Models\Transporte\WbConductores;
-use App\Models\Transporte\WbTransporteRegistro;
-use App\Models\WbSolicitudMateriales;
-use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -81,8 +77,6 @@ class WbConductoresController extends BaseController implements Vervos
                     $itemRespuesta->put('dni', $info['dni']);
                     $itemRespuesta->put('estadoSync', '1');
                     $respuesta->push($itemRespuesta);
-
-                    $this->actualizarSolicitud($model);
                 }
 
                 if ($guardados == 0) {

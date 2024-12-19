@@ -75,6 +75,10 @@ Route::middleware('desencript')->group(function () {
             Route::post('/insertar-v2', [WbTransporteRegistroController::class, 'postV2']);
             Route::post('/insertar-paquete-background', [WbTransporteRegistroController::class, 'postArray']);
         });
+
+        Route::prefix('solicitudes')->group(function() {
+            Route::post('/array-find', [WbSolicitudesController::class, 'getListForIds']);
+        });
     });
     Route::middleware(['token', 'habilitado', 'proyecto'])->group(function () {
         Route::prefix('app/v1/')->group(function () {

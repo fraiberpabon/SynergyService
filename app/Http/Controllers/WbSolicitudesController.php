@@ -532,4 +532,137 @@ class WbSolicitudesController extends BaseController implements Vervos
     {
         // TODO: Implement getPorProyecto() method.
     }
+
+    public function getListForIds(Request $req)
+    {
+        $validate = Validator::make($req->all(), [
+            'datos' => 'required',
+        ]);
+
+        if ($validate->fails()) {
+            return $this->handleAlert($validate->errors());
+        }
+
+        $listAsk = json_decode($req->datos, true);
+
+        if (!is_array($listAsk) || sizeof($listAsk) == 0) {
+            return $this->handleAlert('empty');
+        }
+
+        $query = WbSolicitudMateriales::with([
+            'usuario' => function ($sub) {
+                $sub->select('id_usuarios', 'usuario', 'Nombre', 'Apellido');
+            },
+            'usuarioAprobador' => function ($sub) {
+                $sub->select('id_usuarios', 'usuario', 'Nombre', 'Apellido');
+            },
+            'materialLista' => function ($sub) {
+                $sub->select('id_material_lista', 'Nombre', 'Descripcion', 'unidadMedida');
+            },
+            'tipoCapa' => function ($sub) {
+                $sub->select('id_tipo_capa', 'Descripcion');
+            },
+            'tipoCalzada' => function ($sub) {
+                $sub->select('id_tipo_calzada', 'Calzada', 'Descripcion');
+            },
+            'tipoCarril' => function ($sub) {
+                $sub->select('id_tipo_carril', 'Carril', 'Descripcion');
+            },
+            'formulaLista' => function ($sub) {
+                $sub->select('id_formula_lista', 'Nombre', 'formulaDescripcion');
+            },
+            'plantas' => function ($sub) {
+                $sub->select('id_plata', 'NombrePlanta', 'descripcion');
+            },
+            'plantaReasig' => function ($sub) {
+                $sub->select('id_plata', 'NombrePlanta', 'descripcion');
+            },
+            'plantas_destino' => function ($sub) {
+                $sub->select('id_plata', 'NombrePlanta', 'descripcion');
+            },
+            'transporte' => function ($sub) {
+                $sub->with('equipo')->where('estado', 1);
+            }
+        ])
+            ->whereDate('fechaProgramacion', '>=', Carbon::now()->subDays(3)->toDateString())
+            ->where(function ($q) {
+                $q->where('fk_id_estados', 12)
+                    ->orWhereNotNull('user_despacho');
+            })
+            ->whereIn('id_solicitud_Materiales', $listAsk)
+            ->select(
+                'id_solicitud_Materiales as identificador',
+                'id_solicitud_Materiales',
+                DB::raw("'M' as tipo"), // Ponemos el tipo de la solicitud, en este caso solicitud de material
+                'fk_id_usuarios',
+                'fk_id_usuarios_update',
+                'fk_id_tipo_capa',
+                'fk_id_tramo',
+                'fk_id_hito',
+                'abscisaInicialReferencia',
+                'abscisaFinalReferencia',
+                'fk_id_tipo_carril',
+                'fk_id_tipo_calzada',
+                'fk_id_material',
+                'fk_id_formula',
+                'fk_id_planta',
+                'fk_id_plantaReasig',
+                'Cantidad',
+                'cantidad_real',
+                'numeroCapa',
+                'notaUsuario',
+                'notaSU',
+                'fk_id_planta_destino',
+                DB::raw("CAST(fechaProgramacion as DATE) as fechaProgramacion"),
+                DB::raw("CAST(dateCreation as DATE) as dateCreation"),
+                'fk_id_project_Company',
+            );
+
+        $query = $this->filtrar($req, $query)->orderBy('fechaProgramacion', 'DESC')->get();
+
+        $query = $query->map(function ($item) {
+            $info = WbFormulaCentroProduccion::select('codigoFormulaCdp')
+                ->where('fk_id_formula_lista', $item->fk_id_formula)
+                ->where('fk_id_planta', $item->fk_id_planta)
+                ->where('Estado', 'A')
+                ->where('fk_id_project_Company', $item->fk_id_project_Company)
+                ->orderBy('dateCreate', 'DESC')
+                ->first();
+
+            $item->fk_formula_cdp = $info->codigoFormulaCdp ?? null;
+
+            if ($item->transporte) {
+                //$cubicaje = 0;
+                //$viajes = 0;
+
+                $vLlegada = $vSalida = $cLlegada = $cSalida = 0;
+
+                foreach ($item->transporte as $tr) {
+                    if ($tr->tipo == 1) {
+                        $vLlegada++;
+                        $cLlegada += $tr->equipo && $tr->equipo->cubicaje ? $tr->equipo->cubicaje : 0;
+                    } else if ($tr->tipo == 2) {
+                        $vSalida++;
+                        $cSalida += $tr->equipo && $tr->equipo->cubicaje ? $tr->equipo->cubicaje : 0;
+                    }
+                }
+
+                $item->total_despachada = max($cLlegada, $cSalida);
+                $item->cant_recibida = $cLlegada;
+                $item->cant_viajes_llegada = $vLlegada;
+                $item->cant_despachada = $cSalida;
+                $item->cant_viajes_salida = $vSalida;
+            } else {
+                $item->total_despachada = 0;
+                $item->cant_recibida = 0;
+                $item->cant_viajes_llegada = 0;
+                $item->cant_despachada = 0;
+                $item->cant_viajes_salida = 0;
+            }
+
+            return $this->solicitudesAppV2ToModel($item);
+        });
+
+        return $this->handleResponse($req, $query, __('messages.consultado'));
+    }
 }

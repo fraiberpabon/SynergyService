@@ -207,7 +207,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                 'formula_id' => 'nullable',
                 'equipo_id' => 'required|numeric',
                 'equipo_cubicaje' => 'nullable',
-                'conductor_dni' => 'nullable|numeric',
+                'conductor_dni' => 'nullable|string',
                 'cantidad' => 'nullable',
                 'usuario_id' => 'required|string',
                 'ubicacion' => 'nullable|string',
@@ -378,7 +378,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                         'formula_id' => 'nullable',
                         'equipo_id' => 'required|numeric',
                         'equipo_cubicaje' => 'nullable',
-                        'conductor_dni' => 'nullable|numeric',
+                        'conductor_dni' => 'nullable|string',
                         'cantidad' => 'nullable',
                         'usuario_id' => 'required|string',
                         'ubicacion' => 'nullable|string',
@@ -399,6 +399,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                         $itemRespuesta = collect();
                         $itemRespuesta->put('identificador', $info['identificador']);
                         $itemRespuesta->put('estado', '1');
+                        $itemRespuesta->put('solicitud_id', $info['solicitud_id']);
                         $respuesta->push($itemRespuesta);
                         continue;
                     }
@@ -453,6 +454,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                     $itemRespuesta = collect();
                     $itemRespuesta->put('identificador', $info['identificador']);
                     $itemRespuesta->put('estado', '1');
+                    $itemRespuesta->put('solicitud_id', $info['solicitud_id']);
                     $respuesta->push($itemRespuesta);
 
                     $this->actualizarSolicitud($model);
