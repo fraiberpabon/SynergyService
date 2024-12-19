@@ -429,5 +429,6 @@ return [
     'sms_resumen_solicitud'=>'Synergy, sono stati sincronizzati :registros viaggi :tipo , equivalenti a :cantidad m3 per la richiesta n. :solicitud',
     'sms_resumen_nota'=>'Riepilogo Trasporto',
     'observacion_card_aprobador'=>'Osservazione dell\'approvatore:',
-    'usuario_aprobador'=>'Utente approvatore:'
+    'usuario_aprobador'=>'Utente approvatore:',
+    'sms_synergy_despacho_cerrar'=>'Synergy, La tua richiesta :solicitud è stato spedito per intero'
 ];

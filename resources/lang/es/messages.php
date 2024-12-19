@@ -446,6 +446,7 @@ return [
     'sms_resumen_solicitud_tipo2'=>'Synergy, Se sincronizaron :registros viajes que equivalen a :cantidad m3 de su solicitud No. :solicitud',
     'sms_resumen_nota'=>'Resumen Transporte',
     'observacion_card_aprobador'=>'Observación aprobador:',
-    'usuario_aprobador'=>'Usuario aprobador:'
+    'usuario_aprobador'=>'Usuario aprobador:',
+    'sms_synergy_despacho_cerrar'=>'Synergy, Su solicitud :solicitud se ha despachado en su totalidad'
 
 ];

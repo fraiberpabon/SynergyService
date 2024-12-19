@@ -431,5 +431,6 @@ return [
     'sms_resumen_solicitud'=>'Synergy, :registros trips  of :tipo were synchronized, amounting to :cantidad m3 for your request No. :solicitud',
     'sms_resumen_nota'=>'Transport Summary',
     'observacion_card_aprobador'=>'Approver observation:',
-    'usuario_aprobador'=>'Approver user:'
+    'usuario_aprobador'=>'Approver user:',
+    'sms_synergy_despacho_cerrar'=>'Synergy, request :solicitud has been shipped in full'
 ];
