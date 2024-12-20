@@ -398,7 +398,7 @@
             <x-bladewind::card title="Recorrido del transporte">
                 <div id="map" style="height: 400px; width: 100%;"></div>
                 <script>
-                    const map = L.map('map').setView([51.505, -0.09], 13); // Valor por defecto si no hay puntos
+                    const map = L.map('map').setView([51.505, -0.09], 13); 
                     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                         maxZoom: 19,
                     }).addTo(map);
@@ -408,22 +408,22 @@
                 
                     @php
                         if (!empty($ubicacion_salida) && str_contains($ubicacion_salida, ';')) {
-                        $salida = isset($key['plantaOrigen']) ? "<p>{$key['plantaOrigen']}</p>" : "<p>"
-                                . __('messages.frente_card') . "<br>"
-                                . (!empty($key['tramoOrigen']) ? $key['tramoOrigen'] : __('messages.default_tramo')) . "<br>"
-                                . __('messages.zona_card') . "<br>"
-                                . (!empty($key['hitoOrigen']) ? $key['hitoOrigen'] : __('messages.default_hito'))
-                                . (!empty($key['abscisaOrigen']) 
-                                    ? "<br>" . __('messages.abscisa_card') . " " . $key['abscisaOrigen'] 
-                                    : "")
-                            . "</p>";
-                      
+                            $salida = isset($key['plantaOrigen']) ? "<p>{$key['plantaOrigen']}</p>" : "<p>"
+                                    . __('messages.frente_card') . "<br>"
+                                    . (!empty($key['tramoOrigen']) ? $key['tramoOrigen'] : __('messages.default_tramo')) . "<br>"
+                                    . __('messages.zona_card') . "<br>"
+                                    . (!empty($key['hitoOrigen']) ? $key['hitoOrigen'] : __('messages.default_hito'))
+                                    . (!empty($key['abscisaOrigen']) 
+                                        ? "<br>" . __('messages.abscisa_card') . " " . $key['abscisaOrigen'] 
+                                        : "")
+                                . "</p>";
+                
                             $entrada = explode(';', $ubicacion_salida);
-                        if (count($entrada) === 2) {
-                            echo "waypoints.push(L.latLng({$entrada[0]}, {$entrada[1]}));";
-                            echo "tooltipInfo.push('Salida: {$salida}');";
+                            if (count($entrada) === 2) {
+                                echo "waypoints.push(L.latLng({$entrada[0]}, {$entrada[1]}));";
+                                echo "tooltipInfo.push('Salida: {$salida}');";
+                            }
                         }
-                    }
                         if (!empty($ubicacion_entrada) && str_contains($ubicacion_entrada, ';')) {
                             $llegada = !empty($key['plantaDestino']) ? "<p>{$key['plantaDestino']}</p>" : "<p>"
                             . __('messages.frente_card') ." ". $key['tramoDestino2'] ."<br>"
@@ -431,18 +431,31 @@
                             . (!empty($key['abscisaDestino']) 
                                 ?   __('messages.abscisa_card') . " " . $key['abscisaDestino'] 
                                 : "")
-                        . "</p>";
-
+                            . "</p>";
+                
                             $salida = explode(';', $ubicacion_entrada);
                             if (count($salida) === 2) {
                                 echo "waypoints.push(L.latLng({$salida[0]}, {$salida[1]}));";
-                                // Tooltip para salida con coordenadas
                                 echo "tooltipInfo.push('Llegada: {$llegada}');";
                             }
                         }
-                        
                     @endphp
-                      
+                
+                    // Crear iconos personalizados para marcadores
+                    const redIcon = L.icon({
+                        iconUrl: 'https://mapmarker.io/api/v3/font-awesome/v6/pin?text=S&size=85&color=FFF&background=ed6464&hoffset=0&voffset=0', // Cambiar a la URL de tu icono rojo
+                        iconSize: [40, 41], // Tamaño del icono
+                        iconAnchor: [18, 41], // Punto de anclaje del icono
+                        popupAnchor: [1, -34], // Punto de anclaje para el popup
+                    });
+                
+                    const greenIcon = L.icon({
+                        iconUrl: 'https://mapmarker.io/api/v3/font-awesome/v6/pin?text=L&size=85&color=FFF&background=5aba45&hoffset=0&voffset=0', // Cambiar a la URL de tu icono verde
+                        iconSize: [40, 41], // Tamaño del icono
+                        iconAnchor: [18, 41], // Punto de anclaje del icono
+                        popupAnchor: [1, -34], // Punto de anclaje para el popup
+                    });
+                
                     // Si ambos puntos están presentes, mostrar la ruta
                     if (waypoints.length === 2) {
                         L.Routing.control({
@@ -455,7 +468,8 @@
                 
                         // Añadir marcadores con tooltips para cada punto
                         waypoints.forEach((point, index) => {
-                            const marker = L.marker(point).addTo(map);
+                            const icon = index === 0 ? redIcon : greenIcon; // Salida es roja, llegada es verde
+                            const marker = L.marker(point, { icon }).addTo(map);
                             marker.bindTooltip(tooltipInfo[index]); // Asociar el tooltip correspondiente
                         });
                     }
@@ -464,8 +478,8 @@
                         map.setView(waypoints[0], 13); // Centrar el mapa en el único punto
                 
                         // Añadir un marcador con un tooltip para el único punto
-                        const tooltip = tooltipInfo[0]; // Obtener el único tooltip disponible
-                        L.marker(waypoints[0]).addTo(map).bindTooltip(tooltip);
+                        const icon = tooltipInfo[0].includes('Salida') ? redIcon : greenIcon; // Definir icono según el tipo
+                        L.marker(waypoints[0], { icon }).addTo(map).bindTooltip(tooltipInfo[0]);
                     } else {
                         alert("No se han proporcionado puntos válidos para mostrar en el mapa.");
                     }
