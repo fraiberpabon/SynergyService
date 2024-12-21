@@ -632,8 +632,6 @@ class WbSolicitudesController extends BaseController implements Vervos
             $item->fk_formula_cdp = $info->codigoFormulaCdp ?? null;
 
             if ($item->transporte) {
-                //$cubicaje = 0;
-                //$viajes = 0;
 
                 $vLlegada = $vSalida = $cLlegada = $cSalida = 0;
 
