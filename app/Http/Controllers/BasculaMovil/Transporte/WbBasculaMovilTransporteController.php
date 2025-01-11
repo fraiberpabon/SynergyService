@@ -7,8 +7,7 @@
 namespace App\Http\Controllers\BasculaMovil\Transporte;
 
 use App\Http\interfaces\Vervos;
-use App\Models\Transporte\WbBasculaMovilTransporte;
-use App\Models\WbSolicitudMateriales;
+use App\Models\BasculaMovil\WbBasculaMovilTransporte;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;

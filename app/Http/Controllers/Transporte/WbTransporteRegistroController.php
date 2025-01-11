@@ -473,25 +473,29 @@ class WbTransporteRegistroController extends BaseController implements Vervos
 
                 Log::info($agrupados);
 
-                if ($this->isSendSmsConfig($this->traitGetProyectoCabecera($req))) {
-                    foreach ($agrupados as $solicitudId => $datos) {
-                        $solicitudesTransporte = $this->getTransporte2($solicitudId);
-                        $usuarioId = data_get($solicitudesTransporte, 'solicitud.fk_id_usuarios', null);
-                        if ($usuarioId) {
-                            $mensaje = __('messages.sms_resumen_solicitud', [
-                                'registros' => $datos['registros'],
-                                'cantidad' => $datos['cantidad_total'],
-                                'solicitud' => $solicitudId
-                            ]);
-                            $nota = __('messages.sms_resumen_nota');
+                try {
+                    if ($this->isSendSmsConfig($this->traitGetProyectoCabecera($req))) {
+                        foreach ($agrupados as $solicitudId => $datos) {
+                            $solicitudesTransporte = $this->getTransporte2($solicitudId);
+                            $usuarioId = data_get($solicitudesTransporte, 'solicitud.fk_id_usuarios', null);
+                            if ($usuarioId) {
+                                $mensaje = __('messages.sms_resumen_solicitud', [
+                                    'registros' => $datos['registros'],
+                                    'cantidad' => $datos['cantidad_total'],
+                                    'solicitud' => $solicitudId
+                                ]);
+                                $nota = __('messages.sms_resumen_nota');
 
-                            $this->sendSms($mensaje, $nota, $usuarioId);
-                        } else {
-                            \Log::warning("Usuario no encontrado para solicitud ID: $solicitudId");
+                                $this->sendSms($mensaje, $nota, $usuarioId);
+                            } else {
+                                \Log::warning("Usuario no encontrado para solicitud ID: $solicitudId");
+                            }
                         }
+                    } else {
+                        \Log::info('No se permite enviar mensajes');
                     }
-                } else {
-                    \Log::info('No se permite enviar mensajes');
+                } catch (\Exception $e) {
+                    Log::info('synergy transporte error mensaje sms: ' . $e->getMessage());
                 }
 
                 return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));

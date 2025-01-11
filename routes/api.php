@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BasculaMovil\Transporte\WbBasculaMovilTransporteController;
 use App\Http\Controllers\CompaniaController;
 use App\Http\Controllers\CostCodeController;
 use App\Http\Controllers\encrypt;
@@ -114,7 +115,7 @@ Route::middleware('desencript')->group(function () {
                 Route::post('/insertar-paquete', 'postArray');
             });
 
-            Route::prefix('bascula-movil')->controller(WbTransporteRegistroController::class)->group(function () {
+            Route::prefix('bascula-movil')->controller(WbBasculaMovilTransporteController::class)->group(function () {
                 Route::post('/transporte-insertar-paquete', 'postArray');
             });
 
