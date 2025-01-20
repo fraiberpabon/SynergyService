@@ -207,7 +207,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                 'formula_id' => 'nullable',
                 'equipo_id' => 'required|numeric',
                 'equipo_cubicaje' => 'nullable',
-                'conductor_dni' => 'nullable|numeric',
+                'conductor_dni' => 'nullable|string',
                 'cantidad' => 'nullable',
                 'usuario_id' => 'required|string',
                 'ubicacion' => 'nullable|string',
@@ -378,7 +378,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                         'formula_id' => 'nullable',
                         'equipo_id' => 'required|numeric',
                         'equipo_cubicaje' => 'nullable',
-                        'conductor_dni' => 'nullable|numeric',
+                        'conductor_dni' => 'nullable|string',
                         'cantidad' => 'nullable',
                         'usuario_id' => 'required|string',
                         'ubicacion' => 'nullable|string',
@@ -399,6 +399,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                         $itemRespuesta = collect();
                         $itemRespuesta->put('identificador', $info['identificador']);
                         $itemRespuesta->put('estado', '1');
+                        $itemRespuesta->put('solicitud_id', $info['solicitud_id']);
                         $respuesta->push($itemRespuesta);
                         continue;
                     }
@@ -453,6 +454,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                     $itemRespuesta = collect();
                     $itemRespuesta->put('identificador', $info['identificador']);
                     $itemRespuesta->put('estado', '1');
+                    $itemRespuesta->put('solicitud_id', $info['solicitud_id']);
                     $respuesta->push($itemRespuesta);
 
                     $this->actualizarSolicitud($model);
@@ -462,43 +464,38 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                     return $this->handleAlert("empty");
                 }
 
-                $agrupados = collect($listaGuardar)
-                ->groupBy('solicitud_id') 
-                ->map(function ($items) {
-                    return $items->groupBy('tipo') 
-                        ->map(function ($tipoItems) {
-                            return [
-                                'cantidad_total' => round($tipoItems->sum('equipo_cubicaje'), 2),
-                                'registros' => $tipoItems->count()
-                            ];
-                        });
-                });            
-                 if ($this->isSendSmsConfig($this->traitGetProyectoCabecera($req))) {
-                    foreach ($agrupados as $solicitudId => $tipos) { 
-                        foreach ($tipos as $tipo => $datos) {
-                            if (is_array($datos) && isset($datos['registros'], $datos['cantidad_total'])) {
-                                $solicitudesTransporte = $this->getTransporte2($solicitudId);
-                                $usuarioId = data_get($solicitudesTransporte, 'solicitud.fk_id_usuarios', null);
-                                if ($usuarioId) {
-                                     $tipoMensaje = $tipo == 1 ? __('messages.llegada') : ($tipo == 2 ? __('messages.salida') : 'otro');
-                                    $mensaje = __('messages.sms_resumen_solicitud', [
-                                        'registros' => $datos['registros'],
-                                        'cantidad' => $datos['cantidad_total'],
-                                        'solicitud' => $solicitudId,
-                                        'tipo' => $tipoMensaje
-                                    ]);
-                                    $nota = __('messages.sms_resumen_nota');
-                                    $this->sendSms($mensaje, $nota, $usuarioId);
-                                } else {
-                                    \Log::warning("Usuario no encontrado para solicitud ID: $solicitudId, Tipo: $tipo");
-                                }
+                $agrupados = collect($listaGuardar)->groupBy('solicitud_id')->map(function ($items) {
+                    return [
+                        'cantidad_total' => round($items->sum('equipo_cubicaje'), 2),
+                        'registros' => $items->count()
+                    ];
+                });
+
+                Log::info($agrupados);
+
+                try {
+                    if ($this->isSendSmsConfig($this->traitGetProyectoCabecera($req))) {
+                        foreach ($agrupados as $solicitudId => $datos) {
+                            $solicitudesTransporte = $this->getTransporte2($solicitudId);
+                            $usuarioId = data_get($solicitudesTransporte, 'solicitud.fk_id_usuarios', null);
+                            if ($usuarioId) {
+                                $mensaje = __('messages.sms_resumen_solicitud', [
+                                    'registros' => $datos['registros'],
+                                    'cantidad' => $datos['cantidad_total'],
+                                    'solicitud' => $solicitudId
+                                ]);
+                                $nota = __('messages.sms_resumen_nota');
+
+                                $this->sendSms($mensaje, $nota, $usuarioId);
                             } else {
-                                \Log::warning("Estructura inesperada para solicitud ID: $solicitudId, Tipo: $tipo", ['datos' => $datos]);
+                                \Log::warning("Usuario no encontrado para solicitud ID: $solicitudId");
                             }
                         }
+                    } else {
+                        \Log::info('No se permite enviar mensajes');
                     }
-                } else {
-                    \Log::info('No se permite enviar mensajes');
+                } catch (\Exception $e) {
+                    Log::info('synergy transporte error mensaje sms: ' . $e->getMessage());
                 }
 
                 return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));

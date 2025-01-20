@@ -1606,4 +1606,19 @@ trait Resource
         ];
     }
 
+    public function WbConductorestoArray($lista): Collection|\Illuminate\Support\Collection
+    {
+        return $lista->map(function ($data) {
+            return $this->WbConductorestoModel($data);
+        });
+    }
+
+    public function WbConductorestoModel($modelo): array
+    {
+        return [
+            'dni' => $modelo->dni,
+            'nombre' => $modelo->nombreCompleto,
+            'proyecto' => $modelo->fk_id_project_Company,
+        ];
+    }
 }

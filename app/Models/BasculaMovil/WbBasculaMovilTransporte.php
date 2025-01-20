@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Transporte;
+namespace App\Models\BasculaMovil;
 
 use App\Models\CostCode;
 use App\Models\Equipos\WbEquipo;

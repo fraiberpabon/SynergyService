@@ -1,17 +1,20 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BasculaMovil\Transporte\WbBasculaMovilTransporteController;
 use App\Http\Controllers\CompaniaController;
 use App\Http\Controllers\CostCodeController;
 use App\Http\Controllers\encrypt;
 use App\Http\Controllers\EquiposLiquidacion\WbEquiposLiquidacionController;
 use App\Http\Controllers\ProjectCompanyController;
+use App\Http\Controllers\Transporte\WbConductoresController;
 use App\Http\Controllers\Transporte\WbTransporteRegistroController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\WbConfiguracionController;
 use App\Http\Controllers\WbConfiguracionesController;
 use App\Http\Controllers\WbControlVersionesController;
 use App\Http\Controllers\WbEquipoControlles;
+use App\Http\Controllers\WbExcelController;
 use App\Http\Controllers\WbFormulasController;
 use App\Http\Controllers\WbHorometrosUbicacionesController;
 use App\Http\Controllers\WbMaterialListaController;
@@ -72,6 +75,11 @@ Route::middleware('desencript')->group(function () {
         Route::prefix('transportes')->group(function() {
             Route::post('/insertar', [WbTransporteRegistroController::class, 'post']);
             Route::post('/insertar-v2', [WbTransporteRegistroController::class, 'postV2']);
+            Route::post('/insertar-paquete-background', [WbTransporteRegistroController::class, 'postArray']);
+        });
+
+        Route::prefix('solicitudes')->group(function() {
+            Route::post('/array-find', [WbSolicitudesController::class, 'getListForIds']);
         });
     });
     Route::middleware(['token', 'habilitado', 'proyecto'])->group(function () {
@@ -108,13 +116,19 @@ Route::middleware('desencript')->group(function () {
                 Route::post('/insertar-paquete', 'postArray');
             });
 
-            Route::prefix('bascula-movil')->controller(WbTransporteRegistroController::class)->group(function () {
+            Route::prefix('bascula-movil')->controller(WbBasculaMovilTransporteController::class)->group(function () {
                 Route::post('/transporte-insertar-paquete', 'postArray');
             });
 
             // configuraciones
             Route::prefix('configuraciones')->group(function () {
                 Route::get('/app', [WbConfiguracionesController::class, 'get']);
+            });
+
+            // conductores
+            Route::prefix('conductores')->controller(WbConductoresController::class)->group(function () {
+                Route::get('/app', 'get');
+                Route::post('/insertar-paquete', 'postArray');
             });
         });
         /*
@@ -180,6 +194,9 @@ Route::prefix('')->group(function () {
 
     Route::prefix('Basculas-moviles')->group(function () {
         Route::get('/getBasculas', [WbBasculaMovilTransporteController::class, 'GetBasculas']);
+
+
+    Route::get('tables', function () {
     });
 
     
@@ -196,22 +213,9 @@ Route::prefix('')->group(function () {
     // ---------------------------------------------------------------------------------------------------------------------------
 
     // rutas para pruebas en desarrollo
-    /* Route::prefix('equipos-dev')->group(function () {
-        Route::get('/', [WbEquipoControlles::class, 'equiposActivos']);
-    });
-
-    Route::prefix('material-lista-dev')->controller(WbMaterialListaController::class)->group(function () {
-        Route::get('/', 'get');
-    });
-
-    Route::prefix('solicitud-materiales-dev')->group(function () {
-        Route::get('/', [WbSolicitudesController::class, 'getApp']);
-    });
-
-    Route::prefix('formula-materiales-dev')->group(function () {
-        Route::get('/', [WbFormulasController::class, 'get']);
+    /* Route::prefix('csv-dev')->group(function () {
+        Route::post('/', [WbExcelController::class, 'post']);
     }); */
-
     // ----------------------------------------------------------------------------------------------------------------------------
 });
 /*
