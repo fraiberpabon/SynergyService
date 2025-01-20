@@ -17,6 +17,7 @@ use App\Http\Controllers\WbHorometrosUbicacionesController;
 use App\Http\Controllers\WbMaterialListaController;
 use App\Http\Controllers\WbSolicitudesController;
 use App\Http\Controllers\WbTipoFormatoController;
+use App\Http\Controllers\BasculaMovil\Transporte\WbBasculaMovilTransporteController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
@@ -177,10 +178,11 @@ Route::prefix('')->group(function () {
         Route::get('/confirmarCod', [UsuarioController::class, 'confirmarNumero']);
     });
 
-   
-
-    Route::get('tables', function () {
+    Route::prefix('Basculas-moviles')->group(function () {
+        Route::get('/getBasculas', [WbBasculaMovilTransporteController::class, 'GetBasculas']);
     });
+
+    
 
     Route::get('encrypt/{tipoPassword}', [encrypt::class, 'index']);
     Route::get('encrypt', [encrypt::class, 'index']);

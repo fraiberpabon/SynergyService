@@ -1587,4 +1587,23 @@ trait Resource
             'cant_viajes_salida' => $modelo->cant_viajes_salida,
         ];
     }
+
+    /**
+     * Añadir en un resource aparte
+     */
+
+     public function BasculasToArray($lista): Collection|\Illuminate\Support\Collection
+     {
+         return $lista->map(function ($data) {
+             return $this->BasculasToModel($data);
+         });
+     }
+ 
+    public function BasculasToModel($modelo): array
+    {
+        return [
+        'id' => $modelo->id,
+        ];
+    }
+
 }

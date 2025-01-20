@@ -7,7 +7,7 @@
 namespace App\Http\Controllers\BasculaMovil\Transporte;
 
 use App\Http\interfaces\Vervos;
-use App\Models\Transporte\WbBasculaMovilTransporte;
+use App\Models\BasculaMovil\WbBasculaMovilTransporte;
 use App\Models\WbSolicitudMateriales;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -172,5 +172,27 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
     public function getPorProyecto(Request $request, $proyecto)
     {
         // TODO: Implement getPorProyecto() method.
+    }
+
+
+    public function GetBasculas(Request $request)
+    {
+    $consulta = WbBasculaMovilTransporte::with([
+        'origenPlanta',
+        'origenTramo',
+        'origenHito',
+        'destinoPlanta',
+        'destinoTramo',
+        'destinoHito',
+        'cdcOrigen',
+        'cdcDestino',
+        'material',
+        'formula',
+        'user_created',
+        'user_updated',
+        'equipo'
+    ])->get();
+    var_dump($consulta);
+    return $this->handleResponse($request, $this->BasculasToArray($consulta), 'Consultado.');
     }
 }

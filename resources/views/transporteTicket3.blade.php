@@ -18,7 +18,6 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
     <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
-
     <style>
         .timeline-content {
             text-align: left !important;
@@ -194,14 +193,14 @@
                                                </div>
                                            @endif
    
-                                           @if (!empty($key['tipo']) && $key['tipo'] == '1' && $conteoTipos['tipo1'] != 0 && !empty($key['tramoDestino']))
+                                           @if (!empty($key['tipo']) && $key['tipo'] == '1' && $conteoTipos['tipo1'] != 0 )
                                                <div class="row">
                                                    <div class="col-12 col-sm-6">
                                                        <strong>{{ __('messages.destino_card') }}</strong>
                                                    </div>
                                                    <div class="col-12 col-sm-6">
                                                        @if (!empty($key['plantaDestino']))
-                                                           <p>{{ $key['plantaDestino'] }}</p>
+                                                           <p>{{ $transport[2]['plantaDestino']}}</p>
                                                        @else
                                                            <p>
                                                                {{ __('messages.frente_card') }}
@@ -276,8 +275,9 @@
                                                <strong>{{ __('messages.solicitud_card') }}</strong>
                                            </div>
                                            <div class="col">
-                                               <p>{{ $transport[$posicion]['solicitud'] }}</p>
+                                               <p>{{ $transport[$posicion]['solicitud']  }}</p>
                                            </div>
+                                          
                                        </div>    
                                            @else
                                            <div class="row">
@@ -285,7 +285,7 @@
                                                    <strong>{{ __('messages.solicitud_card') }}</strong>
                                                </div>
                                                <div class="col">
-                                                   <p>{{$solicitudes = collect($transport)->pluck('solicitud2')->get(0);}}</p>  
+                                                   <p>{{$solicitudes = collect($transport)->pluck('solicitud')->get(0);}}</p>   
                                                </div>
                                            </div>    
                                            @endif
@@ -409,9 +409,9 @@
                     @php
                         if (!empty($ubicacion_salida) && str_contains($ubicacion_salida, ';')) {
                             $salida = isset($key['plantaOrigen']) ? "<p>{$key['plantaOrigen']}</p>" : "<p>"
-                                    . __('messages.frente_card') . "<br>"
-                                    . (!empty($key['tramoOrigen']) ? $key['tramoOrigen'] : __('messages.default_tramo')) . "<br>"
-                                    . __('messages.zona_card') . "<br>"
+                                    . __('messages.frente_card') 
+                                    . (!empty($key['tramoOrigen']) ? $key['tramoOrigen'] : __('messages.default_tramo')) .
+                                   "<br>" . __('messages.zona_card') 
                                     . (!empty($key['hitoOrigen']) ? $key['hitoOrigen'] : __('messages.default_hito'))
                                     . (!empty($key['abscisaOrigen']) 
                                         ? "<br>" . __('messages.abscisa_card') . " " . $key['abscisaOrigen'] 
@@ -443,14 +443,14 @@
                 
                     // Crear iconos personalizados para marcadores
                     const redIcon = L.icon({
-                        iconUrl: 'https://mapmarker.io/api/v3/font-awesome/v6/pin?text=S&size=85&color=FFF&background=ed6464&hoffset=0&voffset=0', // Cambiar a la URL de tu icono rojo
+                        iconUrl: 'https://mapmarker.io/api/v3/font-awesome/v6/pin?text=L&size=85&color=FFF&background=ed6464&hoffset=0&voffset=0', // Cambiar a la URL de tu icono rojo
                         iconSize: [40, 41], // Tamaño del icono
                         iconAnchor: [18, 41], // Punto de anclaje del icono
                         popupAnchor: [1, -34], // Punto de anclaje para el popup
                     });
                 
                     const greenIcon = L.icon({
-                        iconUrl: 'https://mapmarker.io/api/v3/font-awesome/v6/pin?text=L&size=85&color=FFF&background=5aba45&hoffset=0&voffset=0', // Cambiar a la URL de tu icono verde
+                        iconUrl: 'https://mapmarker.io/api/v3/font-awesome/v6/pin?text=S&size=85&color=FFF&background=5aba45&hoffset=0&voffset=0', // Cambiar a la URL de tu icono verde
                         iconSize: [40, 41], // Tamaño del icono
                         iconAnchor: [18, 41], // Punto de anclaje del icono
                         popupAnchor: [1, -34], // Punto de anclaje para el popup
@@ -468,7 +468,7 @@
                 
                         // Añadir marcadores con tooltips para cada punto
                         waypoints.forEach((point, index) => {
-                            const icon = index === 0 ? redIcon : greenIcon; // Salida es roja, llegada es verde
+                            const icon = index === 0 ?   greenIcon : redIcon; // Salida es roja, llegada es verde
                             const marker = L.marker(point, { icon }).addTo(map);
                             marker.bindTooltip(tooltipInfo[index]); // Asociar el tooltip correspondiente
                         });
@@ -476,9 +476,7 @@
                     // Si solo hay un punto (entrada o salida), centrar el mapa en ese punto
                     else if (waypoints.length === 1) {
                         map.setView(waypoints[0], 13); // Centrar el mapa en el único punto
-                
-                        // Añadir un marcador con un tooltip para el único punto
-                        const icon = tooltipInfo[0].includes('Salida') ? redIcon : greenIcon; // Definir icono según el tipo
+                        const icon = tooltipInfo[0].includes('Llegada') ? greenIcon : redIcon; // Definir icono según el tipo
                         L.marker(waypoints[0], { icon }).addTo(map).bindTooltip(tooltipInfo[0]);
                     } else {
                         alert("No se han proporcionado puntos válidos para mostrar en el mapa.");

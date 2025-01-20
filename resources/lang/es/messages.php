@@ -447,6 +447,8 @@ return [
     'sms_resumen_nota'=>'Resumen Transporte',
     'observacion_card_aprobador'=>'Observación aprobador:',
     'usuario_aprobador'=>'Usuario aprobador:',
-    'sms_synergy_despacho_cerrar'=>'Synergy, Su solicitud :solicitud se ha despachado en su totalidad'
+    'sms_synergy_despacho_cerrar'=>'Synergy, Su solicitud :solicitud se ha despachado en su totalidad',
+    'default_tramo'=>' Sin sincronizar',
+    'default_hito'=>' Sin sincronizar',
 
 ];
