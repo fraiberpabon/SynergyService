@@ -1564,7 +1564,7 @@ trait Resource
             'formula' => $modelo->formulaLista ? $modelo->formulaLista->Nombre : null,
             'formula_desc' => $modelo->formulaLista ? $modelo->formulaLista->formulaDescripcion : null,
             'planta_id' => $modelo->fk_id_plantaReasig ? $modelo->fk_id_plantaReasig : $modelo->fk_id_planta,
-            'planta' => $modelo->plantaReasig ? $modelo->plantaReasig->NombrePlanta : $modelo->plantas->NombrePlanta,
+            'planta' => $modelo->plantaReasig ? $modelo->plantaReasig->NombrePlanta : ($modelo->plantas ? $modelo->plantas->NombrePlanta : null),
             'cantidad' => $modelo->cantidad_real ? $modelo->cantidad_real : $modelo->Cantidad,
             'numeroCapa' => $modelo->numeroCapa,
             'planta_destino_id' => $modelo->fk_id_planta_destino,
@@ -1585,6 +1585,8 @@ trait Resource
             'cant_viajes_llegada' => $modelo->cant_viajes_llegada,
             'cant_despachada' => $modelo->cant_despachada,
             'cant_viajes_salida' => $modelo->cant_viajes_salida,
+            'tramo_origen' => $modelo->fk_id_tramo_origen ?? null,
+            'hito_origen' => $modelo->fk_id_hito_origen ?? null,
         ];
     }
 

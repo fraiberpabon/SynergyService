@@ -349,6 +349,8 @@ class WbSolicitudesController extends BaseController implements Vervos
                 DB::raw("CAST(fechaProgramacion as DATE) as fechaProgramacion"),
                 DB::raw("CAST(dateCreation as DATE) as dateCreation"),
                 'fk_id_project_Company',
+                'fk_id_tramo_origen',
+                'fk_id_hito_origen',
             );
 
         $query = $this->filtrar($req, $query)->orderBy('fechaProgramacion', 'DESC')->get();

@@ -18,6 +18,136 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
 
     public function post(Request $req)
     {
+        try {
+            $validator = Validator::make($req->all(), [
+                'identificador' => 'required|numeric',
+                'boucher' => 'required|string',
+                'esExterno' => 'required|numeric',
+                'tipo' => 'required|numeric',
+                'origen_planta_id' => 'nullable',
+                'origen_tramo_id' => 'nullable',
+                'origen_hito_id' => 'nullable',
+                'origen_otro' => 'nullable',
+                'origen_cost_center_id' => 'nullable',
+                'destino_planta_id' => 'nullable',
+                'destino_tramo_id' => 'nullable',
+                'destino_hito_id' => 'nullable',
+                'destino_otro' => 'nullable',
+                'destino_cost_center_id' => 'nullable',
+                'fk_material_id' => 'nullable',
+                'fk_formula_id' => 'nullable',
+                'fk_equipo_id' => 'required|numeric',
+                'conductor_dni' => 'nullable|numeric',
+                'peso1' => 'nullable',
+                'peso2' => 'nullable',
+                'peso_neto' => 'nullable',
+                'fk_usuario_created_id' => 'required|string',
+                'ubicacion_gps' => 'nullable|string',
+                'fecha' => 'required|string',
+                'fechaPeso2' => 'required|string',
+                'observacion' => 'nullable|string',
+                'proyecto' => 'required|string',
+                'hash' => 'required|string',
+                'transport_code' => 'nullable|string'
+            ]);
+
+            if ($validator->fails()) {
+                return $this->handleAlert($validator->errors());
+            }
+
+            $respuesta = collect();
+            $respuesta->put('hash', $req->hash);
+
+            $find = WbBasculaMovilTransporte::select('id')->where('hash', $req->hash)->first();
+            if ($find != null) {
+
+            } else {
+                $model = new WbBasculaMovilTransporte();
+
+                $model->boucher = $req->boucher ? $req->boucher : null;
+                $model->es_externo = $req->esExterno ? $req->esExterno : null;
+                $model->tipo = $req->tipo ? $req->tipo : null;
+
+                $model->fk_id_planta_origen = $req->origen_planta_id ? $req->origen_planta_id : null;
+                $model->fk_id_tramo_origen = $req->origen_tramo_id ? $req->origen_tramo_id : null;
+                $model->fk_id_hito_origen = $req->origen_hito_id ? $req->origen_hito_id : null;
+                $model->otro_origen = $req->origen_otro ? $req->origen_otro : null;
+                $model->fk_id_cost_center_origen = $req->origen_cost_center_id ? $req->origen_cost_center_id : null;
+
+                $model->fk_id_planta_destino = $req->destino_planta_id ? $req->destino_planta_id : null;
+                $model->fk_id_tramo_destino = $req->destino_tramo_id ? $req->destino_tramo_id : null;
+                $model->fk_id_hito_destino = $req->destino_hito_id ? $req->destino_hito_id : null;
+                $model->otro_destino = $req->destino_otro ? $req->destino_otro : null;
+                $model->fk_id_cost_center_destino = $req->destino_cost_center_id ? $req->destino_cost_center_id : null;
+
+                $model->fk_id_material = $req->fk_material_id ? $req->fk_material_id : null;
+                $model->fk_id_formula = $req->fk_formula_id ? $req->fk_formula_id : null;
+                $model->fk_id_equipo = $req->fk_equipo_id ? $req->fk_equipo_id : null;
+                $model->conductor = $req->conductor_dni ? $req->conductor_dni : null;
+                $model->observacion = $req->observacion ? $req->observacion : null;
+
+                $model->peso1 = $req->peso1 ? $req->peso1 : null;
+                $model->peso2 = $req->peso2 ? $req->peso2 : null;
+                $model->peso_neto = $req->peso_neto ? $req->peso_neto : null;
+
+                $model->fecha_registro = $req->fecha ? $req->fecha : null;
+                $model->fecha_registro_peso2 = $req->fechaPeso2 ? $req->fechaPeso2 : null;
+                $model->estado = 1;
+
+                $model->fk_id_project_Company = $req->proyecto ? $req->proyecto : null;
+
+                $model->ubicacion_gps = $req->ubicacion_gps ? $req->ubicacion_gps : null;
+
+                $model->user_created = $req->fk_usuario_created_id ? $req->fk_usuario_created_id : null;
+
+                $model->hash = $req->hash ? $req->hash : null;
+
+                $model->codigo_transporte = $req->transport_code ? $req->transport_code : null;
+
+                if (!$model->save()) {
+                    return $this->handleAlert(__('messages.no_se_pudo_realizar_el_registro'), false);
+                }
+            }
+
+            /* if ($this->isSendSmsConfig($this->traitGetProyectoCabecera($req))) {
+                $solicitudesTransporte = $this->getTransporte($req->hash);
+                $material = data_get($solicitudesTransporte, 'material.Nombre', null);
+                $formula = data_get($solicitudesTransporte, 'formula.Nombre', null);
+                $material = $material ?? $formula ?? 'Sin material ni fórmula';
+                $equipoId = data_get($solicitudesTransporte, 'equipo.equiment_id', 'Equipo desconocido');
+                $usuarioId = data_get($solicitudesTransporte, 'solicitud.fk_id_usuarios', null);
+                $placa = data_get($solicitudesTransporte, 'equipo.placa', null);
+                $cubicaje = data_get($solicitudesTransporte, 'equipo.cubicaje', null);
+                $id_usuarios = $usuarioId;
+                if ($req->tipo == 1) {
+                    $equipoDescripcion = $placa ? $equipoId . ' (' . $placa . ')' : $equipoId;
+                    $mensaje = __('messages.sms_synergy_llegada', [
+                        'cantidad' => $cubicaje,
+                        'material' => $material,
+                        'equipoid' => $equipoId,
+                        'solicitud' => $req->solicitud_id,
+                    ]);
+                } else {
+                    $equipoDescripcion = $placa ? $equipoId . ' (' . $placa . ')' : $equipoId;
+                    $mensaje = __('messages.sms_synergy_despacho', [
+                        'cantidad' => $cubicaje,
+                        'material' => $material,
+                        'equipoid' => $equipoDescripcion,
+                        'solicitud' => $req->solicitud_id,
+                    ]);
+                }
+                $nota = __('messages.sms_synergy_despacho_nota');
+
+                $this->sendSms($mensaje, $nota, $id_usuarios);
+            } else {
+                \Log::info('No se permite enviar mensajes');
+            } */
+
+            return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));
+        } catch (\Throwable $th) {
+            \Log::error('bascula-movil-background ' . $th->getMessage());
+            return $this->handleAlert($th->getMessage());
+        }
     }
 
     public function postArray(Request $req)
@@ -63,9 +193,11 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
                         'fk_usuario_created_id' => 'required|string',
                         'ubicacion_gps' => 'nullable|string',
                         'fecha' => 'required|string',
+                        'fechaPeso2' => 'required|string',
                         'observacion' => 'nullable|string',
                         'proyecto' => 'required|string',
-                        'hash' => 'required|string'
+                        'hash' => 'required|string',
+                        'transport_code' => 'nullable|string'
                     ]);
 
                     if ($validacion->fails()) {
@@ -111,6 +243,7 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
                     $model->peso_neto = isset($info['peso_neto']) ? $info['peso_neto'] : null;
 
                     $model->fecha_registro = isset($info['fecha']) ? $info['fecha'] : null;
+                    $model->fecha_registro_peso2 = isset($info['fechaPeso2']) ? $info['fechaPeso2'] : null;
                     $model->estado = 1;
 
                     $model->fk_id_project_Company = isset($info['proyecto']) ? $info['proyecto'] : null;
@@ -120,6 +253,8 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
                     $model->user_created = isset($info['fk_usuario_created_id']) ? $info['fk_usuario_created_id'] : null;
 
                     $model->hash = isset($info['hash']) ? $info['hash'] : null;
+
+                    $model->codigo_transporte = isset($info['transport_code']) ? $info['transport_code'] : null;
 
                     if (!$model->save()) {
                         continue;

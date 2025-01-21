@@ -77,6 +77,11 @@ Route::middleware('desencript')->group(function () {
             Route::post('/insertar-paquete-background', [WbTransporteRegistroController::class, 'postArray']);
         });
 
+        Route::prefix('bascula-movil')->controller(WbBasculaMovilTransporteController::class)->group(function () {
+            Route::post('/insertar', 'post');
+            Route::post('/insertar-paquete-background', 'postArray');
+        });
+
         Route::prefix('solicitudes')->group(function() {
             Route::post('/array-find', [WbSolicitudesController::class, 'getListForIds']);
         });
@@ -163,6 +168,8 @@ Route::middleware('desencript')->group(function () {
     Route::post('login', [AuthController::class, 'login']);
     Route::post('enviar-numero-telefono', [AuthController::class, 'confirmarNumeroTelefono']);
     Route::post('enviar-token-id-y-telefono', [AuthController::class, 'verificarTelefono']);
+
+
     /*
      * End rutas que no necesitan autenticacion
      */
