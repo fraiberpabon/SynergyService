@@ -193,11 +193,11 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
                         'fk_usuario_created_id' => 'required|string',
                         'ubicacion_gps' => 'nullable|string',
                         'fecha' => 'required|string',
-                        'fechaPeso2' => 'required|string',
+                        //'fechaPeso2' => 'nullable|string',
                         'observacion' => 'nullable|string',
                         'proyecto' => 'required|string',
                         'hash' => 'required|string',
-                        'transport_code' => 'nullable|string'
+                        //'transport_code' => 'nullable|string'
                     ]);
 
                     if ($validacion->fails()) {
@@ -243,7 +243,7 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
                     $model->peso_neto = isset($info['peso_neto']) ? $info['peso_neto'] : null;
 
                     $model->fecha_registro = isset($info['fecha']) ? $info['fecha'] : null;
-                    $model->fecha_registro_peso2 = isset($info['fechaPeso2']) ? $info['fechaPeso2'] : null;
+                    //$model->fecha_registro_peso2 = isset($info['fechaPeso2']) ? $info['fechaPeso2'] : null;
                     $model->estado = 1;
 
                     $model->fk_id_project_Company = isset($info['proyecto']) ? $info['proyecto'] : null;
@@ -254,7 +254,7 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
 
                     $model->hash = isset($info['hash']) ? $info['hash'] : null;
 
-                    $model->codigo_transporte = isset($info['transport_code']) ? $info['transport_code'] : null;
+                    //$model->codigo_transporte = isset($info['transport_code']) ? $info['transport_code'] : null;
 
                     if (!$model->save()) {
                         continue;
