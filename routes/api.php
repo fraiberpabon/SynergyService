@@ -74,6 +74,7 @@ Route::middleware('desencript')->group(function () {
         Route::prefix('transportes')->group(function() {
             Route::post('/insertar', [WbTransporteRegistroController::class, 'post']);
             Route::post('/insertar-v2', [WbTransporteRegistroController::class, 'postV2']);
+            Route::post('/insertar-v3', [WbTransporteRegistroController::class, 'postV3']);
             Route::post('/insertar-paquete-background', [WbTransporteRegistroController::class, 'postArray']);
         });
 
@@ -100,12 +101,14 @@ Route::middleware('desencript')->group(function () {
 
             Route::prefix('formulas')->group(function () {
                 Route::get('/', [WbFormulasController::class, 'get']);
+                Route::get('/v2', [WbFormulasController::class, 'getV2']);
                 Route::get('/composicion', [WbFormulasController::class, 'getComposicion']);
             });
 
             Route::prefix('solicitudes')->group(function () {
                 Route::get('/', [WbSolicitudesController::class, 'getApp']);
                 Route::get('/v2', [WbSolicitudesController::class, 'getAppV2']);
+                Route::get('/v3', [WbSolicitudesController::class, 'getAppV3']);
             });
 
             Route::prefix('material-lista')->controller(WbMaterialListaController::class)->group(function () {
@@ -219,6 +222,13 @@ Route::prefix('')->group(function () {
         Route::post('/', [WbExcelController::class, 'post']);
     }); */
     // ----------------------------------------------------------------------------------------------------------------------------
+
+    Route::prefix('test')->group(function () {
+        Route::get('/', [WbSolicitudesController::class, 'getApp']);
+        Route::get('/v2', [WbSolicitudesController::class, 'getAppV2']);
+        Route::get('/v3', [WbSolicitudesController::class, 'getAppV3']);
+        Route::get('/v4', [WbFormulasController::class, 'getV2']);
+    });
 });
 /*
  * End rutas huerfanas

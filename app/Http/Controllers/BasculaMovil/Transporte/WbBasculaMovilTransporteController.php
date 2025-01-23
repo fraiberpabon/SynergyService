@@ -59,9 +59,7 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
             $respuesta->put('hash', $req->hash);
 
             $find = WbBasculaMovilTransporte::select('id')->where('hash', $req->hash)->first();
-            if ($find != null) {
-
-            } else {
+            if ($find == null) {
                 $model = new WbBasculaMovilTransporte();
 
                 $model->boucher = $req->boucher ? $req->boucher : null;
