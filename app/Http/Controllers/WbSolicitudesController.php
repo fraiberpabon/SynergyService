@@ -708,10 +708,10 @@ class WbSolicitudesController extends BaseController implements Vervos
                 foreach ($query->transporte as $tr) {
                     if ($tr->tipo == 1) {
                         $vLlegada++;
-                        $cLlegada += $tr->cantidad ? $tr->cantidad : 0;
+                        $cLlegada += $tr->cantidad ? $tr->cantidad / 1000 : 0;
                     } else if ($tr->tipo == 2) {
                         $vSalida++;
-                        $cSalida += $tr->cantidad && $tr->cantidad ? $tr->cantidad : 0;
+                        $cSalida += $tr->cantidad ? $tr->cantidad / 1000 : 0;
                     }
                 }
 
@@ -1095,10 +1095,10 @@ class WbSolicitudesController extends BaseController implements Vervos
                 foreach ($item->transporte as $tr) {
                     if ($tr->tipo == 1) {
                         $vLlegada++;
-                        $cLlegada += $tr->cantidad ? $tr->cantidad : 0;
+                        $cLlegada += $tr->cantidad ? $tr->cantidad / 1000 : 0;
                     } else if ($tr->tipo == 2) {
                         $vSalida++;
-                        $cSalida += $tr->cantidad && $tr->cantidad ? $tr->cantidad : 0;
+                        $cSalida += $tr->cantidad ? $tr->cantidad / 1000 : 0;
                     }
                 }
 
