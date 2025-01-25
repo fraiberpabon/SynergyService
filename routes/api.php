@@ -94,6 +94,7 @@ Route::middleware('desencript')->group(function () {
             });
             Route::prefix('equipos')->group(function () {
                 Route::get('/', [WbEquipoControlles::class, 'equiposActivos']);
+                Route::get('/estado', [WbEquipoEstadoController::class, 'getActivosForProject']);
             });
             Route::prefix('equipos-liquidacion')->controller(WbEquiposLiquidacionController::class)->group(function () {
                 Route::get('/last-date-liquidation', 'getFechaUltimoCierre');

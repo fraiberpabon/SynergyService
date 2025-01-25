@@ -657,7 +657,10 @@ class WbSolicitudesController extends BaseController implements Vervos
                     'usuario',
                     'plantas',
                     'formula_asf',
-                    'cost_code'
+                    'cost_code',
+                    'transporte' => function ($sub) {
+                        $sub->where('estado', 1)->where('tipo_solicitud', 'A');
+                    }
                 ])
                 ->select(
                     'id_solicitudAsf as identificador',

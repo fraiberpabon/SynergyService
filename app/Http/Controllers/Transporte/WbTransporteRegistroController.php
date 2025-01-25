@@ -12,6 +12,7 @@ use App\Models\Equipos\WbEquipo;
 use App\Models\WbConfiguraciones;
 use App\Models\Transporte\WbTransporteRegistro;
 use App\Models\WbSolicitudMateriales;
+use App\Models\WbSolitudAsfalto;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -442,7 +443,12 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                     return $this->handleAlert(__('messages.no_se_pudo_realizar_el_registro'), false);
                 }
 
-                $this->actualizarSolicitud($model);
+                try {
+                    $this->actualizarSolicitudV2($model);
+                } catch (\Exception $e) {
+                    Log::error('error al cerrar solicitud ' . $e->getMessage());
+                }
+
 
                 $solicitud = (new WbSolicitudesController())->findForIdV3($model->fk_id_solicitud, $model->tipo_solicitud);
             }
@@ -625,6 +631,12 @@ class WbTransporteRegistroController extends BaseController implements Vervos
 
                     if ($model->tipo_solicitud == 'M') {
                         $this->actualizarSolicitud($model);
+                    } else {
+                        try {
+                            $this->actualizarSolicitudV2($model);
+                        } catch (\Exception $e) {
+                            Log::error('actualizar solicitud ' . $e->getMessage());
+                        }
                     }
                 }
 
@@ -758,6 +770,150 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                 $this->sendSms($mensaje, $nota, $id_usuarios);
             } else {
                 Log::info('No se permite enviar mensajes');
+            }
+        }
+    }
+
+    private function actualizarSolicitudV2(WbTransporteRegistro $item)
+    {
+        if ($item->tipo_solicitud == 'M') {
+            $this->actualizarSolicitudMaterial($item);
+        } else {
+            $this->actualizarSolicitudAsfalto($item);
+        }
+    }
+
+    private function actualizarSolicitudMaterial(WbTransporteRegistro $item)
+    {
+        $solicitud = WbSolicitudMateriales::where('id_solicitud_Materiales', $item->fk_id_solicitud)
+            ->where('fk_id_project_Company', $item->fk_id_project_Company)
+            ->with([
+                'transporte' => function ($sub) {
+                    $sub->with('equipo')->where('tipo', 2)->where('estado', 1);
+                }
+            ])
+            ->first();
+
+        // Consultamos si encontramos una solicitud
+        if (!$solicitud) {
+            return;
+        }
+
+        // Consultamos que la solicitud no ha sido despachada en su totalidad
+        if ($solicitud->fk_id_estados && $solicitud->fk_id_estados == 15) {
+            return;
+        }
+
+        // Consultamos si la solicitud tiene por lo menos algun transporte registrado
+        if (!$solicitud->transporte) {
+            return;
+        }
+
+        $cubicaje = 0;
+
+        $cubicaje = $solicitud->transporte->filter(fn($tr) => $tr->equipo && $tr->equipo->cubicaje != null)
+            ->sum(fn($tr) => $tr->equipo->cubicaje ?? 0);
+
+        $redondear = ceil($cubicaje ?? 0);
+
+        // Convertir el valor de la cantidad fuera del condicional
+        $convertCantidad = floatval($solicitud->Cantidad);
+
+        if ($convertCantidad > $redondear) {
+            return;
+        }
+
+        // Asignar valores y guardar la solicitud solo si pasa la validación
+        $solicitud->fecha_cierre = Carbon::now()->format('d/m/Y h:i:s A');
+        $solicitud->fk_id_estados = 15;
+        $solicitud->user_despacho = $item->user_created;
+
+        if ($solicitud->save()) {
+            try {
+                if ($this->isSendSmsConfig($item->fk_id_project_Company)) {
+                    $solicitudesTransporte = $this->getTransporte($item->hash);
+                    $usuarioId = data_get($solicitudesTransporte, 'solicitud.fk_id_usuarios', null);
+                    $id_usuarios = $usuarioId;
+                    $mensaje = __('messages.sms_synergy_despacho_cerrar', [
+                        'solicitud' => $item->solicitud_id
+                    ]);
+                    $nota = __('messages.sms_synergy_despacho_nota');
+                    $this->sendSms($mensaje, $nota, $id_usuarios);
+                } else {
+                    Log::info('No se permite enviar mensajes');
+                }
+            } catch (\Throwable $th) {
+                Log::error('error enviar sms solicitud asfalto ' . $th->getMessage());
+            }
+        }
+    }
+
+    private function actualizarSolicitudAsfalto(WbTransporteRegistro $item)
+    {
+        $solicitud = WbSolitudAsfalto::where('id_solicitudAsf', $item->fk_id_solicitud)
+            ->where('fk_id_project_Company', $item->fk_id_project_Company)
+            ->with([
+                'transporte' => function ($sub) {
+                    $sub->where('tipo', 2)->where('estado', 1);
+                }
+            ])
+            ->first();
+
+        // Consultamos si encontramos una solicitud
+        if (!$solicitud) {
+            return;
+        }
+
+        // Consultamos que la solicitud no ha sido despachada en su totalidad
+        if ($solicitud->estado && $solicitud->estado == 'ENVIADO') {
+            return;
+        }
+
+        // Consultamos si la solicitud tiene por lo menos algun transporte registrado
+        if (!$solicitud->transporte) {
+            return;
+        }
+
+        $cantidad = 0;
+
+        $cantidad = $solicitud->transporte->filter(fn($tr) => $tr->cantidad != null)
+            ->sum(fn($tr) => $tr->cantidad ?? 0);
+
+        $redondear = ceil($cantidad ?? 0);
+
+        $total = $redondear > 0 ? $redondear / 1000 : 0;
+
+        // Convertir el valor de la cantidad fuera del condicional
+        $convertCantidad = floatval($solicitud->Cantidad);
+
+        if ($convertCantidad <= $total) {
+            // Asignar valores y guardar la solicitud solo si pasa la validación
+            $solicitud->estado = 'ENVIADO';
+            $solicitud->fecha_cierre = Carbon::now()->format('d/m/Y h:i:s A');
+            $solicitud->user_despacho = $item->user_created;
+        }
+
+        $solicitud->toneFaltante = $total - $convertCantidad;
+
+
+        if ($solicitud->save()) {
+            if ($convertCantidad <= $total) {
+                try {
+                    if ($this->isSendSmsConfig($item->fk_id_project_Company)) {
+                        $solicitudesTransporte = $this->getTransporte($item->hash);
+                        $usuarioId = data_get($solicitudesTransporte, 'solicitud.fk_id_usuarios', null);
+                        $id_usuarios = $usuarioId;
+                        $mensaje = __('messages.sms_synergy_despacho_cerrar', [
+                            'solicitud' => $item->solicitud_id
+                        ]);
+                        $nota = __('messages.sms_synergy_despacho_nota');
+                        $this->sendSms($mensaje, $nota, $id_usuarios);
+                    } else {
+                        Log::info('No se permite enviar mensajes');
+                    }
+                } catch (\Throwable $th) {
+                    Log::error('error enviar sms solicitud asfalto ' . $th->getMessage());
+                }
             }
         }
     }

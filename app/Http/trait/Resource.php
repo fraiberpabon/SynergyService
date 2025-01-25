@@ -1642,4 +1642,21 @@ trait Resource
             'proyecto' => $modelo->fk_id_project_Company,
         ];
     }
+
+    public function WbEquipoEstadotoArray($lista): Collection|\Illuminate\Support\Collection
+    {
+        return $lista->map(function ($data) {
+            return $this->WbEquipoEstadotoModel($data);
+        });
+    }
+
+    public function WbEquipoEstadotoModel($modelo): array
+    {
+        return [
+            'identificador' => $modelo->id,
+            'nombre' => $modelo->nombre,
+            'descripcion' => $modelo->descripcion,
+            'proyecto' => $modelo->fk_id_project_Company,
+        ];
+    }
 }
