@@ -51,7 +51,7 @@ class WbHorometrosUbicacionesController extends BaseController implements Vervos
                         'observacion' => 'nullable|string',
                         'proyecto' => 'required|string',
                         'hash' => 'required|string',
-                        'equipo_estado' => 'nullable|string'
+                        'equipo_estado_id' => 'nullable|string'
                     ]);
 
                     if ($validacion->fails()) {
@@ -82,7 +82,7 @@ class WbHorometrosUbicacionesController extends BaseController implements Vervos
                     $model->ubicacion_gps = isset($info['ubicacion_gps']) ? $info['ubicacion_gps'] : null;
                     $model->user_created = isset($info['usuario']) ? $info['usuario'] : null;
                     $model->hash = isset($info['hash']) ? $info['hash'] : null;
-                    $model->fk_id_equipo_estado = isset($info['equipo_estado']) ? $info['equipo_estado'] : null;
+                    $model->fk_id_equipo_estado = isset($info['equipo_estado_id']) ? $info['equipo_estado_id'] : null;
 
                     if (!$model->save()) {
                         \Log::error('sync_array_horometers ' . ' Usuario:'.$usuario . ' Error: ' . $info);

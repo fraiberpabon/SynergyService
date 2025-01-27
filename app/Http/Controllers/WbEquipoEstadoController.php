@@ -66,7 +66,7 @@ class WbEquipoEstadoController extends BaseController implements Vervos
                 );
             $query = $this->filtrar($req, $query)->orderBy('id', 'ASC')->get();
 
-            return $this->handleResponse($req, $this->WbFormulasToArray($query), __('messages.consultado'));
+            return $this->handleResponse($req, $this->WbEquipoEstadotoArray($query), __('messages.consultado'));
         } catch (\Exception $e) {
             return $this->handleAlert($e->getMessage(), false);
         }
