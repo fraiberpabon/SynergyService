@@ -314,4 +314,27 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
     {
         // TODO: Implement getPorProyecto() method.
     }
+
+
+    public function GetBasculas(Request $request)
+    {
+    $consulta = WbBasculaMovilTransporte::with([
+        'origenPlanta',
+        'origenTramo',
+        'origenHito',
+        'destinoPlanta',
+        'destinoTramo',
+        'destinoHito',
+        'cdcOrigen',
+        'cdcDestino',
+        'material',
+        'formula',
+        'usuario_creador',
+        'usuario_actualizador',
+        'equipo',
+        'conductores'
+    ])->get();
+    //var_dump($consulta);
+    return $this->handleResponse($request, $this->BasculasToArray($consulta), 'Consultado.');
+    }
 }

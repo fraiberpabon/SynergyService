@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\BasculaMovil\Transporte\WbBasculaMovilTransporteController;
 use App\Http\Controllers\CompaniaController;
 use App\Http\Controllers\CostCodeController;
 use App\Http\Controllers\encrypt;
@@ -19,6 +18,7 @@ use App\Http\Controllers\WbMaterialListaController;
 use App\Http\Controllers\WbSolicitudesController;
 use App\Http\Controllers\WbTipoFormatoController;
 use App\Http\Controllers\WbEquipoEstadoController;
+use App\Http\Controllers\BasculaMovil\Transporte\WbBasculaMovilTransporteController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
@@ -152,6 +152,14 @@ Route::middleware('desencript')->group(function () {
          */
     });
 
+
+
+
+
+
+
+
+
     /*
      * end middelware token, habilitado, proyecto
      */
@@ -206,6 +214,8 @@ Route::prefix('')->group(function () {
     Route::get('tables', function () {
     });
 
+
+
     Route::get('encrypt/{tipoPassword}', [encrypt::class, 'index']);
     Route::get('encrypt', [encrypt::class, 'index']);
     // Route::update('/equipos/actualizar', [WbEquipoControlles::class, 'update']);
@@ -230,6 +240,7 @@ Route::prefix('')->group(function () {
         Route::get('/v4', [WbFormulasController::class, 'getV2']);
     });
 });
+
 /*
  * End rutas huerfanas
  */
