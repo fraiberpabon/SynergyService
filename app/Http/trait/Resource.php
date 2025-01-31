@@ -1485,6 +1485,7 @@ trait Resource
             'descripcion' => $modelo->formulaDescripcion,
             'unidad_medida' => $modelo->unidadMedida,
             'proyecto' => $modelo->fk_id_project_Company,
+            'tipo' => $modelo->tipo,
         ];
     }
 
@@ -1537,11 +1538,18 @@ trait Resource
         ];
     }
 
-    public function solicitudesAppV2ToArray($lista): Collection|\Illuminate\Support\Collection
+    public function solicitudesAppV2ToArray($lista, $tipo = 'M'): Collection|\Illuminate\Support\Collection
     {
-        return $lista->map(function ($data) {
-            return $this->solicitudesAppV2ToModel($data);
-        });
+        if ($tipo = 'A') {
+            return $lista->map(function ($data) {
+                return $this->solicitudesAppV2ToModel($data);
+            });
+        } else {
+            return $lista->map(function ($data) {
+                return $this->solicitudesAppV2ToModel($data);
+            });
+        }
+
     }
 
     public function solicitudesAppV2ToModel($modelo): array
@@ -1590,6 +1598,35 @@ trait Resource
         ];
     }
 
+    public function solicitudesAsfaltoAppToModel($modelo): array
+    {
+        return [
+            'identificador' => $modelo->identificador,
+            'tipo' => $modelo->tipo,
+            'tramo' => $modelo->tramo,
+            'hito' => $modelo->hito,
+            'abscisaInicial' => $modelo->abscisaInicialReferencia,
+            'abscisaFinal' => $modelo->abscisaFinalReferencia,
+            'formula_id' => $modelo->formula_asf ? $modelo->formula_asf->id_asfal_formula : null,
+            'formula' => $modelo->formula,
+            'planta_id' => $modelo->plantas ? $modelo->plantas->id_plata : null,
+            'planta' => $modelo->plantas ? $modelo->plantas->NombrePlanta : null,
+            'cantidad' => $modelo->cantidadToneladas,
+            'usuario_crea' => $modelo->usuario ? ($modelo->usuario->Nombre ?? '') . ' ' . ($modelo->usuario->Apellido ?? '') : null,
+            'notaUsuario' => $modelo->observaciones,
+            'fechaProgramacion' => $modelo->fechaProgramacion,
+            'fechaCreacion' => $modelo->dateCreation,
+            'proyecto' => $modelo->fk_id_project_Company,
+            'costCenter_id' => $modelo->cost_code ? $modelo->cost_code->COCEIDENTIFICATION : null,
+            'costCenter' => $modelo->CostCode,
+            'total_despachada' => $modelo->total_despachada,
+            'cant_recibida' => $modelo->cant_recibida,
+            'cant_viajes_llegada' => $modelo->cant_viajes_llegada,
+            'cant_despachada' => $modelo->cant_despachada,
+            'cant_viajes_salida' => $modelo->cant_viajes_salida,
+        ];
+    }
+
     public function WbConductorestoArray($lista): Collection|\Illuminate\Support\Collection
     {
         return $lista->map(function ($data) {
@@ -1602,6 +1639,23 @@ trait Resource
         return [
             'dni' => $modelo->dni,
             'nombre' => $modelo->nombreCompleto,
+            'proyecto' => $modelo->fk_id_project_Company,
+        ];
+    }
+
+    public function WbEquipoEstadotoArray($lista): Collection|\Illuminate\Support\Collection
+    {
+        return $lista->map(function ($data) {
+            return $this->WbEquipoEstadotoModel($data);
+        });
+    }
+
+    public function WbEquipoEstadotoModel($modelo): array
+    {
+        return [
+            'identificador' => $modelo->id,
+            'nombre' => $modelo->nombre,
+            'descripcion' => $modelo->descripcion,
             'proyecto' => $modelo->fk_id_project_Company,
         ];
     }

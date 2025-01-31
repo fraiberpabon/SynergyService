@@ -10,16 +10,15 @@ use App\Http\Controllers\ProjectCompanyController;
 use App\Http\Controllers\Transporte\WbConductoresController;
 use App\Http\Controllers\Transporte\WbTransporteRegistroController;
 use App\Http\Controllers\UsuarioController;
-use App\Http\Controllers\WbConfiguracionController;
 use App\Http\Controllers\WbConfiguracionesController;
 use App\Http\Controllers\WbControlVersionesController;
 use App\Http\Controllers\WbEquipoControlles;
-use App\Http\Controllers\WbExcelController;
 use App\Http\Controllers\WbFormulasController;
 use App\Http\Controllers\WbHorometrosUbicacionesController;
 use App\Http\Controllers\WbMaterialListaController;
 use App\Http\Controllers\WbSolicitudesController;
 use App\Http\Controllers\WbTipoFormatoController;
+use App\Http\Controllers\WbEquipoEstadoController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
@@ -74,6 +73,7 @@ Route::middleware('desencript')->group(function () {
         Route::prefix('transportes')->group(function() {
             Route::post('/insertar', [WbTransporteRegistroController::class, 'post']);
             Route::post('/insertar-v2', [WbTransporteRegistroController::class, 'postV2']);
+            Route::post('/insertar-v3', [WbTransporteRegistroController::class, 'postV3']);
             Route::post('/insertar-paquete-background', [WbTransporteRegistroController::class, 'postArray']);
         });
 
@@ -93,6 +93,7 @@ Route::middleware('desencript')->group(function () {
             });
             Route::prefix('equipos')->group(function () {
                 Route::get('/', [WbEquipoControlles::class, 'equiposActivos']);
+                Route::get('/estado', [WbEquipoEstadoController::class, 'getActivosForProject']);
             });
             Route::prefix('equipos-liquidacion')->controller(WbEquiposLiquidacionController::class)->group(function () {
                 Route::get('/last-date-liquidation', 'getFechaUltimoCierre');
@@ -100,12 +101,14 @@ Route::middleware('desencript')->group(function () {
 
             Route::prefix('formulas')->group(function () {
                 Route::get('/', [WbFormulasController::class, 'get']);
+                Route::get('/v2', [WbFormulasController::class, 'getV2']);
                 Route::get('/composicion', [WbFormulasController::class, 'getComposicion']);
             });
 
             Route::prefix('solicitudes')->group(function () {
                 Route::get('/', [WbSolicitudesController::class, 'getApp']);
                 Route::get('/v2', [WbSolicitudesController::class, 'getAppV2']);
+                Route::get('/v3', [WbSolicitudesController::class, 'getAppV3']);
             });
 
             Route::prefix('material-lista')->controller(WbMaterialListaController::class)->group(function () {
@@ -219,6 +222,13 @@ Route::prefix('')->group(function () {
         Route::post('/', [WbExcelController::class, 'post']);
     }); */
     // ----------------------------------------------------------------------------------------------------------------------------
+
+    Route::prefix('test')->group(function () {
+        Route::get('/', [WbSolicitudesController::class, 'getApp']);
+        Route::get('/v2', [WbSolicitudesController::class, 'getAppV2']);
+        Route::get('/v3', [WbSolicitudesController::class, 'getAppV3']);
+        Route::get('/v4', [WbFormulasController::class, 'getV2']);
+    });
 });
 /*
  * End rutas huerfanas

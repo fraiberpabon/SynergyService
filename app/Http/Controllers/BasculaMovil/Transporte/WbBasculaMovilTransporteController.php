@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\BaseController;
+use Log;
 
 class WbBasculaMovilTransporteController extends BaseController implements Vervos
 {
@@ -48,7 +49,8 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
                 'observacion' => 'nullable|string',
                 'proyecto' => 'required|string',
                 'hash' => 'required|string',
-                'transport_code' => 'nullable|string'
+                'transport_code' => 'nullable|string',
+                'tipo_formula' => 'nullable|string',
             ]);
 
             if ($validator->fails()) {
@@ -59,13 +61,13 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
             $respuesta->put('hash', $req->hash);
 
             $find = WbBasculaMovilTransporte::select('id')->where('hash', $req->hash)->first();
-            if ($find != null) {
-
-            } else {
+            if ($find == null) {
                 $model = new WbBasculaMovilTransporte();
 
+                Log::info('modelo de entrada ' . $req->esExterno);
+
                 $model->boucher = $req->boucher ? $req->boucher : null;
-                $model->es_externo = $req->esExterno ? $req->esExterno : null;
+                $model->es_externo = $req->esExterno;
                 $model->tipo = $req->tipo ? $req->tipo : null;
 
                 $model->fk_id_planta_origen = $req->origen_planta_id ? $req->origen_planta_id : null;
@@ -103,6 +105,8 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
                 $model->hash = $req->hash ? $req->hash : null;
 
                 $model->codigo_transporte = $req->transport_code ? $req->transport_code : null;
+
+                $model->tipo_formula = $req->tipo_formula ? $req->tipo_formula : null;
 
                 if (!$model->save()) {
                     return $this->handleAlert(__('messages.no_se_pudo_realizar_el_registro'), false);
@@ -145,7 +149,7 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
 
             return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));
         } catch (\Throwable $th) {
-            \Log::error('bascula-movil-background ' . $th->getMessage());
+            \Log::error('bascula-movil-insert ' . $th->getMessage());
             return $this->handleAlert($th->getMessage());
         }
     }
@@ -197,7 +201,8 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
                         'observacion' => 'nullable|string',
                         'proyecto' => 'required|string',
                         'hash' => 'required|string',
-                        //'transport_code' => 'nullable|string'
+                        'transport_code' => 'nullable|string',
+                        'tipo_formula' => 'nullable|string',
                     ]);
 
                     if ($validacion->fails()) {
@@ -255,6 +260,8 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
                     $model->hash = isset($info['hash']) ? $info['hash'] : null;
 
                     //$model->codigo_transporte = isset($info['transport_code']) ? $info['transport_code'] : null;
+
+                    $model->tipo_formula = isset($info['tipo_formula']) ? $info['tipo_formula'] : null;
 
                     if (!$model->save()) {
                         continue;
