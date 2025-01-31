@@ -1038,7 +1038,11 @@ class WbSolicitudesController extends BaseController implements Vervos
     public function getSolicitudesAsfalto(Request $req)
     {
         $fecha = Carbon::now()->subDays(3)->toDateString();
-        $query = WbSolitudAsfalto::where('estado', 'PENDIENTE')
+        $query = WbSolitudAsfalto::where(function ($q) {
+            $q->where('estado', 'PENDIENTE')
+            ->orWhereNull('toneladaReal');
+        })
+        //where('estado', 'PENDIENTE')
             ->whereRaw("CAST(LEFT(FechaHoraProgramacion, CHARINDEX(' ', FechaHoraProgramacion + ' ') - 1) as date) >= ?", [$fecha])
             ->with([
                 'usuario',
