@@ -450,5 +450,8 @@ return [
     'sms_synergy_despacho_cerrar'=>'Synergy, Su solicitud :solicitud se ha despachado en su totalidad',
     'default_tramo'=>' Sin sincronizar',
     'default_hito'=>' Sin sincronizar',
+    'tipo_bascula_salida'=>'SALIDA',
+    'tipo_bascula_entrada'=>'ENTRADA',
+    'recorrido_transporte'=>'Recorrido transporte',
 
 ];

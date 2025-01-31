@@ -187,11 +187,12 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
         'cdcDestino',
         'material',
         'formula',
-        'user_created',
-        'user_updated',
-        'equipo'
+        'usuario_creador',
+        'usuario_actualizador',
+        'equipo',
+        'conductores'
     ])->get();
-    var_dump($consulta);
+    //var_dump($consulta);
     return $this->handleResponse($request, $this->BasculasToArray($consulta), 'Consultado.');
     }
 }

@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\BasculaMovil\Transporte\WbBasculaMovilTransporteController;
 use App\Http\Controllers\CompaniaController;
 use App\Http\Controllers\CostCodeController;
 use App\Http\Controllers\encrypt;
@@ -145,6 +144,14 @@ Route::middleware('desencript')->group(function () {
          */
     });
 
+
+ 
+      
+    
+
+  
+
+
     /*
      * end middelware token, habilitado, proyecto
      */
@@ -192,8 +199,6 @@ Route::prefix('')->group(function () {
         Route::get('/confirmarCod', [UsuarioController::class, 'confirmarNumero']);
     });
 
-    Route::prefix('Basculas-moviles')->group(function () {
-        Route::get('/getBasculas', [WbBasculaMovilTransporteController::class, 'GetBasculas']);
 
 
     Route::get('tables', function () {
@@ -218,6 +223,7 @@ Route::prefix('')->group(function () {
     }); */
     // ----------------------------------------------------------------------------------------------------------------------------
 });
+
 /*
  * End rutas huerfanas
  */

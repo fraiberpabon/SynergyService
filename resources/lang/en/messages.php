@@ -432,5 +432,6 @@ return [
     'sms_resumen_nota'=>'Transport Summary',
     'observacion_card_aprobador'=>'Approver observation:',
     'usuario_aprobador'=>'Approver user:',
-    'sms_synergy_despacho_cerrar'=>'Synergy, request :solicitud has been shipped in full'
+    'sms_synergy_despacho_cerrar'=>'Synergy, request :solicitud has been shipped in full',
+    'recorrido_transporte'=>'Transport route',
 ];

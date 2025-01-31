@@ -1601,8 +1601,33 @@ trait Resource
  
     public function BasculasToModel($modelo): array
     {
+
+        $fecha_sin_formatear = $modelo->fecha_registro;
+        $fecha = Carbon::parse($fecha_sin_formatear)->format('Y-m-d');
+        $hora = Carbon::parse($fecha_sin_formatear)->format('H:i:s');
+        $tipo = $modelo->tipo == 1 ? __('messages.tipo_bascula_entrada') : __('messages.tipo_bascula_salida');
         return [
         'id' => $modelo->id,
+        'fecha' => $fecha,
+        'hora' => $hora,
+        'equipo' => $modelo->equipo ? $modelo->equipo->equiment_id : null,
+        'placa' => $modelo->equipo ? $modelo->equipo->placa : null,
+        'pesoInicial' => $modelo->peso1,
+        'pesoFinal' => $modelo->peso2,
+        'pesoNeto' => $modelo->peso_neto,
+        'boucher' => $modelo->boucher, 
+        'tipo' => $tipo,
+        'formula'=> $modelo->formula ? $modelo->formula->Nombre : null,
+        'material'=> $modelo->material ? $modelo->material->Nombre : null,
+        'plantaOrigen' => $modelo->origenPlanta ? $modelo->origenPlanta->NombrePlanta : null,
+        'tramoOrigen' => $modelo->origenTramo ? $modelo->origenTramo->Descripcion : null,
+        'plantaDestino' =>  $modelo->destinoPlanta ? $modelo->destinoPlanta->NombrePlanta : null,
+        'conductor' => $modelo->conductores ? $modelo->conductores->nombreCompleto : null, 
+        'cedulaConductor' => $modelo->conductor, 
+        'observacion' => $modelo->observacion,
+        'estado' => $modelo->estado,
+        'proyecto' => $modelo->fk_id_project_Company,
+        'usuarioCreador' => $modelo->usuario_creador ? $modelo->usuario_creador->usuario : null,
         ];
     }
 

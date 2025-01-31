@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use OwenIt\Auditing\Contracts\Auditable;
 use Illuminate\Support\Arr;
+use App\Models\Transporte\WbConductores;
 
 class WbBasculaMovilTransporte extends Model implements Auditable
 {
@@ -95,14 +96,15 @@ class WbBasculaMovilTransporte extends Model implements Auditable
         return $this->belongsTo(WbFormulaLista::class, 'fk_id_formula', 'id_formula_lista');
     }
 
-    public function user_created()
+    public function usuario_creador()
     {
-        return $this->belongsTo(usuarios_M::class, 'user_created');
+        return $this->belongsTo(usuarios_M::class, 'user_created' ,'id_usuarios' );
     }
 
-    public function user_updated()
+
+    public function usuario_actualizador()
     {
-        return $this->belongsTo(usuarios_M::class, 'user_updated');
+        return $this->belongsTo(usuarios_M::class, 'user_updated' ,'id_usuarios' );
     }
 
     public function equipo()
@@ -110,7 +112,7 @@ class WbBasculaMovilTransporte extends Model implements Auditable
         return $this->belongsTo(WbEquipo::class, 'fk_id_equipo');
     }
 
-    public function conductor() {
-        return $this->belongsTo(WbSolicitudMateriales::class, 'id_solicitud_Materiales', 'chofer');
+    public function conductores() {
+        return $this->belongsTo(WbConductores::class, 'conductor', 'dni');
     }
 }

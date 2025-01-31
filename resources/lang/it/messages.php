@@ -430,5 +430,6 @@ return [
     'sms_resumen_nota'=>'Riepilogo Trasporto',
     'observacion_card_aprobador'=>'Osservazione dell\'approvatore:',
     'usuario_aprobador'=>'Utente approvatore:',
-    'sms_synergy_despacho_cerrar'=>'Synergy, La tua richiesta :solicitud è stato spedito per intero'
+    'sms_synergy_despacho_cerrar'=>'Synergy, La tua richiesta :solicitud è stato spedito per intero',
+    'recorrido_transporte'=>'Percorso di trasporto',
 ];
