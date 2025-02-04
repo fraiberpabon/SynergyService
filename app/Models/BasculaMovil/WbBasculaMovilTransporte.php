@@ -9,7 +9,7 @@ use App\Models\Usuarios\usuarios_M;
 use App\Models\UsuPlanta;
 use App\Models\WbFormulaLista;
 use App\Models\WbHitos;
-use App\Models\WbSolicitudMateriales;
+use App\Models\WbAsfaltFormula;
 use App\Models\WbTramos;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -94,6 +94,11 @@ class WbBasculaMovilTransporte extends Model implements Auditable
     public function formula()
     {
         return $this->belongsTo(WbFormulaLista::class, 'fk_id_formula', 'id_formula_lista');
+    }
+
+    public function formulaAsf()
+    {
+        return $this->belongsTo(WbAsfaltFormula::class, 'fk_id_formula', 'id_asfal_formula');
     }
 
     public function usuario_creador()

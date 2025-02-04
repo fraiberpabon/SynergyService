@@ -453,5 +453,9 @@ return [
     'tipo_bascula_salida'=>'SALIDA',
     'tipo_bascula_entrada'=>'ENTRADA',
     'recorrido_transporte'=>'Recorrido transporte',
-
+    'title_ticket_bascula' => 'Synergy vale de bascula movil',
+    'pesoNeto_card' => 'Peso neto:',
+    'peso1_card' => 'Peso 1:',
+    'peso2_card' => 'Peso 2:',
+    'kg' => 'Kg',
 ];

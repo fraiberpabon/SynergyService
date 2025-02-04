@@ -233,12 +233,12 @@ Route::prefix('')->group(function () {
     }); */
     // ----------------------------------------------------------------------------------------------------------------------------
 
-    Route::prefix('test')->group(function () {
+    /* Route::prefix('test')->group(function () {
         Route::get('/', [WbSolicitudesController::class, 'getApp']);
         Route::get('/v2', [WbSolicitudesController::class, 'getAppV2']);
         Route::get('/v3', [WbSolicitudesController::class, 'getAppV3']);
         Route::get('/v4', [WbFormulasController::class, 'getV2']);
-    });
+    }); */
 });
 
 /*
