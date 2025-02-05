@@ -42,10 +42,10 @@
 
                                 @if (!empty($card['equipo']))
                                     <div class="row">
-                                        <div class="col">
+                                        <div class="col-12 col-sm-6">
                                             <strong>{{ __('messages.equipo_card') }}</strong>
                                         </div>
-                                        <div class="col">
+                                        <div class="col-12 col-sm-6">
                                             <p>{{ $card['equipo'] }}</p>
                                         </div>
                                     </div>
@@ -53,10 +53,10 @@
 
                                 @if (!empty($card['placa']))
                                     <div class="row">
-                                        <div class="col">
+                                        <div class="col-12 col-sm-6">
                                             <strong>{{ __('messages.placa_card') }}</strong>
                                         </div>
-                                        <div class="col">
+                                        <div class="col-12 col-sm-6">
                                             <p>{{ $card['placa'] }}</p>
                                         </div>
                                     </div>
@@ -64,10 +64,10 @@
 
                                 @if (!empty($card['contratista']))
                                     <div class="row">
-                                        <div class="col">
+                                        <div class="col-12 col-sm-6">
                                             <strong>{{ __('messages.contratista_card') }}</strong>
                                         </div>
-                                        <div class="col">
+                                        <div class="col-12 col-sm-6">
                                             <p>{{ $card['contratista'] }}</p>
                                         </div>
                                     </div>
@@ -123,10 +123,10 @@
                                             <x-bladewind::card style="margin-bottom: 20px;">
                                                 @if (!empty($key['voucher']))
                                                     <div class="row">
-                                                        <div class="col">
+                                                        <div class="col-12 col-sm-6">
                                                             <strong>{{ __('messages.numero_boucher_card') }}</strong>
                                                         </div>
-                                                        <div class="col">
+                                                        <div class="col-12 col-sm-6">
                                                             <p>{{ $key['voucher'] }}</p>
                                                         </div>
                                                     </div>
@@ -216,10 +216,10 @@
 
                                                 @if (!empty($card['material']))
                                                     <div class="row">
-                                                        <div class="col">
+                                                        <div class="col-12 col-sm-6">
                                                             <strong>{{ __('messages.material_card') }}</strong>
                                                         </div>
-                                                        <div class="col">
+                                                        <div class="col-12 col-sm-6">
                                                             <p>{{ $card['material'] }}</p>
                                                         </div>
                                                     </div>
@@ -229,10 +229,10 @@
                                                     @if ($card['formulaTipo'] == 'M')
                                                         @if (!empty($card['formula']))
                                                             <div class="row">
-                                                                <div class="col">
+                                                                <div class="col-12 col-sm-6">
                                                                     <strong>{{ __('messages.formula_card') }}</strong>
                                                                 </div>
-                                                                <div class="col">
+                                                                <div class="col-12 col-sm-6">
                                                                     <p>{{ $card['formula'] }}</p>
                                                                 </div>
                                                             </div>
@@ -240,10 +240,10 @@
                                                     @else
                                                         @if (!empty($card['formulaAsf']))
                                                             <div class="row">
-                                                                <div class="col">
+                                                                <div class="col-12 col-sm-6">
                                                                     <strong>{{ __('messages.formula_card') }}</strong>
                                                                 </div>
-                                                                <div class="col">
+                                                                <div class="col-12 col-sm-6">
                                                                     <p>{{ $card['formulaAsf'] }}</p>
                                                                 </div>
                                                             </div>
@@ -252,10 +252,10 @@
                                                 @else
                                                     @if (!empty($card['formula']))
                                                         <div class="row">
-                                                            <div class="col">
+                                                            <div class="col-12 col-sm-6">
                                                                 <strong>{{ __('messages.formula_card') }}</strong>
                                                             </div>
-                                                            <div class="col">
+                                                            <div class="col-12 col-sm-6">
                                                                 <p>{{ $card['formula'] }}</p>
                                                             </div>
                                                         </div>
@@ -401,10 +401,10 @@
                                                                 <div class="col-9 p-0">
                                                                     @if (!empty($key['peso2']))
                                                                         <div class="row">
-                                                                            <div class="col">
+                                                                            <div class="col-12 col-sm-6">
                                                                                 <strong>{{ __('messages.peso2_card') }}</strong>
                                                                             </div>
-                                                                            <div class="col">
+                                                                            <div class="col-12 col-sm-6">
                                                                                 <p>{{ $key['peso2'] }}
                                                                                     {{ __('messages.kg') }}</p>
                                                                             </div>
@@ -500,90 +500,6 @@
                                         </div>
                                     </x-slot:content>
                                 </x-bladewind::timeline>
-                            @else
-                                <x-bladewind::timeline align_left="{{ $alignLeft }}" icon="clipboard"
-                                    last="{{ $last }}">
-                                    <x-slot:content>
-                                        <div class="timeline-content">
-                                            <x-bladewind::card>
-                                                @if (!empty($scale[$posicion]['solicitud']))
-                                                    <div class="row">
-                                                        <div class="col">
-                                                            <strong>{{ __('messages.solicitud_card') }}</strong>
-                                                        </div>
-                                                        <div class="col">
-                                                            <p>{{ $scale[$posicion]['solicitud'] }}</p>
-                                                        </div>
-
-                                                    </div>
-                                                @else
-                                                    <div class="row">
-                                                        <div class="col">
-                                                            <strong>{{ __('messages.solicitud_card') }}</strong>
-                                                        </div>
-                                                        <div class="col">
-                                                            <p>{{ $solicitudes = collect($scale)->pluck('solicitud')->get(0) }}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                @endif
-
-                                                @if (!empty($key['fechaProgramacion']))
-                                                    <div class="row">
-                                                        <div class="col-12 col-sm-6">
-                                                            <strong>{{ __('messages.fecha_programacion_card') }}</strong>
-                                                        </div>
-                                                        <div class="col-12 col-sm-6">
-                                                            <p>{{ $key['fechaProgramacion'] }}</p>
-                                                        </div>
-                                                    </div>
-                                                @endif
-                                                @if (!empty($scale[$posicion]['material']) && !empty($scale[$posicion]['solicitud']))
-                                                    <div class="row">
-                                                        <div class="col">
-                                                            <strong>{{ __('messages.material_card') }}</strong>
-                                                        </div>
-                                                        <div class="col">
-                                                            <p>{{ $scale[$posicion]['material'] }}</p>
-                                                        </div>
-                                                    </div>
-                                                @endif
-
-                                                @if (!empty($scale[$posicion]['formula']))
-                                                    <div class="row">
-                                                        <div class="col">
-                                                            <strong>{{ __('messages.formula_card') }}</strong>
-                                                        </div>
-                                                        <div class="col">
-                                                            <p>{{ $scale[$posicion]['formula'] }}</p>
-                                                        </div>
-                                                    </div>
-                                                @endif
-
-                                                @if (!empty($key['solicitante']))
-                                                    <div class="row">
-                                                        <div class="col-12 col-sm-6">
-                                                            <strong>{{ __('messages.solicitante_card') }}</strong>
-                                                        </div>
-                                                        <div class="col-12 col-sm-6">
-                                                            <p>{{ $key['solicitante'] }}</p>
-                                                        </div>
-                                                    </div>
-                                                @endif
-                                                @if (!empty($key['nota_usuario']))
-                                                    <div class="row">
-                                                        <div class="col-12 col-sm-6">
-                                                            <strong>{{ __('messages.observacion_card') }}</strong>
-                                                        </div>
-                                                        <div class="col-12 col-sm-6">
-                                                            <p>{{ $key['nota_usuario'] }}</p>
-                                                        </div>
-                                                    </div>
-                                                @endif
-                                            </x-bladewind::card>
-                                        </div>
-                                    </x-slot:content>
-                                </x-bladewind::timeline>
                             @endif
                         @endforeach
                 </div>
@@ -604,8 +520,8 @@
     </div>
     <div class="col">
         @if (isset($card))
-            <x-bladewind::card title="{{ __('messages.recorrido_transporte') }}">
-                <div id="map" style="height: 400px; width: 100%;"></div>
+            <x-bladewind::card title="{{ __('messages.recorrido_transporte') }}" class="p-2 p-sm-4">
+                <div id="map" style="height: 400px; width: 100%; border-radius: 14px;" ></div>
                 <script>
                     const map = L.map('map').setView([51.505, -0.09], 13);
                     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
