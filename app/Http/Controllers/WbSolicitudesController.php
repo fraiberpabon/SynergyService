@@ -838,7 +838,7 @@ class WbSolicitudesController extends BaseController implements Vervos
                 'fk_id_project_Company',
             );
 
-        $query = $this->filtrar($req, $query)->orderBy('fechaProgramacion', 'DESC')->get();
+        $query = $this->filtrarPorProyecto($req, $query)->orderBy('fechaProgramacion', 'DESC')->get();
 
         $query = $query->map(function ($item) {
             $info = WbFormulaCentroProduccion::select('codigoFormulaCdp')
