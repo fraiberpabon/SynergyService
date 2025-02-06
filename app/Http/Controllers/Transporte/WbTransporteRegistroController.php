@@ -374,6 +374,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                 'hash' => 'required|string',
                 'unique_code' => 'nullable|string',
                 'tipo_solicitud' => 'required|string',
+                'code_bascula' => 'nullable|string',
             ]);
 
             if ($validator->fails()) {
@@ -429,6 +430,8 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                 $model->codigo_viaje = $req->unique_code ? $req->unique_code : null;
 
                 $model->tipo_solicitud = $req->tipo_solicitud ? $req->tipo_solicitud : null;
+
+                $model->code_bascula = $req->code_bascula ? $req->code_bascula : null;
 
                 if ($req->equipo_cubicaje) {
                     $model->cubicaje = $req->equipo_cubicaje ? $req->equipo_cubicaje : null;
@@ -557,6 +560,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                         'hash' => 'required|string',
                         'unique_code' => 'nullable|string',
                         'tipo_solicitud' => 'nullable|string',
+                        'code_bascula' => 'nullable|string',
                     ]);
 
                     if ($validacion->fails()) {
@@ -617,6 +621,8 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                     $model->cubicaje = isset($info['equipo_cubicaje']) ? $info['equipo_cubicaje'] : null;
 
                     $model->tipo_solicitud = isset($info['tipo_solicitud']) ? $info['tipo_solicitud'] : 'M';
+
+                    $model->code_bascula = isset($info['code_bascula']) ? $info['code_bascula'] : null;
 
                     if (!$model->save()) {
                         continue;
