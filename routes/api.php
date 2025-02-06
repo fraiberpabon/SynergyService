@@ -70,6 +70,11 @@ Route::middleware('desencript')->group(function () {
             Route::post('/', [WbControlVersionesController::class, 'getByVersion']);
         });
 
+        Route::prefix('horometros-ubicaciones')->controller(WbHorometrosUbicacionesController::class)->group(function () {
+            Route::post('/insertar', 'post');
+            Route::post('/insertar-paquete-background', 'postArray');
+        });
+
         Route::prefix('transportes')->group(function() {
             Route::post('/insertar', [WbTransporteRegistroController::class, 'post']);
             Route::post('/insertar-v2', [WbTransporteRegistroController::class, 'postV2']);
