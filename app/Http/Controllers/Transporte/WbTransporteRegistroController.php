@@ -770,7 +770,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                 $usuarioId = data_get($solicitudesTransporte, 'solicitud.fk_id_usuarios', null);
                 $id_usuarios = $usuarioId;
                 $mensaje = __('messages.sms_synergy_despacho_cerrar', [
-                    'solicitud' => $item->solicitud_id
+                    'solicitud' => $item->fk_id_solicitud
                 ]);
                 $nota = __('messages.sms_synergy_despacho_nota');
                 $this->sendSms($mensaje, $nota, $id_usuarios);
@@ -841,7 +841,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                     $usuarioId = data_get($solicitudesTransporte, 'solicitud.fk_id_usuarios', null);
                     $id_usuarios = $usuarioId;
                     $mensaje = __('messages.sms_synergy_despacho_cerrar', [
-                        'solicitud' => $item->solicitud_id
+                        'solicitud' => $item->fk_id_solicitud
                     ]);
                     $nota = __('messages.sms_synergy_despacho_nota');
                     $this->sendSms($mensaje, $nota, $id_usuarios);
@@ -910,7 +910,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                         $usuarioId = data_get($solicitudesTransporte, 'solicitud.fk_id_usuarios', null);
                         $id_usuarios = $usuarioId;
                         $mensaje = __('messages.sms_synergy_despacho_cerrar', [
-                            'solicitud' => $item->solicitud_id
+                            'solicitud' => $item->fk_id_solicitud
                         ]);
                         $nota = __('messages.sms_synergy_despacho_nota');
                         $this->sendSms($mensaje, $nota, $id_usuarios);

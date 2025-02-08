@@ -184,7 +184,7 @@ class WbEquipoControlles extends BaseController implements Vervos
                     'fk_id_project_Company'
                 );
 
-            $consulta = $this->filtrar($request, $consulta)->orderBy('equiment_id', 'DESC')->get();
+            $consulta = $this->filtrarPorProyecto($request, $consulta)->orderBy('equiment_id', 'DESC')->get();
             //return $this->handleResponse($request, $consulta->orderBy('equiment_id', 'DESC')->get(), 'consultado');
             return $this->handleResponse($request, $this->equiposToArray($consulta), 'consultado');
         } catch (\Throwable $th) {
@@ -195,5 +195,133 @@ class WbEquipoControlles extends BaseController implements Vervos
     public function getPorProyecto(Request $request, $proyecto)
     {
         // TODO: Implement getPorProyecto() method.
+    }
+
+    private function findForId($idEquipo, $proyecto)
+    {
+        try {
+            $consulta = WbEquipo::where('id', $idEquipo)
+                ->with([
+                    'tipo_equipo' => function ($query) {
+                        $query->select('id_tipo_equipo', 'nombre');
+                    },
+                    'vehiculos_pesos' => function ($query) {
+                        $query->select('vehiculo', 'peso');
+                    },
+                    'compania' => function ($query) {
+                        $query->select('id_compañia', 'nombreCompañia');
+                    },
+                    'horometros' => function ($query) {
+                        $query->select('id_equipos_horometros_ubicaciones', 'fk_id_equipo', 'horometro', 'fecha_registro');
+                    },
+                    'ubicacion' => function ($query) use ($proyecto) {
+                        $query->select('id_equipos_horometros_ubicaciones', 'fk_id_equipo', 'fk_id_tramo', 'fk_id_hito', 'fecha_registro')
+                            ->with([
+                                'tramo' => function ($query) use ($proyecto) {
+                                    $query->select('id', 'Id_Tramo', 'Descripcion', 'fk_id_project_Company')->where('fk_id_project_Company', $proyecto);
+                                },
+                                'hito' => function ($query) use ($proyecto) {
+                                    $query->select('id', 'Id_Hitos', 'Descripcion', 'fk_id_project_Company')->where('fk_id_project_Company', $proyecto);
+                                }
+                            ]);
+                    }
+                ])
+                ->select(
+                    'id',
+                    'equiment_id',
+                    'descripcion',
+                    'cubicaje',
+                    'marca',
+                    'modelo',
+                    'placa',
+                    'observacion',
+                    'dueno',
+                    'estado',
+                    'tipocontrato',
+                    'codigo_externo',
+                    'horometro_inicial',
+                    'fk_compania',
+                    'fk_id_tipo_equipo',
+                    'fk_id_project_Company'
+                )->first();
+
+                if ($consulta == null) {
+                    return null;
+                }
+
+                return $this->equipoToModel($consulta);
+        } catch (\Throwable $th) {
+            //return $this->handleAlert('findForId equipo: ' . $th->getMessage());
+            \Log::error('findForId equipo: ' . $th->getMessage());
+            return null;
+        }
+    }
+
+    public function getListForIds(Request $req)
+    {
+        $validate = Validator::make($req->all(), [
+            'datos' => 'required',
+        ]);
+
+        if ($validate->fails()) {
+            return $this->handleAlert($validate->errors());
+        }
+
+        $listIds = json_decode($req->datos, true);
+
+        if (!is_array($listIds) || sizeof($listIds) == 0) {
+            return $this->handleAlert('empty');
+        }
+
+        $proyecto = $this->traitGetProyectoCabecera($req);
+
+        $query = WbEquipo::whereIn('id', $listIds)
+            ->where('estado', '!=', 'I')
+            ->where('fk_id_project_Company', $proyecto)
+            ->with([
+                'tipo_equipo' => function ($query) {
+                    $query->select('id_tipo_equipo', 'nombre');
+                },
+                'vehiculos_pesos' => function ($query) {
+                    $query->select('vehiculo', 'peso');
+                },
+                'compania' => function ($query) {
+                    $query->select('id_compañia', 'nombreCompañia');
+                },
+                'horometros' => function ($query) {
+                    $query->select('id_equipos_horometros_ubicaciones', 'fk_id_equipo', 'horometro', 'fecha_registro');
+                },
+                'ubicacion' => function ($query) use ($proyecto) {
+                    $query->select('id_equipos_horometros_ubicaciones', 'fk_id_equipo', 'fk_id_tramo', 'fk_id_hito', 'fecha_registro')
+                        ->with([
+                            'tramo' => function ($query) use ($proyecto) {
+                                $query->select('id', 'Id_Tramo', 'Descripcion', 'fk_id_project_Company')->where('fk_id_project_Company', $proyecto);
+                            },
+                            'hito' => function ($query) use ($proyecto) {
+                                $query->select('id', 'Id_Hitos', 'Descripcion', 'fk_id_project_Company')->where('fk_id_project_Company', $proyecto);
+                            }
+                        ]);
+                }
+            ])
+            ->select(
+                'id',
+                'equiment_id',
+                'descripcion',
+                'cubicaje',
+                'marca',
+                'modelo',
+                'placa',
+                'observacion',
+                'dueno',
+                'estado',
+                'tipocontrato',
+                'codigo_externo',
+                'horometro_inicial',
+                'fk_compania',
+                'fk_id_tipo_equipo',
+                'fk_id_project_Company'
+            )->get();
+
+        return $this->handleResponse($req, $this->equiposToArray($query), __('messages.consultado'));
     }
 }

@@ -37,12 +37,14 @@ class WbHorometrosUbicacionesController extends BaseController implements Vervos
                 return $this->handleAlert($validator->errors());
             }
 
+            $equipo = null;
             $response = collect();
             $response->put('hash', $req->hash);
 
             $find = WbEquipoHorometrosUbicaciones::select('id_equipos_horometros_ubicaciones')->where('hash', $req->hash)->first();
             if ($find) {
                 $response->put('estado', '1');
+                $equipo = (new WbEquipoControlles())->findForId($find->fk_id_equipo, $find->fk_id_project_Company);
             } else {
                 $model = new WbEquipoHorometrosUbicaciones();
 
@@ -65,6 +67,16 @@ class WbHorometrosUbicacionesController extends BaseController implements Vervos
                 }
 
                 $response->put('estado', '1');
+
+                $equipo = (new WbEquipoControlles())->findForId($model->fk_id_equipo, $model->fk_id_project_Company);
+            }
+
+            if ($equipo != null) {
+                $response->put('horometro', $equipo['horometro']);
+                $response->put('fechaHorometro', $equipo['fechaHorometro']);
+                $response->put('ubicacionTramo', $equipo['ubicacionTramo']);
+                $response->put('ubicacionHito', $equipo['ubicacionHito']);
+                $response->put('fechaUbicacion', $equipo['fechaUbicacion']);
             }
 
             return $this->handleResponse($req, $response, __('messages.registro_exitoso'));

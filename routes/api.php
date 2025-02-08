@@ -90,6 +90,10 @@ Route::middleware('desencript')->group(function () {
         Route::prefix('solicitudes')->group(function() {
             Route::post('/array-find', [WbSolicitudesController::class, 'getListForIds']);
         });
+
+        Route::prefix('equipos')->group(function() {
+            Route::post('/array-find', [WbEquipoControlles::class, 'getListForIds']);
+        });
     });
     Route::middleware(['token', 'habilitado', 'proyecto'])->group(function () {
         Route::prefix('app/v1/')->group(function () {
