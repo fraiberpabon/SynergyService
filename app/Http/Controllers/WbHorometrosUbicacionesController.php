@@ -8,6 +8,7 @@ namespace App\Http\Controllers;
 
 use App\Http\interfaces\Vervos;
 use App\Models\Equipos\WbEquipoHorometrosUbicaciones;
+use App\Http\Controllers\WbEquipoControlles;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 

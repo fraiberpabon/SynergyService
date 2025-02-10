@@ -142,7 +142,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                 $respuesta->put('cant_viajes', $solicitud['cant_viajes']);
             }
 
-            if ($this->isSendSmsConfig($this->traitGetProyectoCabecera($req))) {
+            /*if ($this->isSendSmsConfig($this->traitGetProyectoCabecera($req))) {
                 $solicitudesTransporte = $this->getTransporte($req->hash);
                 $material = data_get($solicitudesTransporte, 'material.Nombre', null);
                 $formula = data_get($solicitudesTransporte, 'formula.Nombre', null);
@@ -174,7 +174,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                 //$this->sendSms($mensaje, $nota, $id_usuarios);
             } else {
                 \Log::info('No se permite enviar mensajes');
-            }
+            }*/
 
             return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));
         } catch (\Throwable $th) {
@@ -298,7 +298,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                 $respuesta->put('cant_viajes_salida', $solicitud['cant_viajes_salida']);
             }
 
-            if ($this->isSendSmsConfig($this->traitGetProyectoCabecera($req))) {
+            /*if ($this->isSendSmsConfig($this->traitGetProyectoCabecera($req))) {
                 $solicitudesTransporte = $this->getTransporte($req->hash);
                 $material = data_get($solicitudesTransporte, 'material.Nombre', null);
                 $formula = data_get($solicitudesTransporte, 'formula.Nombre', null);
@@ -330,7 +330,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                 //$this->sendSms($mensaje, $nota, $id_usuarios);
             } else {
                 \Log::info('No se permite enviar mensajes');
-            }
+            }*/
 
             return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));
         } catch (\Throwable $th) {
@@ -465,7 +465,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                 $respuesta->put('cant_viajes_salida', $solicitud['cant_viajes_salida']);
             }
 
-            try {
+            /* try {
                 if ($this->isSendSmsConfig($this->traitGetProyectoCabecera($req))) {
                     $solicitudesTransporte = $this->getTransporte($req->hash);
                     $material = data_get($solicitudesTransporte, 'material.Nombre', null);
@@ -501,7 +501,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                 }
             } catch (\Exception $e) {
                 Log::info('synergy transporte error mensaje sms: ' . $e->getMessage());
-            }
+            } */
 
             return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));
         } catch (\Throwable $th) {
@@ -659,7 +659,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
 
                 Log::info($agrupados);
 
-                try {
+                /* try {
                     if ($this->isSendSmsConfig($this->traitGetProyectoCabecera($req))) {
                         foreach ($agrupados as $solicitudId => $datos) {
                             $solicitudesTransporte = $this->getTransporte2($solicitudId);
@@ -682,8 +682,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                     }
                 } catch (\Exception $e) {
                     Log::info('synergy transporte error mensaje sms: ' . $e->getMessage());
-                }
-
+                } */
                 return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));
             } else {
                 return $this->handleAlert("empty");

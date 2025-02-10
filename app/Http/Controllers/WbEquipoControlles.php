@@ -197,7 +197,7 @@ class WbEquipoControlles extends BaseController implements Vervos
         // TODO: Implement getPorProyecto() method.
     }
 
-    private function findForId($idEquipo, $proyecto)
+    public function findForId($idEquipo, $proyecto)
     {
         try {
             $consulta = WbEquipo::where('id', $idEquipo)
