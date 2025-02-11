@@ -21,6 +21,9 @@ use App\Http\Controllers\SmsController;
 use Illuminate\Support\Facades\Log;
 use App\Http\Resources\solicitudMaterialesResource;
 use App\Http\Resources\transporteRegistroResource;
+
+use App\Jobs\ViajeInterno;
+
 class WbTransporteRegistroController extends BaseController implements Vervos
 {
 
@@ -445,6 +448,10 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                 if (!$model->save()) {
                     return $this->handleAlert(__('messages.no_se_pudo_realizar_el_registro'), false);
                 }
+                if( $req->origen_hito_id==$req->destino_hito_id){
+                  ViajeInterno::dispatch($model);
+                }
+
 
                 try {
                     $this->actualizarSolicitudV2($model);
@@ -509,6 +516,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
             return $this->handleAlert($th->getMessage());
         }
     }
+
 
     public function postArray(Request $req)
     {
