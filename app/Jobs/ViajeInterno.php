@@ -76,6 +76,8 @@ class ViajeInterno implements ShouldQueue
             $model->user_created = 0;
             $model->hash = $this->transporteInterno['hash'] ? $this->transporteInterno['hash'] : null;
             $model->codigo_viaje = $this->transporteInterno['codigo_viaje'] ? $this->transporteInterno['codigo_viaje'] : null;
+            $model->tipo_solicitud = $this->transporteInterno['tipo_solicitud'] ? $this->transporteInterno['tipo_solicitud'] : null;
+            $model->code_bascula = $this->transporteInterno['code_bascula'] ? $this->transporteInterno['code_bascula'] : null;
 
             $model->cubicaje =  $this->transporteInterno['cubicaje'] ? $this->transporteInterno['cubicaje'] : null;
             $model->save();
