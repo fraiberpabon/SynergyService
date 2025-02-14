@@ -7,6 +7,13 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
+     * The database connection that should be used by the migration.
+     *
+     * @var string
+     */
+    protected $connection = 'sqlsrv3'; //conexion de la base de datos nueva.
+
+    /**
      * Run the migrations.
      *
      * @return void

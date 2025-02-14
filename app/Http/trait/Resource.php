@@ -1637,7 +1637,7 @@ trait Resource
              return $this->BasculasToModel($data);
          });
      }
- 
+
     public function BasculasToModel($modelo): array
     {
 
@@ -1654,15 +1654,15 @@ trait Resource
         'pesoInicial' => $modelo->peso1,
         'pesoFinal' => $modelo->peso2,
         'pesoNeto' => $modelo->peso_neto,
-        'boucher' => $modelo->boucher, 
+        'boucher' => $modelo->boucher,
         'tipo' => $tipo,
         'formula'=> $modelo->formula ? $modelo->formula->Nombre : null,
         'material'=> $modelo->material ? $modelo->material->Nombre : null,
         'plantaOrigen' => $modelo->origenPlanta ? $modelo->origenPlanta->NombrePlanta : null,
         'tramoOrigen' => $modelo->origenTramo ? $modelo->origenTramo->Descripcion : null,
         'plantaDestino' =>  $modelo->destinoPlanta ? $modelo->destinoPlanta->NombrePlanta : null,
-        'conductor' => $modelo->conductores ? $modelo->conductores->nombreCompleto : null, 
-        'cedulaConductor' => $modelo->conductor, 
+        'conductor' => $modelo->conductores ? $modelo->conductores->nombreCompleto : null,
+        'cedulaConductor' => $modelo->conductor,
         'observacion' => $modelo->observacion,
         'estado' => $modelo->estado,
         'proyecto' => $modelo->fk_id_project_Company,
@@ -1699,6 +1699,28 @@ trait Resource
             'identificador' => $modelo->id,
             'nombre' => $modelo->nombre,
             'descripcion' => $modelo->descripcion,
+            'proyecto' => $modelo->fk_id_project_Company,
+        ];
+    }
+
+    public function WbLibFormatoToArray($lista): Collection|\Illuminate\Support\Collection
+    {
+        return $lista->map(function ($data) {
+            return $this->WbLibFormatoToModel($data);
+        });
+    }
+
+    public function WbLibFormatoToModel($modelo): array
+    {
+        return [
+            'identificador' => $modelo->id_liberaciones_formatos,
+            'code' => $modelo->codigo,
+            'revision' => $modelo->revision,
+            'title' => $modelo->titulo,
+            'tipo_formato' => $modelo->fk_tipo_formato,
+            'fecha_formato' => $modelo->fecha_formato,
+            'tipo_equipo' => $modelo->fk_id_tipo_equipo,
+            'html_format' => $modelo->html_report,
             'proyecto' => $modelo->fk_id_project_Company,
         ];
     }

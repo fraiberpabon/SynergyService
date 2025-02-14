@@ -14,6 +14,7 @@ use App\Http\Controllers\WbControlVersionesController;
 use App\Http\Controllers\WbEquipoControlles;
 use App\Http\Controllers\WbFormulasController;
 use App\Http\Controllers\WbHorometrosUbicacionesController;
+use App\Http\Controllers\WbLiberacionesFormatoController;
 use App\Http\Controllers\WbMaterialListaController;
 use App\Http\Controllers\WbSolicitudesController;
 use App\Http\Controllers\WbTipoFormatoController;
@@ -145,6 +146,11 @@ Route::middleware('desencript')->group(function () {
             Route::prefix('conductores')->controller(WbConductoresController::class)->group(function () {
                 Route::get('/app', 'get');
                 Route::post('/insertar-paquete', 'postArray');
+            });
+
+            // formatos
+            Route::prefix('formatos')->controller(WbLiberacionesFormatoController::class)->group(function () {
+                Route::get('/app', 'get');
             });
         });
         /*

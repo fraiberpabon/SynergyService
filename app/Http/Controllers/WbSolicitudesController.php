@@ -801,7 +801,7 @@ class WbSolicitudesController extends BaseController implements Vervos
                 $sub->select('id_plata', 'NombrePlanta', 'descripcion');
             },
             'transporte' => function ($sub) {
-                $sub->with('equipo')->where('estado', 1);
+                $sub->with('equipo')->where('estado', 1)->where('tipo_solicitud', 'M')->where('user_created', '!=', 0);
             }
         ])
             ->whereDate('fechaProgramacion', '>=', Carbon::now()->subDays(3)->toDateString())
@@ -955,7 +955,7 @@ class WbSolicitudesController extends BaseController implements Vervos
                     $sub->select('id_plata', 'NombrePlanta', 'descripcion');
                 },
                 'transporte' => function ($sub) {
-                    $sub->with('equipo')->where('estado', 1)->where('tipo_solicitud', 'M');
+                    $sub->with('equipo')->where('estado', 1)->where('tipo_solicitud', 'M')->where('user_created', '!=', 0);
                 }
             ])->select(
                 'id_solicitud_Materiales as identificador',
@@ -1050,7 +1050,7 @@ class WbSolicitudesController extends BaseController implements Vervos
                 'formula_asf',
                 'cost_code',
                 'transporte' => function ($sub) {
-                    $sub->where('estado', 1)->where('tipo_solicitud', 'A');
+                    $sub->where('estado', 1)->where('tipo_solicitud', 'A')->where('user_created', '!=', 0);
                 }
             ])
             ->select(
