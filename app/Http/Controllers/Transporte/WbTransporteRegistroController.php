@@ -635,6 +635,9 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                     if (!$model->save()) {
                         continue;
                     }
+                    if( $info['origen_hito_id']==$info['destino_hito_id']){
+                      ViajeInterno::dispatch($model);
+                    }
 
                     $guardados++;
                     $itemRespuesta = collect();
