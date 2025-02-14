@@ -448,9 +448,12 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                 if (!$model->save()) {
                     return $this->handleAlert(__('messages.no_se_pudo_realizar_el_registro'), false);
                 }
-                if( $req->origen_hito_id==$req->destino_hito_id){
-                  ViajeInterno::dispatch($model);
+                if (!empty($req->origen_hito_id) && !empty($req->destino_hito_id)) {
+                    if ($req->origen_hito_id == $req->destino_hito_id) {
+                        ViajeInterno::dispatch($model);
+                    }
                 }
+
 
 
                 try {
@@ -635,8 +638,11 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                     if (!$model->save()) {
                         continue;
                     }
-                    if( $info['origen_hito_id']==$info['destino_hito_id']){
-                      ViajeInterno::dispatch($model);
+
+                    if (!empty($info['origen_hito_id']) && !empty($info['destino_hito_id'])) {
+                        if ($info['origen_hito_id']==$info['destino_hito_id']) {
+                            ViajeInterno::dispatch($model);
+                        }
                     }
 
                     $guardados++;
