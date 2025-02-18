@@ -18,6 +18,7 @@ use App\Http\Controllers\WbMaterialListaController;
 use App\Http\Controllers\WbSolicitudesController;
 use App\Http\Controllers\WbTipoFormatoController;
 use App\Http\Controllers\WbEquipoEstadoController;
+use App\Http\Controllers\ParteDiario\InterrupcionesController;
 use App\Http\Controllers\BasculaMovil\Transporte\WbBasculaMovilTransporteController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
@@ -97,6 +98,10 @@ Route::middleware('desencript')->group(function () {
     });
     Route::middleware(['token', 'habilitado', 'proyecto'])->group(function () {
         Route::prefix('app/v1/')->group(function () {
+
+            Route::prefix('interrupciones')->group(function () {
+                Route::get('/obtenerInterrupciones', [InterrupcionesController::class, 'get']);
+            });
             Route::prefix('cost-code')->group(function () {
                 Route::get('/activos', [CostCodeController::class, 'getActivos']);
             });
@@ -218,7 +223,7 @@ Route::prefix('')->group(function () {
         Route::get('/confirmarCod', [UsuarioController::class, 'confirmarNumero']);
     });
 
-
+ 
 
     Route::get('tables', function () {
     });

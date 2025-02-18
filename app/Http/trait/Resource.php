@@ -1702,4 +1702,26 @@ trait Resource
             'proyecto' => $modelo->fk_id_project_Company,
         ];
     }
+
+
+
+    public function WbInterrupcionesToArray($lista): Collection|\Illuminate\Support\Collection
+    {
+        return $lista->map(function ($data) {
+            return $this->WbInterrupcionesToModel($data);
+        });
+    }
+
+    public function WbInterrupcionesToModel($modelo): array
+    {
+        return [
+            'identificador' => $modelo->id,
+            'nombre' => $modelo->nombre_interrupcion,
+            'descripcion' => $modelo->descripcion_interrupcion,
+            'estado'=>$modelo->estado,
+            'fk_centro_costo_id'=>$modelo->fk_id_centro_de_costos,
+            'es_obligatorio'=>$modelo->es_obligatorio,
+            'proyecto'=>$modelo->fk_id_project_Company
+        ];
+    }
 }
