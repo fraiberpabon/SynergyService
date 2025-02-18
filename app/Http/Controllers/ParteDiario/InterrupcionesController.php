@@ -31,7 +31,7 @@ class InterrupcionesController extends BaseController implements Vervos
     }
 
      /**
-     * Funcion de get no tocar por la interface de vervos
+     * Funcion de get no tocar por la interface de vervos  un comentario
      */
     public function get(Request $request)
     {
