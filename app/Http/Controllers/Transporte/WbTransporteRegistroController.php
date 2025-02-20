@@ -9,6 +9,7 @@ namespace App\Http\Controllers\Transporte;
 use App\Http\Controllers\WbSolicitudesController;
 use App\Http\interfaces\Vervos;
 use App\Models\Equipos\WbEquipo;
+use App\Models\PlanillaControlAsfalto;
 use App\Models\WbConfiguraciones;
 use App\Models\Transporte\WbTransporteRegistro;
 use App\Models\WbSolicitudMateriales;
@@ -908,7 +909,9 @@ class WbTransporteRegistroController extends BaseController implements Vervos
         // Convertir el valor de la cantidad fuera del condicional
         $convertCantidad = floatval($solicitud->Cantidad);
 
-        if ($convertCantidad <= $total) {
+        $cantidadNecesaria = $convertCantidad + ($convertCantidad * 0.15);
+
+        if ($cantidadNecesaria <= $total) {
             // Asignar valores y guardar la solicitud solo si pasa la validación
             $solicitud->estado = 'ENVIADO';
             $solicitud->fecha_cierre = Carbon::now()->format('d/m/Y h:i:s A');
@@ -919,7 +922,30 @@ class WbTransporteRegistroController extends BaseController implements Vervos
 
 
         if ($solicitud->save()) {
-            if ($convertCantidad <= $total) {
+
+            /* $modelo = new PlanillaControlAsfalto();
+                $modelo->fk_solicitud = $item->fk_id_solicitud;
+                $modelo->placaVehiculo = $equipoById->SerialNumber;
+                $modelo->codigoVehiculo = $condigoM;
+                $modelo->hora = $hora;
+                $modelo->wbeDestino = $cdcM;
+                $modelo->descripDestino = $req->ubicacion;
+                $modelo->formula = $req->resistencia;
+                $modelo->cantidad = $convertCantidad;
+                $modelo->firma = '--';
+                $modelo->observacion = 'Enviado';
+                $modelo->fecha = $fechaSolicitud;
+                $modelo->fk_id_usuario = $item->user_created;
+                $modelo->cantiEnviada = $item->cantidad;
+                $modelo->turno = $req->turno;
+                $modelo->plantaDespacho = $req->plantaDespacho;
+                $modelo->codeqr = $req->codeqr;
+                $modelo->base64 = $req->base64;
+                $modelo->estado = 1; */
+
+
+
+            if ($cantidadNecesaria <= $total) {
                 try {
                     if ($this->isSendSmsConfig($item->fk_id_project_Company)) {
                         $solicitudesTransporte = $this->getTransporte($item->hash);

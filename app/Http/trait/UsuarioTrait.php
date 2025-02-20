@@ -4,6 +4,7 @@ namespace App\Http\trait;
 
 use App\Models\Usuarios\WbUsuarioProyecto;
 use Illuminate\Http\Request;
+use Storage;
 
 trait UsuarioTrait
 {
@@ -36,9 +37,9 @@ trait UsuarioTrait
         foreach ($proyectos as $proyecto) {
             if (strlen($proyecto->logo) > 0) {
                 try {
-                    $patch = storage_path('app\\imagenes\\company\\'.$proyecto->logo);
-                    $imagedata = file_get_contents($patch);
-                    $proyecto->logo = "data:image/png;base64,".base64_encode($imagedata);
+                    $patch = Storage::disk('imagenes_externas')->get($proyecto->logo);
+                    //$imagedata = file_get_contents($patch);
+                    $proyecto->logo = "data:image/png;base64,".base64_encode($patch);
                 } catch (\Exception $exc){
                     $proyecto->logo = '';
                 }
