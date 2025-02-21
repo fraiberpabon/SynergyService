@@ -458,4 +458,6 @@ return [
     'peso1_card' => 'Peso 1:',
     'peso2_card' => 'Peso 2:',
     'kg' => 'Kg',
+    'diurno' => 'Diurno',
+    'nocturno' => 'Nocturno',
 ];

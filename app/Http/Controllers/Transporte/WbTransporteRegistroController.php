@@ -8,6 +8,7 @@ namespace App\Http\Controllers\Transporte;
 
 use App\Http\Controllers\WbSolicitudesController;
 use App\Http\interfaces\Vervos;
+use App\Jobs\TransporteActualizarSolicitud;
 use App\Models\Equipos\WbEquipo;
 use App\Models\PlanillaControlAsfalto;
 use App\Models\WbConfiguraciones;
@@ -379,6 +380,9 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                 'unique_code' => 'nullable|string',
                 'tipo_solicitud' => 'required|string',
                 'code_bascula' => 'nullable|string',
+                'formula' => 'nullable|string',
+                'turno' => 'nullable|string',
+                'temperatura' => 'nullable|string',
             ]);
 
             if ($validator->fails()) {
@@ -437,6 +441,9 @@ class WbTransporteRegistroController extends BaseController implements Vervos
 
                 $model->code_bascula = $req->code_bascula ? $req->code_bascula : null;
 
+                $model->turno = $req->turno ? $req->turno : null;
+                $model->temperatura = $req->temperatura ? $req->temperatura : null;
+
                 if ($req->equipo_cubicaje) {
                     $model->cubicaje = $req->equipo_cubicaje ? $req->equipo_cubicaje : null;
                 } else {
@@ -457,11 +464,13 @@ class WbTransporteRegistroController extends BaseController implements Vervos
 
 
 
-                try {
+                /* try {
                     $this->actualizarSolicitudV2($model);
                 } catch (\Exception $e) {
                     Log::error('error al cerrar solicitud ' . $e->getMessage());
-                }
+                } */
+
+                TransporteActualizarSolicitud::dispatch($model);
 
 
                 $solicitud = (new WbSolicitudesController())->findForIdV3($model->fk_id_solicitud, $model->tipo_solicitud);
@@ -561,6 +570,8 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                         'material_id' => 'nullable',
                         'formula_id' => 'nullable',
                         'equipo_id' => 'required|numeric',
+                        'equipo' => 'nullable|string',
+                        'equipo_placa' => 'nullable|string',
                         'equipo_cubicaje' => 'nullable',
                         'conductor_dni' => 'nullable|string',
                         'cantidad' => 'nullable',
@@ -573,6 +584,9 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                         'unique_code' => 'nullable|string',
                         'tipo_solicitud' => 'nullable|string',
                         'code_bascula' => 'nullable|string',
+                        'formula' => 'nullable|string',
+                        'turno' => 'nullable|string',
+                        'temperatura' => 'nullable|string',
                     ]);
 
                     if ($validacion->fails()) {
@@ -636,12 +650,15 @@ class WbTransporteRegistroController extends BaseController implements Vervos
 
                     $model->code_bascula = isset($info['code_bascula']) ? $info['code_bascula'] : null;
 
+                    $model->turno = isset($info['turno']) ? $info['turno'] : null;
+                    $model->temperatura = isset($info['temperatura']) ? $info['temperatura'] : null;
+
                     if (!$model->save()) {
                         continue;
                     }
 
                     if (!empty($info['origen_hito_id']) && !empty($info['destino_hito_id'])) {
-                        if ($info['origen_hito_id']==$info['destino_hito_id']) {
+                        if ($info['origen_hito_id'] == $info['destino_hito_id']) {
                             ViajeInterno::dispatch($model);
                         }
                     }
@@ -653,29 +670,30 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                     $itemRespuesta->put('solicitud_id', $info['solicitud_id']);
                     $respuesta->push($itemRespuesta);
 
-                    if ($model->tipo_solicitud == 'M') {
-                        $this->actualizarSolicitud($model);
-                    } else {
-                        try {
-                            $this->actualizarSolicitudV2($model);
-                        } catch (\Exception $e) {
-                            Log::error('actualizar solicitud ' . $e->getMessage());
-                        }
-                    }
+
+                    TransporteActualizarSolicitud::dispatch($model);
+
+                    /* try {
+
+                        $this->actualizarSolicitudV2($model);
+                    } catch (\Exception $e) {
+                        Log::error('actualizar solicitud ' . $e->getMessage());
+                    } */
+
                 }
 
                 if ($guardados == 0) {
                     return $this->handleAlert("empty");
                 }
 
-                $agrupados = collect($listaGuardar)->groupBy('solicitud_id')->map(function ($items) {
+                /* $agrupados = collect($listaGuardar)->groupBy('solicitud_id')->map(function ($items) {
                     return [
                         'cantidad_total' => round($items->sum('equipo_cubicaje'), 2),
                         'registros' => $items->count()
                     ];
                 });
 
-                Log::info($agrupados);
+                Log::info($agrupados); */
 
                 /* try {
                     if ($this->isSendSmsConfig($this->traitGetProyectoCabecera($req))) {
@@ -797,7 +815,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
         }
     }
 
-    private function actualizarSolicitudV2(WbTransporteRegistro $item)
+    public function actualizarSolicitudV2(WbTransporteRegistro $item)
     {
         if ($item->tipo_solicitud == 'M') {
             $this->actualizarSolicitudMaterial($item);
@@ -904,46 +922,57 @@ class WbTransporteRegistroController extends BaseController implements Vervos
 
         $redondear = ceil($cantidad ?? 0);
 
-        $total = $redondear > 0 ? $redondear / 1000 : 0;
+        $total = $redondear > 0 ? ($redondear / 1000) : 0;
 
         // Convertir el valor de la cantidad fuera del condicional
-        $convertCantidad = floatval($solicitud->Cantidad);
+        $convertCantidad = floatval($solicitud->cantidadToneladas);
 
         $cantidadNecesaria = $convertCantidad + ($convertCantidad * 0.15);
 
+        Log::error('cantidad dedondeada ' . $total . ' cantidad necesaria ' . $cantidadNecesaria);
         if ($cantidadNecesaria <= $total) {
             // Asignar valores y guardar la solicitud solo si pasa la validación
             $solicitud->estado = 'ENVIADO';
             $solicitud->fecha_cierre = Carbon::now()->format('d/m/Y h:i:s A');
             $solicitud->user_despacho = $item->user_created;
+            $solicitud->toneFaltante = 0;
+        } else {
+            $solicitud->toneFaltante = abs($total - $convertCantidad);
         }
-
-        $solicitud->toneFaltante = $total - $convertCantidad;
-
 
         if ($solicitud->save()) {
 
-            /* $modelo = new PlanillaControlAsfalto();
-                $modelo->fk_solicitud = $item->fk_id_solicitud;
-                $modelo->placaVehiculo = $equipoById->SerialNumber;
-                $modelo->codigoVehiculo = $condigoM;
-                $modelo->hora = $hora;
-                $modelo->wbeDestino = $cdcM;
-                $modelo->descripDestino = $req->ubicacion;
-                $modelo->formula = $req->resistencia;
-                $modelo->cantidad = $convertCantidad;
-                $modelo->firma = '--';
-                $modelo->observacion = 'Enviado';
-                $modelo->fecha = $fechaSolicitud;
-                $modelo->fk_id_usuario = $item->user_created;
-                $modelo->cantiEnviada = $item->cantidad;
-                $modelo->turno = $req->turno;
-                $modelo->plantaDespacho = $req->plantaDespacho;
-                $modelo->codeqr = $req->codeqr;
-                $modelo->base64 = $req->base64;
-                $modelo->estado = 1; */
+            $modelo = new PlanillaControlAsfalto();
 
+            $carbonFecha = Carbon::parse($item->fecha_registro);
+            $fecha = $carbonFecha->format('j/n/Y');    // "2025-01-23"
+            $hora = $carbonFecha->format('h:i A');    // "10:10 AM"
 
+            $tranport = WbTransporteRegistro::where('id', $item->id)->with('formulaAsf', 'equipo', 'destinoPlanta')->first();
+
+            $modelo->fk_solicitud = $item->fk_id_solicitud;
+            $modelo->placaVehiculo = $tranport && $tranport->equipo ? $tranport->equipo->placa : null;
+            $modelo->codigoVehiculo = $tranport && $tranport->equipo ? $tranport->equipo->equiment_id : null;
+            $modelo->hora = $hora;
+            $modelo->wbeDestino = $solicitud->CostCode;
+            $modelo->descripDestino = $tranport->destinoPlanta ? $tranport->destinoPlanta->planta : ($tranport->fk_id_tramo_destino ?
+                __('messages.tramo') . ' ' . $tranport->fk_id_tramo_destino . ' ' . ($tranport->fk_id_hito_destino ?
+                    __('messages.hito') . ' ' . $tranport->fk_id_hito_destino :
+                    '') :
+                null);
+            $modelo->formula = $tranport->formulaAsf ? $tranport->formulaAsf->asfalt_formula : null;
+            $modelo->cantidad = $solicitud->cantidadToneladas;
+            $modelo->firma = '--';
+            $modelo->observacion = 'Enviado';
+            $modelo->fecha = $fecha;
+            $modelo->fk_id_usuario = $item->user_created;
+            $modelo->cantiEnviada = $tranport->cantidad / 1000;
+            $modelo->turno = $item->turno == 1 ? __('messages.diurno') : __('messages.nocturno');
+            $modelo->plantaDespacho = $item->fk_id_planta_origen ? $item->fk_id_planta_origen : null;
+            $modelo->codeqr = $tranport->ticket;
+            $modelo->temperatura = $tranport->temperatura;
+            $modelo->estado = 1;
+            $modelo->save();
 
             if ($cantidadNecesaria <= $total) {
                 try {
