@@ -65,7 +65,7 @@ return [
 
         'imagenes_externas' => [
             'driver' => 'local',
-            'root' => env('WEBU_PATCH') . 'app/imagenes',
+            'root' => env('WEBU_PATCH'),
             'url' => env('WEBU_URL').'/imagenes/',
             'visibility' => 'public',
             'throw' => false,
