@@ -381,7 +381,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                 'tipo_solicitud' => 'required|string',
                 'code_bascula' => 'nullable|string',
                 'formula' => 'nullable|string',
-                'turno' => 'nullable|string',
+                'turno' => 'nullable|numeric',
                 'temperatura' => 'nullable|string',
             ]);
 
@@ -441,7 +441,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
 
                 $model->code_bascula = $req->code_bascula ? $req->code_bascula : null;
 
-                $model->turno = $req->turno ? $req->turno : null;
+                $model->turno = $req->turno ?? null;
                 $model->temperatura = $req->temperatura ? $req->temperatura : null;
 
                 if ($req->equipo_cubicaje) {
@@ -585,7 +585,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                         'tipo_solicitud' => 'nullable|string',
                         'code_bascula' => 'nullable|string',
                         'formula' => 'nullable|string',
-                        'turno' => 'nullable|string',
+                        'turno' => 'nullable|numeric',
                         'temperatura' => 'nullable|string',
                     ]);
 
