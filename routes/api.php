@@ -95,6 +95,11 @@ Route::middleware('desencript')->group(function () {
         Route::prefix('equipos')->group(function() {
             Route::post('/array-find', [WbEquipoControlles::class, 'getListForIds']);
         });
+
+        Route::prefix('parte-diario')->controller(InterrupcionesController::class)->group(function () {
+            Route::post('/insertar', 'post');
+            Route::post('/insertarD', 'postInterrupciones');
+        });
     });
     Route::middleware(['token', 'habilitado', 'proyecto'])->group(function () {
         Route::prefix('app/v1/')->group(function () {

@@ -62,6 +62,7 @@ class InterrupcionesController extends BaseController implements Vervos
                     return $this->handleAlert(__('messages.no_se_pudo_realizar_el_registro'), false);
                 }
                 $this->postInterrupciones($req);
+                return $this->handleResponse($req, $model, 'Parte diario registrado');
          //   }
         } catch (\Throwable $th) {
             \Log::error('Sy parte diario' . $th->getMessage());
@@ -72,7 +73,7 @@ class InterrupcionesController extends BaseController implements Vervos
 
     public function postInterrupciones(Request $req) {
         try {
-                $data = $req->interrupciones;
+            $data = json_decode($req->interrupciones, true);
                 if (is_array($data)) {
                     foreach ($data  as $interrupcion) {
                         $model = new WbDistribucionesParteDiario();
