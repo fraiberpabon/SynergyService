@@ -891,6 +891,8 @@ class WbTransporteRegistroController extends BaseController implements Vervos
 
     private function actualizarSolicitudAsfalto(WbTransporteRegistro $item)
     {
+        if ($item->tipo == 1) return;
+
         $solicitud = WbSolitudAsfalto::where('id_solicitudAsf', $item->fk_id_solicitud)
             ->where('fk_id_project_Company', $item->fk_id_project_Company)
             ->with([

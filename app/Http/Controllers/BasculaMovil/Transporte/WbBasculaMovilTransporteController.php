@@ -37,7 +37,7 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
                 'destino_cost_center_id' => 'nullable',
                 'fk_material_id' => 'nullable',
                 'fk_formula_id' => 'nullable',
-                'fk_equipo_id' => 'required|numeric',
+                'fk_equipo_id' => 'nullable|numeric',
                 'conductor_dni' => 'nullable|numeric',
                 'peso1' => 'nullable',
                 'peso2' => 'nullable',
@@ -51,6 +51,8 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
                 'hash' => 'required|string',
                 'transport_code' => 'nullable|string',
                 'tipo_formula' => 'nullable|string',
+                'equipo_ext' => 'nullable|string',
+                'material_ext' => 'nullable|string',
             ]);
 
             if ($validator->fails()) {
@@ -107,6 +109,10 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
                 $model->codigo_transporte = $req->transport_code ? $req->transport_code : null;
 
                 $model->tipo_formula = $req->tipo_formula ? $req->tipo_formula : null;
+
+                $model->equipo_externo = $req->equipo_ext ?? null;
+
+                $model->material_externo = $req->material_ext ?? null;
 
                 if (!$model->save()) {
                     return $this->handleAlert(__('messages.no_se_pudo_realizar_el_registro'), false);
@@ -189,7 +195,7 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
                         'destino_cost_center_id' => 'nullable',
                         'fk_material_id' => 'nullable',
                         'fk_formula_id' => 'nullable',
-                        'fk_equipo_id' => 'required|numeric',
+                        'fk_equipo_id' => 'nullable|numeric',
                         'conductor_dni' => 'nullable|numeric',
                         'peso1' => 'nullable',
                         'peso2' => 'nullable',
@@ -203,6 +209,8 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
                         'hash' => 'required|string',
                         'transport_code' => 'nullable|string',
                         'tipo_formula' => 'nullable|string',
+                        'equipo_ext' => 'nullable|string',
+                        'material_ext' => 'nullable|string',
                     ]);
 
                     if ($validacion->fails()) {
@@ -262,6 +270,9 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
                     $model->codigo_transporte = isset($info['transport_code']) ? $info['transport_code'] : null;
 
                     $model->tipo_formula = isset($info['tipo_formula']) ? $info['tipo_formula'] : null;
+
+                    $model->equipo_externo = isset($info['equipo_ext']) ? $info['equipo_ext'] : null;
+                    $model->material_externo = isset($info['material_ext']) ? $info['material_ext'] : null;
 
                     if (!$model->save()) {
                         continue;
