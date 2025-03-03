@@ -227,7 +227,10 @@ Route::prefix('')->group(function () {
 
     Route::get('tables', function () {
     });
-
+    Route::prefix('parte-diario')->controller(InterrupcionesController::class)->group(function () {
+        Route::post('/insertar', 'post');
+        Route::post('/insertarD', 'postInterrupciones');
+    });
 
 
     Route::get('encrypt/{tipoPassword}', [encrypt::class, 'index']);
