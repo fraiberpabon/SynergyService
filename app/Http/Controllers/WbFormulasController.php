@@ -65,7 +65,8 @@ class WbFormulasController extends BaseController implements Vervos
             DB::raw("'A' as tipo"),
             'asfalt_formula as Nombre',
             DB::raw("'Tonelada' as unidadMedida"),
-            'fk_id_project_Company'
+            'fk_id_project_Company',
+            'mso_id as mso',
         )
         ->where('estado', 1);
 

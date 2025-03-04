@@ -1486,6 +1486,7 @@ trait Resource
             'unidad_medida' => $modelo->unidadMedida,
             'proyecto' => $modelo->fk_id_project_Company,
             'tipo' => $modelo->tipo,
+            'mso' => $modelo->mso,
         ];
     }
 
@@ -1595,6 +1596,7 @@ trait Resource
             'cant_viajes_salida' => $modelo->cant_viajes_salida,
             'tramo_origen' => $modelo->fk_id_tramo_origen ?? null,
             'hito_origen' => $modelo->fk_id_hito_origen ?? null,
+            'estado' => $modelo->fk_id_estados ? ($modelo->fk_id_estados == 12 ? '0' : ($modelo->fk_id_estados == 15 ? '2' : '1')) : null,
         ];
     }
 
@@ -1624,6 +1626,7 @@ trait Resource
             'cant_viajes_llegada' => $modelo->cant_viajes_llegada,
             'cant_despachada' => $modelo->cant_despachada,
             'cant_viajes_salida' => $modelo->cant_viajes_salida,
+            'estado' => $modelo->estado ? ($modelo->estado == 'PENDIENTE'?  '0' : '2') : null
         ];
     }
 

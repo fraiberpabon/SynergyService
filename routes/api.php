@@ -91,8 +91,9 @@ Route::middleware('desencript')->group(function () {
 
         Route::prefix('solicitudes')->group(function () {
             //Route::post('/array-find', [WbSolicitudesController::class, 'getListForIds']);
-            Route::post('/array-find', [WbSolicitudesController::class, 'getListForIdsV1']);
+            Route::post('/array-find', [WbSolicitudesController::class, 'getListForIdsV1']); //deprecated
             Route::post('/array-find-v2', [WbSolicitudesController::class, 'getListForIdsV2']);
+            Route::post('/array-find-v3', [WbSolicitudesController::class, 'getListForIdsV3']);
         });
 
         Route::prefix('equipos')->group(function () {
@@ -123,9 +124,10 @@ Route::middleware('desencript')->group(function () {
             });
 
             Route::prefix('solicitudes')->group(function () {
-                Route::get('/', [WbSolicitudesController::class, 'getApp']);
-                Route::get('/v2', [WbSolicitudesController::class, 'getAppV2']);
+                Route::get('/', [WbSolicitudesController::class, 'getApp']); // deprecated
+                Route::get('/v2', [WbSolicitudesController::class, 'getAppV2']); //deprecated
                 Route::get('/v3', [WbSolicitudesController::class, 'getAppV3']);
+                Route::get('/v4', [WbSolicitudesController::class, 'getAppV4']);
             });
 
             Route::prefix('material-lista')->controller(WbMaterialListaController::class)->group(function () {
@@ -231,7 +233,7 @@ Route::prefix('')->group(function () {
         Route::get('/confirmarCod', [UsuarioController::class, 'confirmarNumero']);
     });
 
- 
+
 
     Route::get('tables', function () {
     });
