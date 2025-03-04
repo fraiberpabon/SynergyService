@@ -25,6 +25,7 @@ use App\Http\Resources\solicitudMaterialesResource;
 use App\Http\Resources\transporteRegistroResource;
 
 use App\Jobs\ViajeInterno;
+use App\Jobs\RecibirPlantaAutomatico;
 
 class WbTransporteRegistroController extends BaseController implements Vervos
 {
@@ -462,6 +463,10 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                     }
                 }
 
+                if(!empty($req->destino_planta_id)){
+                    RecibirPlantaAutomatico::dispatch($model);
+                }
+
 
 
                 /* try {
@@ -661,6 +666,10 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                         if ($info['origen_hito_id'] == $info['destino_hito_id']) {
                             ViajeInterno::dispatch($model);
                         }
+                    }
+
+                    if(!empty($req->destino_planta_id)){
+                        RecibirPlantaAutomatico::dispatch($model);
                     }
 
                     $guardados++;
