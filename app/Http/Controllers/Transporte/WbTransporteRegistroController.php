@@ -484,17 +484,9 @@ class WbTransporteRegistroController extends BaseController implements Vervos
             }
         }
 
-        if(!empty($req->destino_planta_id)){
+        if(!empty($info['destino_planta_id'])){
             RecibirPlantaAutomatico::dispatch($model);
         }
-
-       /*  $guardados++;
-        $itemRespuesta = collect();
-        $itemRespuesta->put('identificador', $info['identificador']);
-        $itemRespuesta->put('estado', '1');
-        $itemRespuesta->put('solicitud_id', $info['solicitud_id']);
-        $respuesta->push($itemRespuesta); */
-
 
         TransporteActualizarSolicitud::dispatch($model);
 
