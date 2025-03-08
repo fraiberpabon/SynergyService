@@ -99,6 +99,8 @@ Route::middleware('desencript')->group(function () {
         Route::prefix('parte-diario')->controller(InterrupcionesController::class)->group(function () {
             Route::post('/insertar', 'post');
             Route::post('/insertarD', 'postInterrupciones');
+            Route::post('/insertar-paquete', 'postArray');
+            Route::post('/insertar-paquete-distribuciones', 'postArrayDistribuciones');
         });
     });
     Route::middleware(['token', 'habilitado', 'proyecto'])->group(function () {
