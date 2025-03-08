@@ -14,6 +14,7 @@ use App\Http\Controllers\WbControlVersionesController;
 use App\Http\Controllers\WbEquipoControlles;
 use App\Http\Controllers\WbFormulasController;
 use App\Http\Controllers\WbHorometrosUbicacionesController;
+use App\Http\Controllers\WbLiberacionesFormatoController;
 use App\Http\Controllers\WbMaterialListaController;
 use App\Http\Controllers\WbSolicitudesController;
 use App\Http\Controllers\WbTipoFormatoController;
@@ -76,7 +77,7 @@ Route::middleware('desencript')->group(function () {
             Route::post('/insertar-paquete-background', 'postArray');
         });
 
-        Route::prefix('transportes')->group(function() {
+        Route::prefix('transportes')->group(function () {
             Route::post('/insertar', [WbTransporteRegistroController::class, 'post']);
             Route::post('/insertar-v2', [WbTransporteRegistroController::class, 'postV2']);
             Route::post('/insertar-v3', [WbTransporteRegistroController::class, 'postV3']);
@@ -88,11 +89,14 @@ Route::middleware('desencript')->group(function () {
             Route::post('/insertar-paquete-background', 'postArray');
         });
 
-        Route::prefix('solicitudes')->group(function() {
-            Route::post('/array-find', [WbSolicitudesController::class, 'getListForIds']);
+        Route::prefix('solicitudes')->group(function () {
+            //Route::post('/array-find', [WbSolicitudesController::class, 'getListForIds']);
+            Route::post('/array-find', [WbSolicitudesController::class, 'getListForIdsV1']); //deprecated
+            Route::post('/array-find-v2', [WbSolicitudesController::class, 'getListForIdsV2']);
+            Route::post('/array-find-v3', [WbSolicitudesController::class, 'getListForIdsV3']);
         });
 
-        Route::prefix('equipos')->group(function() {
+        Route::prefix('equipos')->group(function () {
             Route::post('/array-find', [WbEquipoControlles::class, 'getListForIds']);
         });
 
@@ -127,9 +131,10 @@ Route::middleware('desencript')->group(function () {
             });
 
             Route::prefix('solicitudes')->group(function () {
-                Route::get('/', [WbSolicitudesController::class, 'getApp']);
-                Route::get('/v2', [WbSolicitudesController::class, 'getAppV2']);
+                Route::get('/', [WbSolicitudesController::class, 'getApp']); // deprecated
+                Route::get('/v2', [WbSolicitudesController::class, 'getAppV2']); //deprecated
                 Route::get('/v3', [WbSolicitudesController::class, 'getAppV3']);
+                Route::get('/v4', [WbSolicitudesController::class, 'getAppV4']);
             });
 
             Route::prefix('material-lista')->controller(WbMaterialListaController::class)->group(function () {
@@ -157,6 +162,11 @@ Route::middleware('desencript')->group(function () {
             Route::prefix('conductores')->controller(WbConductoresController::class)->group(function () {
                 Route::get('/app', 'get');
                 Route::post('/insertar-paquete', 'postArray');
+            });
+
+            // formatos
+            Route::prefix('formatos')->controller(WbLiberacionesFormatoController::class)->group(function () {
+                Route::get('/app', 'get');
             });
         });
         /*
@@ -230,7 +240,7 @@ Route::prefix('')->group(function () {
         Route::get('/confirmarCod', [UsuarioController::class, 'confirmarNumero']);
     });
 
- 
+
 
     Route::get('tables', function () {
     });
@@ -262,6 +272,8 @@ Route::prefix('')->group(function () {
         Route::get('/v2', [WbSolicitudesController::class, 'getAppV2']);
         Route::get('/v3', [WbSolicitudesController::class, 'getAppV3']);
         Route::get('/v4', [WbFormulasController::class, 'getV2']);
+        Route::get('/v5', [WbSolicitudesController::class, 'getListForIdsV2']);
+        Route::get('/v6', [WbSolicitudesController::class, 'getListForIdsV1']);
     }); */
 });
 

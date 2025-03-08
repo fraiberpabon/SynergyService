@@ -2,84 +2,56 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\interfaces\Vervos;
 use App\Models\WbLiberacionesFormato;
 use Illuminate\Http\Request;
 
-class WbLiberacionesFormatoController extends Controller
+class WbLiberacionesFormatoController extends BaseController implements Vervos
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+
+    private $formatosSyngergy = ['1009', '1008'];
+    public function post(Request $req)
     {
-        //
+    }
+
+    public function postArray(Request $req)
+    {
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
+     * Funcion de update no tocar por la interface de vervos
      */
-    public function create()
+    public function update(Request $req, $id)
     {
-        //
+        // TODO: Implement update() method.
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * Funcion de delete no tocar por la interface de vervos
      */
-    public function store(Request $request)
+    public function delete(Request $request, $id)
     {
-        //
+        // TODO: Implement delete() method.
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\WbLiberacionesFormato  $wbLiberacionesFormato
-     * @return \Illuminate\Http\Response
+     * Funcion de get no tocar por la interface de vervos
      */
-    public function show(WbLiberacionesFormato $wbLiberacionesFormato)
+    public function get(Request $request)
     {
-        //
+        try {
+            $query = WbLiberacionesFormato::where('estado', 1)->whereIn('fk_tipo_formato', $this->formatosSyngergy);
+            $query = $this->filtrarPorProyecto($request, $query)->get();
+
+            return $this->handleResponse($request, $this->WbLibFormatoToArray($query), __('messages.consultado'));
+        } catch (\Exception $e) {
+            Log::error('error get liberaciones formato ' . $e->getMessage());
+            return $this->handleAlert(__('messages.error_interno_del_servidor'), false);
+        }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\WbLiberacionesFormato  $wbLiberacionesFormato
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(WbLiberacionesFormato $wbLiberacionesFormato)
+    public function getPorProyecto(Request $request, $proyecto)
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\WbLiberacionesFormato  $wbLiberacionesFormato
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, WbLiberacionesFormato $wbLiberacionesFormato)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\WbLiberacionesFormato  $wbLiberacionesFormato
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(WbLiberacionesFormato $wbLiberacionesFormato)
-    {
-        //
+        // TODO: Implement getPorProyecto() method.
     }
 }

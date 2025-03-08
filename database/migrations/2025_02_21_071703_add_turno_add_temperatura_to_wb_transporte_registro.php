@@ -21,7 +21,8 @@ return new class extends Migration
     public function up()
     {
         Schema::table('Wb_transporte_registro', function (Blueprint $table) {
-            $table->string('code_bascula')->nullable()->comment('codigo o boucher del registro de bascula movil');
+            $table->integer('turno')->nullable()->comment('1 para turno diurno, 0 para turno nocturno');
+            $table->string('temperatura')->nullable()->comment('contiene la temperatura de la formula de asfalto');
         });
     }
 
@@ -33,7 +34,8 @@ return new class extends Migration
     public function down()
     {
         Schema::table('Wb_transporte_registro', function (Blueprint $table) {
-            Schema::dropIfExists('code_bascula');
+            Schema::dropIfExists('turno');
+            Schema::dropIfExists('temperatura');
         });
     }
 };

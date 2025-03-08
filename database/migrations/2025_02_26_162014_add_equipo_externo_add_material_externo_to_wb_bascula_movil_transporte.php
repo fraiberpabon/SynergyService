@@ -20,8 +20,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('Wb_transporte_registro', function (Blueprint $table) {
-            $table->string('code_bascula')->nullable()->comment('codigo o boucher del registro de bascula movil');
+        Schema::table('Wb_bascula_movil_transporte', function (Blueprint $table) {
+            $table->string('equipo_externo')->nullable()->comment('Placa del equipo ingresado a mano por el usuario');
+            $table->string('material_externo')->nullable()->comment('Material escrito a mano por el usuario');
         });
     }
 
@@ -32,8 +33,9 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('Wb_transporte_registro', function (Blueprint $table) {
-            Schema::dropIfExists('code_bascula');
+        Schema::table('Wb_bascula_movil_transporte', function (Blueprint $table) {
+            Schema::dropIfExists('equipo_externo');
+            Schema::dropIfExists('material_externo');
         });
     }
 };

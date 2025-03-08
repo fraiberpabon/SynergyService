@@ -1517,6 +1517,7 @@ trait Resource
             'unidad_medida' => $modelo->unidadMedida,
             'proyecto' => $modelo->fk_id_project_Company,
             'tipo' => $modelo->tipo,
+            'mso' => $modelo->mso,
         ];
     }
 
@@ -1626,6 +1627,7 @@ trait Resource
             'cant_viajes_salida' => $modelo->cant_viajes_salida,
             'tramo_origen' => $modelo->fk_id_tramo_origen ?? null,
             'hito_origen' => $modelo->fk_id_hito_origen ?? null,
+            'estado' => $modelo->fk_id_estados ? ($modelo->fk_id_estados == 12 ? '0' : ($modelo->fk_id_estados == 15 ? '2' : '1')) : null,
         ];
     }
 
@@ -1648,13 +1650,14 @@ trait Resource
             'fechaProgramacion' => $modelo->fechaProgramacion,
             'fechaCreacion' => $modelo->dateCreation,
             'proyecto' => $modelo->fk_id_project_Company,
-            'costCenter_id' => $modelo->cost_code ? $modelo->cost_code->COCEIDENTIFICATION : null,
-            'costCenter' => $modelo->CostCode,
+            'cost_code_id' => $modelo->cost_code ? $modelo->cost_code->COCEIDENTIFICATION : null,
+            'cost_code' => $modelo->CostCode,
             'total_despachada' => $modelo->total_despachada,
             'cant_recibida' => $modelo->cant_recibida,
             'cant_viajes_llegada' => $modelo->cant_viajes_llegada,
             'cant_despachada' => $modelo->cant_despachada,
             'cant_viajes_salida' => $modelo->cant_viajes_salida,
+            'estado' => $modelo->estado ? ($modelo->estado == 'PENDIENTE'?  '0' : '2') : null
         ];
     }
 
@@ -1668,7 +1671,7 @@ trait Resource
              return $this->BasculasToModel($data);
          });
      }
- 
+
     public function BasculasToModel($modelo): array
     {
 
@@ -1685,15 +1688,15 @@ trait Resource
         'pesoInicial' => $modelo->peso1,
         'pesoFinal' => $modelo->peso2,
         'pesoNeto' => $modelo->peso_neto,
-        'boucher' => $modelo->boucher, 
+        'boucher' => $modelo->boucher,
         'tipo' => $tipo,
         'formula'=> $modelo->formula ? $modelo->formula->Nombre : null,
         'material'=> $modelo->material ? $modelo->material->Nombre : null,
         'plantaOrigen' => $modelo->origenPlanta ? $modelo->origenPlanta->NombrePlanta : null,
         'tramoOrigen' => $modelo->origenTramo ? $modelo->origenTramo->Descripcion : null,
         'plantaDestino' =>  $modelo->destinoPlanta ? $modelo->destinoPlanta->NombrePlanta : null,
-        'conductor' => $modelo->conductores ? $modelo->conductores->nombreCompleto : null, 
-        'cedulaConductor' => $modelo->conductor, 
+        'conductor' => $modelo->conductores ? $modelo->conductores->nombreCompleto : null,
+        'cedulaConductor' => $modelo->conductor,
         'observacion' => $modelo->observacion,
         'estado' => $modelo->estado,
         'proyecto' => $modelo->fk_id_project_Company,
@@ -1734,7 +1737,27 @@ trait Resource
         ];
     }
 
+    public function WbLibFormatoToArray($lista): Collection|\Illuminate\Support\Collection
+    {
+        return $lista->map(function ($data) {
+            return $this->WbLibFormatoToModel($data);
+        });
+    }
 
+    public function WbLibFormatoToModel($modelo): array
+    {
+        return [
+            'identificador' => $modelo->id_liberaciones_formatos,
+            'code' => $modelo->codigo,
+            'revision' => $modelo->revision,
+            'title' => $modelo->titulo,
+            'tipo_formato' => $modelo->fk_tipo_formato,
+            'fecha_formato' => $modelo->fecha_formato,
+            'tipo_equipo' => $modelo->fk_id_tipo_equipo,
+            'html_format' => $modelo->html_report,
+            'proyecto' => $modelo->fk_id_project_Company,
+        ];
+    }
 
     public function WbInterrupcionesToArray($lista): Collection|\Illuminate\Support\Collection
     {
