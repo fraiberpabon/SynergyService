@@ -352,7 +352,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
             $respuesta = collect();
             $respuesta->put('hash', $req->hash);
 
-            $action = $this->postAction($req->all());
+            $action = $this->postAction($req->all(), 'Automática individual');
             if (!$action) {
                 return $this->handleAlert(__('messages.no_se_pudo_realizar_el_registro'), false);
             }
@@ -360,12 +360,13 @@ class WbTransporteRegistroController extends BaseController implements Vervos
             $solicitud = (new WbSolicitudesController())->findForIdV3($req->solicitud_id, $req->tipo_solicitud);
 
             if ($solicitud != null) {
-                $respuesta->put('estado', $solicitud['estado']);
+                $respuesta->put('solicitud', $solicitud['identificador']);
                 $respuesta->put('total_despachada', $solicitud['total_despachada']);
                 $respuesta->put('cant_recibida', $solicitud['cant_recibida']);
                 $respuesta->put('cant_viajes_llegada', $solicitud['cant_viajes_llegada']);
                 $respuesta->put('cant_despachada', $solicitud['cant_despachada']);
                 $respuesta->put('cant_viajes_salida', $solicitud['cant_viajes_salida']);
+                $respuesta->put('estado', $solicitud['estado']);
             }
 
             return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));
@@ -375,7 +376,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
         }
     }
 
-    private function postAction($info) {
+    private function postAction($info, $typeSyncMsg = "") {
         $validacion = Validator::make($info, [
             'identificador' => 'required|numeric',
             'numero_vale' => 'required|string',
@@ -474,6 +475,8 @@ class WbTransporteRegistroController extends BaseController implements Vervos
         $model->turno = isset($info['turno']) ? $info['turno'] : null;
         $model->temperatura = isset($info['temperatura']) ? $info['temperatura'] : null;
 
+        $model->tipo_sync = $typeSyncMsg != "" ? $typeSyncMsg : null;
+
         if (!$model->save()) {
             return false;
         }
@@ -505,6 +508,9 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                 return $this->handleAlert($validate->errors());
             }
 
+            $token = $req->headers->get('is_md_token', null);
+            $msgSync = $token == null ? 'Automática' : 'Manual';
+
             $respuesta = collect();
 
             $listaGuardar = json_decode($req->datos, true);
@@ -512,7 +518,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
             if (is_array($listaGuardar) && sizeof($listaGuardar) > 0) {
                 $guardados = 0;
                 foreach ($listaGuardar as $key => $info) {
-                    $action = $this->postAction($info);
+                    $action = $this->postAction($info, $msgSync);
                     if ($action) {
                         $guardados++;
                         $itemRespuesta = collect();
