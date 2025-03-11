@@ -114,6 +114,7 @@ class TokenIsValido
             }
         }
         $request->headers->set('tokenRefresh', $tokenRefresh);
+        $request->headers->set('is_md_token', 'yes');
         $response = $next($request);
         $response->withHeaders([
             'tokenRefresh' => $tokenRefresh,

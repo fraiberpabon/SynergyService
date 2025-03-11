@@ -94,10 +94,12 @@ Route::middleware('desencript')->group(function () {
             Route::post('/array-find', [WbSolicitudesController::class, 'getListForIdsV1']); //deprecated
             Route::post('/array-find-v2', [WbSolicitudesController::class, 'getListForIdsV2']);
             Route::post('/array-find-v3', [WbSolicitudesController::class, 'getListForIdsV3']);
+            Route::get('/backgound/v4', [WbSolicitudesController::class, 'getAppV4']);
         });
 
         Route::prefix('equipos')->group(function () {
             Route::post('/array-find', [WbEquipoControlles::class, 'getListForIds']);
+            Route::get('/background', [WbEquipoControlles::class, 'equiposActivos']);
         });
 
         Route::prefix('parte-diario')->controller(InterrupcionesController::class)->group(function () {
