@@ -116,9 +116,64 @@ trait Resource
             return $this->equipoToModel($data);
         });
     }
-
     public function equipoToModel($modelo): array
     {
+        // Obtener fechas y horómetros de las relaciones
+        $parte_diario_fecha = $modelo->parte_diario ? $modelo->parte_diario->fecha_registro : null;
+        $parte_diario_horometro = $modelo->parte_diario ? $modelo->parte_diario->horometro_final : null;
+    
+        $horometro_fecha = $modelo->horometros ? Carbon::parse($modelo->horometros->fecha_registro)->format('Y-m-d') : null;
+        $horometro_fechasf = $modelo->horometros ? $modelo->horometros->fecha_registro : null;
+        $horometro_valor = $modelo->horometros ? $modelo->horometros->horometro : null;
+    
+        // Inicializar variables
+        $horometro = $modelo->horometro_inicial; // Valor por defecto
+        
+        $fechaHorometro = null;
+        // Determinar el horómetro y la fecha según la lógica
+        if ($parte_diario_fecha && $horometro_fecha) {
+            // Comparar fechas
+            if ($parte_diario_fecha > $horometro_fecha) {
+                $fechaHorometro = $parte_diario_fecha;
+                $horometro = $parte_diario_horometro;
+            } elseif ($parte_diario_fecha < $horometro_fecha) {
+                $fechaHorometro = $horometro_fechasf;
+                $horometro = $horometro_valor;
+            } else {
+                // Si las fechas son iguales, comparar horómetros
+                if ($parte_diario_horometro > $horometro_valor) {
+                    $fechaHorometro = $parte_diario_fecha;
+                    $horometro = $parte_diario_horometro;
+                } else {
+                    $fechaHorometro = $horometro_fechasf;
+                    $horometro = $horometro_valor;
+                }
+            }
+        } elseif ($parte_diario_fecha) {
+            // Solo existe parte diario
+            $fechaHorometro = $parte_diario_fecha;
+            $horometro = $parte_diario_horometro;
+        } elseif ($horometro_fechasf) {
+            // Solo existe horómetro
+            $fechaHorometro = $horometro_fechasf;
+            $horometro = $horometro_valor;
+        } else {
+            // No hay parte diario ni horómetro, usar valores por defecto
+            if (isset($horometro) && !empty($horometro)) {
+            $fechaHorometro = $modelo->updated_at
+                ? Carbon::parse($modelo->updated_at)->format('Y-m-d H:i:s')
+                : ($modelo->created_at ? Carbon::parse($modelo->created_at)->format('Y-m-d H:i:s') : null);
+            }
+        }
+    
+        // Asegurar que la fecha tenga el formato YYYY-MM-DD HH:MM:SS
+        if ($fechaHorometro) {
+            $fechaHorometro = Carbon::parse($fechaHorometro)->format('Y-m-d H:i:s');
+        }
+        // } else {
+        //     $fechaHorometro = Carbon::now()->format('Y-m-d 00:00:00'); // Si no hay fecha, usar la fecha actual con hora 00:00:00
+        // }
+    
         return [
             'identificador' => $modelo->id,
             'equipo' => $modelo->equiment_id,
@@ -136,13 +191,8 @@ trait Resource
             'tipoEquipo' => $modelo->fk_id_tipo_equipo,
             'tipocontrato' => $modelo->tipocontrato,
             'codigoExterno' => $modelo->codigo_externo,
-            'horometro' => $modelo->horometros ? $modelo->horometros->horometro : $modelo->horometro_inicial,
-            'fechaHorometro' => $modelo->horometros ?
-                $modelo->horometros->fecha_registro :
-                ($modelo->updated_at ?
-                    Carbon::parse($modelo->updated_at)->format('Y-m-d H:i:s') :
-                    ($modelo->created_at ? Carbon::parse($modelo->created_at)->format('Y-m-d H:i:s') : null)
-                ),
+            'horometro' => $horometro,
+            'fechaHorometro' => $fechaHorometro,
             'ubicacionTramo' => $modelo->ubicacion ?
                 ($modelo->ubicacion->tramo ?
                     $modelo->ubicacion->tramo->Id_Tramo . ($modelo->ubicacion->tramo->Descripcion ?
