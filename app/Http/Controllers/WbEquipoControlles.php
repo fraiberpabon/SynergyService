@@ -140,7 +140,8 @@ class WbEquipoControlles extends BaseController implements Vervos
     {
         try {
             $proyecto = $this->traitGetProyectoCabecera($request);
-            $consulta = WbEquipo::with([
+            $consulta = WbEquipo::where('estado', '!=', 'I')
+            ->with([
                 'tipo_equipo' => function ($query) {
                     $query->select('id_tipo_equipo', 'nombre');
                 },
@@ -153,6 +154,10 @@ class WbEquipoControlles extends BaseController implements Vervos
                 'horometros' => function ($query) {
                     $query->select('id_equipos_horometros_ubicaciones', 'fk_id_equipo', 'horometro', 'fecha_registro');
                 },
+                'parte_diario',
+                // 'parte_diario' => function ($query) {
+                //     $query->select('id_parte_diario','fecha_registro','fecha_creacion_registro','horometro_final','fk_equiment_id');
+                // },
                 'ubicacion' => function ($query) use ($proyecto) {
                     $query->select('id_equipos_horometros_ubicaciones', 'fk_id_equipo', 'fk_id_tramo', 'fk_id_hito', 'fecha_registro')
                         ->with([
@@ -164,8 +169,8 @@ class WbEquipoControlles extends BaseController implements Vervos
                             }
                         ]);
                 }
-            ])->where('estado', '!=', 'I')
-                ->select(
+            ])  
+            ->select(
                     'id',
                     'equiment_id',
                     'descripcion',
@@ -188,6 +193,7 @@ class WbEquipoControlles extends BaseController implements Vervos
             //return $this->handleResponse($request, $consulta->orderBy('equiment_id', 'DESC')->get(), 'consultado');
             return $this->handleResponse($request, $this->equiposToArray($consulta), 'consultado');
         } catch (\Throwable $th) {
+            \Log::info($th->getMessage());
             return $this->handleAlert($th->getMessage(), false);
         }
     }

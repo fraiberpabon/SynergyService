@@ -4,6 +4,7 @@ namespace App\Models\Equipos;
 
 use App\Models\Compania;
 use App\Models\SyncRelacionVehiculoPesos;
+use App\Models\ParteDiario\WbParteDiario;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -67,4 +68,43 @@ class WbEquipo extends Model implements Auditable
         return $this->hasOne(WbEquipoHorometrosUbicaciones::class, 'fk_id_equipo', 'id')
             ->latest(\DB::raw("CAST(REPLACE(fecha_registro, ' ', 'T') as datetime)"));
     }
+
+
+    //Relacion con la tabla de syParteDiario
+
+    // public function parte_diario()
+    // {
+    //     return $this->hasOne(WbParteDiario::class, 'fk_equiment_id', 'id')
+    //         ->orderByDesc(\DB::raw("CAST(REPLACE(fecha_registro, ' ', 'T') as datetime)")) // Ordena por fecha_creacion_registro de forma descendente
+    //         ->max('horometro_final') // Luego ordena por horometro_final de forma descendente
+    //         ->limit(1); // Limita el resultado a solo un registro
+    // }
+
+
+//     public function parte_diario()
+// {
+//     return $this->hasOne(WbParteDiario::class, 'fk_equiment_id', 'id')->ofMany([
+//         'fecha_registro' => 'max', // Primero, ordena por la fecha más reciente
+//         'horometro_final' => 'max', // En caso de empate, ordena por el mayor horometro_final
+//     ])->select('horometro_final','fecha_registro');
+// }
+
+
+public function parte_diario()
+{
+    return $this->hasOne(WbParteDiario::class, 'fk_equiment_id', 'id')->ofMany([
+        'fecha_registro' => 'max', // Primero, ordena por la fecha más reciente
+        'horometro_final' => 'max', // En caso de empate, ordena por el mayor horometro_final
+    ])->select([
+        'Sy_Parte_diario.id_parte_diario', // Especifica la tabla para la columna id_parte_diario
+        'Sy_Parte_diario.fecha_registro', // Especifica la tabla para la columna fecha_registro
+        'Sy_Parte_diario.fecha_creacion_registro', // Especifica la tabla para la columna fecha_creacion_registro
+        'Sy_Parte_diario.horometro_final', // Especifica la tabla para la columna horometro_final
+        'Sy_Parte_diario.fk_equiment_id', // Especifica la tabla para la columna fk_equiment_id
+    ]);
 }
+
+
+
+}
+
