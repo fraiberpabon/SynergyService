@@ -1797,4 +1797,99 @@ trait Resource
             'proyecto'=>$modelo->fk_id_project_Company
         ];
     }
+
+
+    /**
+     * Añadir en un resource aparte
+     */
+    public function SyTurnosEquiposArray($lista): Collection|\Illuminate\Support\Collection
+    {
+        return $lista->map(function ($data) {
+            return $this->SyTurnosEquiposToModel($data);
+        });
+    }
+
+    public function SyTurnosEquiposToModel($modelo): array
+    {
+        return [
+            'identificador' => $modelo->id_turnos,
+            'turno' => $modelo->nombre_turno,
+            'horas' => $modelo->horas_turno,
+            'hora_inicio' => $modelo->hora_inicio_turno,
+            'hora_final' => $modelo->hora_final_turno,
+            'estado' => $modelo->estado,
+            'proyecto' =>$modelo->fk_id_project_Company
+        ];
+    }
+
+
+
+
+    /**
+     * Parte diario web 
+     */
+
+     public function WbParteDiarioToArray($lista): Collection|\Illuminate\Support\Collection
+     {
+         return $lista->map(function ($data) {
+             return $this->WbParteDiarioToModel($data);
+         });
+     }
+ 
+     public function WbParteDiarioToModel($modelo): array
+     {
+        $usuario_creador = $modelo->usuario_creador ? $modelo->usuario_creador->usuario: null;
+        $usuario_creador_nombre = $modelo->usuario_creador ? $modelo->usuario_creador->Nombre ." ".$modelo->usuario_creador->Apellido : null;
+         return [
+             'id_parte_diario' => $modelo->id_parte_diario,
+             'fecha_registro' => $modelo->fecha_registro,
+             'fecha_creacion_registro' => $modelo->fecha_creacion_registro,
+             'fk_equiment_id' => $modelo->fk_equiment_id,
+             'placa' => $modelo->equipos ? $modelo->equipos->placa : null,
+             'usuario_creador' => $usuario_creador,
+             'usuario_creador_nombre' => $usuario_creador_nombre,
+             'observacion' => $modelo->observacion,
+             'turno' => $modelo->turno ? $modelo->turno->nombre_turno : null,
+             'horometro_inicial' => $modelo->horometro_inicial,
+             'horometro_final' => $modelo->horometro_final,
+             'operador' => $modelo->operador ? $modelo->operador->nombreCompleto : null,
+             'proyecto' => $modelo->fk_id_project_Company,
+             'listaDistribuciones'=>($modelo->distribuciones)?$this->WbDistribucionesParteDiarioToArray($modelo->distribuciones):null,
+         ];
+     }
+
+     public function WbDistribucionesParteDiarioToArray($lista): Collection|\Illuminate\Support\Collection
+     {
+         return $lista->map(function ($data) {
+             return $this->WbDistribucionesParteDiarioToModel($data);
+         });
+     }
+    
+     public function WbDistribucionesParteDiarioToModel($modelo): array
+     {
+        $interrupciones_nombre = $modelo->interrupciones ? $modelo->interrupciones->nombre_interrupcion : null;
+        $nombre_centro_costo = $modelo->centro_costo ? $modelo->centro_costo->COCENAME : null;
+        $fk_id_interrupcion=$modelo->fk_id_interrupcion;
+        $fk_id_centro_costo=$modelo->fk_id_centro_costo;
+        if ($interrupciones_nombre) {
+            $distribucion = $interrupciones_nombre;
+        } else {
+            $distribucion = $nombre_centro_costo;
+        }
+        if ($fk_id_interrupcion) {
+            $fk_interrupcion_code = $fk_id_interrupcion;
+        } else {
+            $fk_interrupcion_code = $fk_id_centro_costo;
+        }
+         return [
+            'distribucion' => $distribucion,
+            'id_distribucion_or_cost_code' => $fk_interrupcion_code,
+            'descripcion_trabajo'=>$modelo->descripcion_trabajo,
+            'horas_trabajadas' => $modelo->hr_trabajo,
+           ];
+     }
+
+
+
+
 }

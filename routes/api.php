@@ -21,6 +21,7 @@ use App\Http\Controllers\WbTipoFormatoController;
 use App\Http\Controllers\WbEquipoEstadoController;
 use App\Http\Controllers\ParteDiario\InterrupcionesController;
 use App\Http\Controllers\BasculaMovil\Transporte\WbBasculaMovilTransporteController;
+use App\Http\Controllers\Turnos\SyTurnosController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
@@ -107,6 +108,10 @@ Route::middleware('desencript')->group(function () {
             Route::post('/insertarD', 'postInterrupciones');
             Route::post('/insertar-paquete', 'postArray');
             Route::post('/insertar-paquete-distribuciones', 'postArrayDistribuciones');
+        });
+
+        Route::prefix('turnos')->controller(SyTurnosController::class)->group(function () {
+            Route::get('/getTurnos', 'getTurnos');
         });
     });
     Route::middleware(['token', 'habilitado', 'proyecto'])->group(function () {
@@ -242,7 +247,9 @@ Route::prefix('')->group(function () {
         Route::get('/confirmarCod', [UsuarioController::class, 'confirmarNumero']);
     });
 
-
+    Route::prefix('parte_diario')->controller(InterrupcionesController::class)->group(function () {
+        Route::get('/getParteDiarioWeb', 'GetParteDiarioWeb');
+    });
 
     Route::get('tables', function () {
     });

@@ -107,23 +107,6 @@ class InterrupcionesController extends BaseController implements Vervos
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-   
-   
-   
     public function postArray(Request $req)
     {
         $usuario = $this->traitGetIdUsuarioToken($req);
@@ -372,6 +355,56 @@ class InterrupcionesController extends BaseController implements Vervos
     public function getPorProyecto(Request $request, $proyecto)
     {
         // TODO: Implement getPorProyecto() method.
+    }
+
+
+    public function GetParteDiarioWeb(Request $request){
+        try {
+        $proyecto = $this->traitGetProyectoCabecera($request);
+        $ids = WbParteDiario::where('fk_id_project_Company', $proyecto)->get('id_parte_diario');
+        $resultados = collect();
+        $ids->chunk(2000)->each(function ($chunk) use (&$resultados) {
+            $consulta = WbParteDiario::wherein('id_parte_diario', $chunk)
+                ->with([
+                    'usuario_creador',
+                    'equipos',
+                    'turno',
+                    'operador',
+                    'distribuciones'
+                ])->get();
+            $resultados = $resultados->merge($consulta);
+        });
+        //$resultados = $consulta->get();
+        $limitePaginas = 0;
+        $sorted = $resultados->sortByDesc('id_parte_diario');
+        return $this->handleResponse($request, $this->WbParteDiarioToArray($sorted->values()), __('messages.consultado'), $limitePaginas);
+        } catch (Exception $e) {
+             \Log::error('error al obtener parte diario ' . $e->getMessage());
+            return $this->handleAlert(__('messages.error_interno_del_servidor'), false);
+        }
+    }
+
+
+
+
+
+
+    public function GetParteDiarioWeb2(Request $request){
+        try {
+            $proyecto = $this->traitGetProyectoCabecera($request);
+            $query = WbParteDiario::where('estado', 1)
+                ->where('fk_id_project_Company', $proyecto);
+            $result =$query->get();
+
+            return $this->handleResponse(
+                $request,
+                $this->WbInterrupcionesToArray($result),
+                __('messages.consultado')
+            );
+        } catch (Exception $e) {
+             \Log::error('error get conductores ' . $e->getMessage());
+            return $this->handleAlert(__('messages.error_interno_del_servidor'), false);
+        }
     }
     
 }
