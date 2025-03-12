@@ -1487,6 +1487,9 @@ trait Resource
             'proyecto' => $modelo->fk_id_project_Company,
             'tipo' => $modelo->tipo,
             'mso' => $modelo->mso,
+            'resistencia' => $modelo->resistencia,
+            'dmx' => $modelo->dmx,
+            'diseno' => $modelo->diseno ? $modelo->diseno->Tipo : null,
         ];
     }
 
@@ -1627,6 +1630,39 @@ trait Resource
             'cant_despachada' => $modelo->cant_despachada,
             'cant_viajes_salida' => $modelo->cant_viajes_salida,
             'estado' => $modelo->estado ? ($modelo->estado == 'PENDIENTE'?  '0' : '2') : null
+        ];
+    }
+
+    public function solicitudesConcretoAppToModel($modelo): array
+    {
+        return [
+            'identificador' => $modelo->identificador,
+            'tipo' => $modelo->tipo,
+            'tramo' => $modelo->tramo,
+            'hito' => $modelo->hito,
+            'abscisaInicial' => $modelo->abscisaInicialReferencia,
+            'abscisaFinal' => $modelo->abscisaFinalReferencia,
+            'formula_id' => $modelo->formula_concreto ? $modelo->formula_concreto->id : null,
+            'formula' => $modelo->formula_concreto ? $modelo->formula_concreto->formula . ' ('. $modelo->formula_concreto->resistencia . ' - ' . $modelo->formula_concreto->dmx . ' - ' . $modelo->tipoMezcla . ')' : null,
+            'planta_id' => $modelo->plantas ? $modelo->plantas->id_plata : null,
+            'planta' => $modelo->plantas ? $modelo->plantas->NombrePlanta : null,
+            'cantidad' => $modelo->volumenReal ? $modelo->volumenReal : ($modelo->volumen ?? null),
+            'usuario_crea' => $modelo->usuario ? ($modelo->usuario->Nombre ?? '') . ' ' . ($modelo->usuario->Apellido ?? '') : null,
+            'notaUsuario' => $modelo->nota,
+            'nomenclatura' => $modelo->nomenclatura && $modelo->nomenclatura != '...'? $modelo->nomenclatura : null,
+            'elemento_vaciar' => $modelo->elementoVaciar,
+            'asentamiento' => $modelo->asentamiento,
+            'fechaProgramacion' => $modelo->fechaDeProgramacion,
+            'fechaCreacion' => $modelo->dateCreation,
+            'proyecto' => $modelo->fk_id_project_Company,
+            'cost_code_id' => $modelo->cost_code ? $modelo->cost_code->COCEIDENTIFICATION : null,
+            'cost_code' => $modelo->CostCode,
+            'total_despachada' => $modelo->total_despachada,
+            'cant_recibida' => $modelo->cant_recibida,
+            'cant_viajes_llegada' => $modelo->cant_viajes_llegada,
+            'cant_despachada' => $modelo->cant_despachada,
+            'cant_viajes_salida' => $modelo->cant_viajes_salida,
+            'estado' => $modelo->estado ? ($modelo->estado == 'PENDIENTE'?  '0' : ($modelo->estado == 'ENVIADO' ? '2' : '1')) : null
         ];
     }
 

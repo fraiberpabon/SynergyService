@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\interfaces\Vervos;
+use App\Models\Formula;
 use App\Models\WbAsfaltFormula;
 use App\Models\WbFormulaCentroProduccion;
 use App\Models\WbFormulaLista;
@@ -58,7 +59,7 @@ class WbFormulasController extends BaseController implements Vervos
             )
         ->where('Estado', 'A');
 
-        $mat = $this->filtrar($request, $mat)->orderBy('id_formula_lista', 'DESC')->get();
+        $mat = $this->filtrarPorProyecto($request, $mat)->orderBy('id_formula_lista', 'DESC')->get();
 
         $asf = WbAsfaltFormula::select(
             'id_asfal_formula as identificador',
@@ -70,9 +71,59 @@ class WbFormulasController extends BaseController implements Vervos
         )
         ->where('estado', 1);
 
-        $asf = $this->filtrar($request, $asf)->orderBy('id_asfal_formula', 'DESC')->get();
+        $asf = $this->filtrarPorProyecto($request, $asf)->orderBy('id_asfal_formula', 'DESC')->get();
 
         $query = $mat->concat($asf);
+
+        return $this->handleResponse($request, $this->WbFormulasToArray($query), __('messages.consultado'));
+    }
+
+    public function getV3(Request $request)
+    {
+        // TODO: Implement get() method.
+        $mat = WbFormulaLista::select(
+            'id_formula_lista as identificador',
+            DB::raw("'M' as tipo"),
+            'Nombre',
+            'formulaDescripcion',
+            'unidadMedida',
+            'fk_id_project_Company'
+            )
+        ->where('Estado', 'A');
+
+        $mat = $this->filtrarPorProyecto($request, $mat)->orderBy('id_formula_lista', 'DESC')->get();
+
+        $asf = WbAsfaltFormula::select(
+            'id_asfal_formula as identificador',
+            DB::raw("'A' as tipo"),
+            'asfalt_formula as Nombre',
+            DB::raw("'Tonelada' as unidadMedida"),
+            'fk_id_project_Company',
+            'mso_id as mso',
+        )
+        ->where('estado', 1);
+
+        $asf = $this->filtrarPorProyecto($request, $asf)->orderBy('id_asfal_formula', 'DESC')->get();
+
+        $query = $mat->concat($asf);
+
+        $con = Formula::select(
+            'id as identificador',
+            'id',
+            'fk_tipoMezcla',
+            DB::raw("'C' as tipo"),
+            'formula as Nombre',
+            DB::raw("'Metros cubicos' as unidadMedida"),
+            'fk_id_project_Company',
+            'dmx',
+            'resistencia',
+        )
+        ->where('estado', 1)
+        ->with('diseno');
+
+        $con = $this->filtrarPorProyecto($request, $con)->orderBy('id', 'DESC')->get();
+
+        $query = $query->concat($con);
 
         return $this->handleResponse($request, $this->WbFormulasToArray($query), __('messages.consultado'));
     }
