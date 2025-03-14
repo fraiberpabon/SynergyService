@@ -1506,7 +1506,7 @@ class WbSolicitudesController extends BaseController implements Vervos
         $query = $this->filtrarPorProyecto($req, $query)->orderBy('fechaProgramacion', 'DESC')->get();
 
         $query = $query->map(function ($item) {
-            $info = WbFormulaCentroProduccion::select('codigoFormulaCdp')
+            $info = WbFormulaCentroProduccion::select('id_formula_centroProduccion')
                 ->where('fk_id_formula_lista', $item->fk_id_formula)
                 ->where('fk_id_planta', $item->fk_id_planta)
                 ->where('Estado', 'A')
@@ -1514,7 +1514,7 @@ class WbSolicitudesController extends BaseController implements Vervos
                 ->orderBy('dateCreate', 'DESC')
                 ->first();
 
-            $item->fk_formula_cdp = $info->codigoFormulaCdp ?? null;
+            $item->fk_formula_cdp = $info->id_formula_centroProduccion ?? null;
 
             if ($item->transporte) {
                 //$cubicaje = 0;

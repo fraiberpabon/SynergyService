@@ -415,6 +415,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
             'formula' => 'nullable|string',
             'turno' => 'nullable|numeric',
             'temperatura' => 'nullable|string',
+            'fk_formula_cdp' => 'nullable|string',
         ]);
 
         if ($validacion->fails()) {
@@ -474,6 +475,8 @@ class WbTransporteRegistroController extends BaseController implements Vervos
 
         $model->turno = isset($info['turno']) ? $info['turno'] : null;
         $model->temperatura = isset($info['temperatura']) ? $info['temperatura'] : null;
+
+        $model->temperatura = isset($info['fk_formula_cdp']) ? $info['fk_formula_cdp'] : null;
 
         $model->tipo_sync = $typeSyncMsg != "" ? $typeSyncMsg : null;
 
