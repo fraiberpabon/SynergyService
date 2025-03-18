@@ -2,7 +2,9 @@
 
 namespace App\Models\ParteDiario;
 
+use App\Models\Compania;
 use App\Models\Equipos\WbEquipo;
+use App\Models\Equipos\wbTipoEquipo;
 use App\Models\Transporte\WbConductores;
 use App\Models\Turnos\SyTurnos;
 use App\Models\Usuarios\usuarios_M;
@@ -46,5 +48,31 @@ class WbParteDiario extends Model
     {
         return $this->hasMany(WbDistribucionesParteDiario::class, 'fk_id_parte_diario', 'id_parte_diario');
     }
-    
+
+    public function compania()
+    {
+        return $this->hasOneThrough(
+            Compania::class, // Modelo final al que quieres acceder (Compania)
+            WbEquipo::class, // Modelo intermedio (WbEquipo)
+            'id', // Clave primaria en el modelo intermedio (WbEquipo)
+            'id_compañia', // Clave foránea en el modelo final (Compania)
+            'fk_equiment_id', // Clave foránea en el modelo actual (Sy_Parte_diario)
+            'fk_compania' // Clave foránea en el modelo intermedio (WbEquipo)
+        );
+    }
+
+
+
+    public function tipo_equipo()
+    {
+        return $this->hasOneThrough(
+            wbTipoEquipo::class, // Modelo final al que quieres acceder (Tipo equipo)
+            WbEquipo::class, // Modelo intermedio (WbEquipo)
+            'id', // Clave primaria en el modelo intermedio (WbEquipo)
+            'id_tipo_equipo', // Clave foránea en el modelo final (Compania)
+            'fk_equiment_id', // Clave foránea en el modelo actual (Sy_Parte_diario)
+            'fk_id_tipo_equipo' // Clave foránea en el modelo intermedio (WbEquipo)
+        );
+    }
+
 }

@@ -20,7 +20,7 @@ class SyTurnosController extends BaseController implements Vervos
      * @param $id
      */
     public function update(Request $req, $id){}
-   
+
     /**
      * @param Request $request
      * @param $id
@@ -38,13 +38,14 @@ class SyTurnosController extends BaseController implements Vervos
         try {
             $proyecto = $this->traitGetProyectoCabecera($request);
             $turnos = SyTurnos::where('fk_id_project_Company', $proyecto)->where('estado', 1)->get();
-    
+
             if (count($turnos) == 0) {
                 return $this->handleAlert(__('messages.no_tiene_turnos_registrados'), false);
             }
             return $this->handleResponse($request, $this->SyTurnosEquiposArray($turnos), __('messages.consultado'));
         } catch (Exception $e) {
-            return $this->sendError($e->getMessage(), 500);
+            \Log::error('error al obtener parte diario ' . $e->getMessage());
+            return $this->handleAlert(__('messages.error_interno_del_servidor'), false);
         }
     }
 }

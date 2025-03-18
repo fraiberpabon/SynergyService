@@ -441,4 +441,9 @@ return [
     'kg' => 'Kg',
     'diurno' => 'Daytime',
     'nocturno' => 'Nighttime',
+    'validacion_numerico_parte_diario'=>'The daily report identifier must be numeric.',
+    'ingrese_motivo_parte_diario'=>'Enter the reason for cancellation for the daily report',
+    'parte_diario_no_existe'=>'The daily report does not exist',
+    'parte_diario_anulado'=>'The daily report with its respective distributions was correctly cancelled.',
+    'error_al_anular_parte_diario'=>'Error canceling daily report',
 ];

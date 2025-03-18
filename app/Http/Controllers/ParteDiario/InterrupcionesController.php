@@ -32,7 +32,7 @@ class InterrupcionesController extends BaseController implements Vervos
                 'usuario'=> 'required|string',
                 'usuario_actualizacion'=> 'nullable',
                 'proyecto' => 'required|string',
-            
+
             ]);
             if ($validator->fails()) {
                 return $this->handleAlert($validator->errors());
@@ -78,7 +78,7 @@ class InterrupcionesController extends BaseController implements Vervos
             $data = json_decode($req->interrupciones, true);
                 if (is_array($data)) {
                     foreach ($data  as $interrupcion) {
-                        $ultimoIdParteDiario = null; 
+                        $ultimoIdParteDiario = null;
                         $model = new WbDistribucionesParteDiario();
                         if ($ultimoIdParteDiario === null) {
                             $ultimoIdParteDiario = WbParteDiario::orderBy('id_parte_diario', 'desc')->pluck('id_parte_diario')->first();
@@ -93,7 +93,9 @@ class InterrupcionesController extends BaseController implements Vervos
                         $model->fk_id_user_created = $interrupcion['usuario'] ?? null;
                         $model->hash = $interrupcion['hash'] ?? null;
                         $model->fk_id_user_updated = $interrupcion['usuario_actualizacion'] ?? null;
-                        $model->fecha_creacion_registro = $interrupcion['fecha_creacion_registro'] ?? null;
+                        $model->fecha_creacion_registro = isset($interrupcion['fecha_creacion_registro'])
+                            ? date('Y-m-d H:i:s.v', strtotime($interrupcion['fecha_creacion_registro']))
+                            : null;
                         $model->estado = 1;
                         if (!$model->save()) {
                             return $this->handleAlert(__('messages.no_se_pudo_realizar_el_registro'), false);
@@ -115,19 +117,19 @@ class InterrupcionesController extends BaseController implements Vervos
             $validate = Validator::make($req->all(), [
                 'datos' => 'required',
             ]);
-    
+
             if ($validate->fails()) {
                 return $this->handleAlert($validate->errors());
             }
-    
+
             $respuesta = collect();
-    
+
             $listaGuardar = json_decode($req->datos, true);
-    
+
             if (is_array($listaGuardar) && sizeof($listaGuardar) > 0) {
                 $guardados = 0;
                 $idParteDiarioArray = []; // Array para almacenar los id_parte_diario generados
-    
+
                 foreach ($listaGuardar as $key => $info) {
                     $validator = Validator::make($info, [
                         'fecha_registro' => 'required|string',
@@ -144,11 +146,11 @@ class InterrupcionesController extends BaseController implements Vervos
                         'usuario_actualizacion' => 'nullable',
                         'proyecto' => 'required|string',
                     ]);
-    
+
                     if ($validator->fails()) {
                         return $this->handleAlert($validator->errors());
                     }
-    
+
                     $find = WbParteDiario::select('id_parte_diario')->where('hash', $info['hash'])->first();
                     if ($find != null) {
                         $guardados++;
@@ -158,7 +160,7 @@ class InterrupcionesController extends BaseController implements Vervos
                         $respuesta->push($itemRespuesta);
                         continue;
                     }
-    
+
                     $model_parte_diario = new WbParteDiario();
                     $model_parte_diario->fecha_registro = $info['fecha_registro'] ?? null;
                     $model_parte_diario->fecha_creacion_registro = $info['fecha_creacion'] ?? null;
@@ -173,15 +175,15 @@ class InterrupcionesController extends BaseController implements Vervos
                     $model_parte_diario->fk_id_user_created = $info['usuario'] ?? null;
                     $model_parte_diario->hash = $info['hash'] ?? null;
                     $model_parte_diario->fk_id_user_updated = $info['usuario_actualizacion'] ?? null;
-    
+
                     if (!$model_parte_diario->save()) {
                         \Log::error('sync_array_horometers ' . ' Usuario:' . $usuario . ' Error: ' . json_encode($info));
                         continue;
                     }
-    
+
                     $id_parte_diario = $model_parte_diario->id_parte_diario;
                     $idParteDiarioArray[] = $id_parte_diario; // Almacenar el id_parte_diario generado
-    
+
                     $guardados++;
                     $itemRespuesta = collect();
                     $itemRespuesta->put('id_parte_diario', $id_parte_diario);
@@ -189,7 +191,7 @@ class InterrupcionesController extends BaseController implements Vervos
                     $itemRespuesta->put('estado', '1');
                     $respuesta->push($itemRespuesta);
                 }
-    
+
                 if ($guardados == 0) return $this->handleAlert("empty");
 
                 return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));
@@ -357,11 +359,16 @@ class InterrupcionesController extends BaseController implements Vervos
         // TODO: Implement getPorProyecto() method.
     }
 
-
+/**
+Obtener la lista de parte diario con sus respectivas
+ * distribuciones
+ */
     public function GetParteDiarioWeb(Request $request){
         try {
         $proyecto = $this->traitGetProyectoCabecera($request);
-        $ids = WbParteDiario::where('fk_id_project_Company', $proyecto)->get('id_parte_diario');
+        $ids = WbParteDiario::where('fk_id_project_Company', $proyecto)
+            ->where('estado', 1)
+            ->get('id_parte_diario');
         $resultados = collect();
         $ids->chunk(2000)->each(function ($chunk) use (&$resultados) {
             $consulta = WbParteDiario::wherein('id_parte_diario', $chunk)
@@ -370,7 +377,9 @@ class InterrupcionesController extends BaseController implements Vervos
                     'equipos',
                     'turno',
                     'operador',
-                    'distribuciones'
+                    'distribuciones',
+                    'compania',
+                    'tipo_equipo'
                 ])->get();
             $resultados = $resultados->merge($consulta);
         });
@@ -384,27 +393,57 @@ class InterrupcionesController extends BaseController implements Vervos
         }
     }
 
+/**
+ * Anular parte diario con sus respectivas distribuciones
+*/
 
-
-
-
-
-    public function GetParteDiarioWeb2(Request $request){
-        try {
-            $proyecto = $this->traitGetProyectoCabecera($request);
-            $query = WbParteDiario::where('estado', 1)
-                ->where('fk_id_project_Company', $proyecto);
-            $result =$query->get();
-
-            return $this->handleResponse(
-                $request,
-                $this->WbInterrupcionesToArray($result),
-                __('messages.consultado')
-            );
-        } catch (Exception $e) {
-             \Log::error('error get conductores ' . $e->getMessage());
-            return $this->handleAlert(__('messages.error_interno_del_servidor'), false);
+public function AnularParteDiario(Request $request ,$id_parte_diario)
+{
+    try {
+        $fecha_anulacion = $this->traitGetDateTimeNow();
+        $fk_usuario_anulacion =$this->traitGetIdUsuarioToken($request);
+        if (!is_numeric($id_parte_diario)) {
+            return $this->handleAlert(__('messages.validacion_numerico_parte_diario'));
         }
+        $motivo = $request->input('motivo');
+        if (empty($motivo)) {
+            return $this->handleAlert(__('messages.ingrese_motivo_parte_diario'));
+        }
+        $AnularParteDiario = WbParteDiario::find($id_parte_diario);
+        if ($AnularParteDiario == null) {
+            return $this->handleAlert(__('messages.parte_diario_no_existe'));
+        }
+       // $proyecto = $this->traitGetProyectoCabecera($request);
+        //$id_usuarios = $this->traitGetIdUsuarioToken($request);
+        //if ($AnularParteDiario->fk_id_project_Company != $proyecto) {
+        //    return $this->handleAlert(__('messages.no_tiene_permiso'));
+        //}
+        if ($AnularParteDiario) {
+            $AnularParteDiario->motivo_anulacion = $motivo;
+            $AnularParteDiario->fk_usuario_anulacion = $fk_usuario_anulacion;
+            $AnularParteDiario->fecha_anulacion = $fecha_anulacion;
+            $AnularParteDiario->estado = 0;
+            $AnularParteDiario->save();
+        }
+
+        // Anular todas las distribuciones relacionadas con el mismo id_parte_diario
+        $AnularDistribucionesParteDiario = WbDistribucionesParteDiario::where('fk_id_parte_diario', $id_parte_diario)->get();
+
+        foreach ($AnularDistribucionesParteDiario as $distribucion) {
+            $distribucion->motivo_anulacion = $motivo;
+            $distribucion->fk_usuario_anulacion = $fk_usuario_anulacion;
+            $distribucion->fecha_anulacion = $fecha_anulacion;
+            $distribucion->estado = 0;
+            $distribucion->save();
+        }
+        return $this->handleAlert(__('messages.parte_diario_anulado'), true);
+    } catch (\Exception $e) {
+        return $this->handleAlert(__('messages.error_al_anular_parte_diario', $e->getMessage()));
     }
-    
+}
+
+
+
+
+
 }

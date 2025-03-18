@@ -176,6 +176,12 @@ Route::middleware('desencript')->group(function () {
                 Route::get('/app', 'get');
             });
         });
+
+         Route::prefix('parte_diario')->controller(InterrupcionesController::class)->group(function () {
+             Route::get('/getParteDiarioWeb', 'GetParteDiarioWeb');
+             Route::put('/anularParteDiario/{id_parte_diario}', 'AnularParteDiario');
+         });
+
         /*
          * End endpoint para WebuApp
          */
@@ -247,9 +253,9 @@ Route::prefix('')->group(function () {
         Route::get('/confirmarCod', [UsuarioController::class, 'confirmarNumero']);
     });
 
-    Route::prefix('parte_diario')->controller(InterrupcionesController::class)->group(function () {
-        Route::get('/getParteDiarioWeb', 'GetParteDiarioWeb');
-    });
+//    Route::prefix('parte_diario')->controller(InterrupcionesController::class)->group(function () {
+//        Route::get('/getParteDiarioWeb', 'GetParteDiarioWeb');
+//    });
 
     Route::get('tables', function () {
     });

@@ -121,14 +121,14 @@ trait Resource
         // Obtener fechas y horómetros de las relaciones
         $parte_diario_fecha = $modelo->parte_diario ? $modelo->parte_diario->fecha_registro : null;
         $parte_diario_horometro = $modelo->parte_diario ? $modelo->parte_diario->horometro_final : null;
-    
+
         $horometro_fecha = $modelo->horometros ? Carbon::parse($modelo->horometros->fecha_registro)->format('Y-m-d') : null;
         $horometro_fechasf = $modelo->horometros ? $modelo->horometros->fecha_registro : null;
         $horometro_valor = $modelo->horometros ? $modelo->horometros->horometro : null;
-    
+
         // Inicializar variables
         $horometro = $modelo->horometro_inicial; // Valor por defecto
-        
+
         $fechaHorometro = null;
         // Determinar el horómetro y la fecha según la lógica
         if ($parte_diario_fecha && $horometro_fecha) {
@@ -165,7 +165,7 @@ trait Resource
                 : ($modelo->created_at ? Carbon::parse($modelo->created_at)->format('Y-m-d H:i:s') : null);
             }
         }
-    
+
         // Asegurar que la fecha tenga el formato YYYY-MM-DD HH:MM:SS
         if ($fechaHorometro) {
             $fechaHorometro = Carbon::parse($fechaHorometro)->format('Y-m-d H:i:s');
@@ -173,7 +173,7 @@ trait Resource
         // } else {
         //     $fechaHorometro = Carbon::now()->format('Y-m-d 00:00:00'); // Si no hay fecha, usar la fecha actual con hora 00:00:00
         // }
-    
+
         return [
             'identificador' => $modelo->id,
             'equipo' => $modelo->equiment_id,
@@ -1826,7 +1826,7 @@ trait Resource
 
 
     /**
-     * Parte diario web 
+     * Parte diario web
      */
 
      public function WbParteDiarioToArray($lista): Collection|\Illuminate\Support\Collection
@@ -1835,7 +1835,7 @@ trait Resource
              return $this->WbParteDiarioToModel($data);
          });
      }
- 
+
      public function WbParteDiarioToModel($modelo): array
      {
         $usuario_creador = $modelo->usuario_creador ? $modelo->usuario_creador->usuario: null;
@@ -1844,8 +1844,10 @@ trait Resource
              'id_parte_diario' => $modelo->id_parte_diario,
              'fecha_registro' => $modelo->fecha_registro,
              'fecha_creacion_registro' => $modelo->fecha_creacion_registro,
-             'fk_equiment_id' => $modelo->fk_equiment_id,
-             'placa' => $modelo->equipos ? $modelo->equipos->placa : null,
+             'fk_equiment_id' => $modelo->equipos ? $modelo->equipos->equiment_id : null,
+             'descripcion_equipo' => $modelo->equipos ? $modelo->equipos->descripcion : null,
+             'contratista' => $modelo->compania ? $modelo->compania->nombreCompañia : null,
+             'tipo_equipo'=>$modelo->tipo_equipo ? $modelo->tipo_equipo->nombre:null,
              'usuario_creador' => $usuario_creador,
              'usuario_creador_nombre' => $usuario_creador_nombre,
              'observacion' => $modelo->observacion,
@@ -1854,7 +1856,11 @@ trait Resource
              'horometro_final' => $modelo->horometro_final,
              'operador' => $modelo->operador ? $modelo->operador->nombreCompleto : null,
              'proyecto' => $modelo->fk_id_project_Company,
+             'total_horas' => $modelo->distribuciones->sum('hr_trabajo'),
+             'horas_interrupcion' => $modelo->distribuciones->where('fk_id_centro_costo')->sum('hr_trabajo'),
+             'horas_trabajadas' => $modelo->distribuciones->where('fk_id_interrupcion')->sum('hr_trabajo'),
              'listaDistribuciones'=>($modelo->distribuciones)?$this->WbDistribucionesParteDiarioToArray($modelo->distribuciones):null,
+
          ];
      }
 
@@ -1864,7 +1870,7 @@ trait Resource
              return $this->WbDistribucionesParteDiarioToModel($data);
          });
      }
-    
+
      public function WbDistribucionesParteDiarioToModel($modelo): array
      {
         $interrupciones_nombre = $modelo->interrupciones ? $modelo->interrupciones->nombre_interrupcion : null;
@@ -1877,19 +1883,24 @@ trait Resource
             $distribucion = $nombre_centro_costo;
         }
         if ($fk_id_interrupcion) {
-            $fk_interrupcion_code = $fk_id_interrupcion;
+            $fk_interrupcion_code = $interrupciones_nombre;
         } else {
-            $fk_interrupcion_code = $fk_id_centro_costo;
+            $fk_interrupcion_code = $fk_id_centro_costo . " - ". $nombre_centro_costo;
+        }
+        if($fk_id_interrupcion){
+            $concepto = $interrupciones_nombre;
+            $distribucion = "";
+        }else{
+            $concepto = $fk_id_centro_costo;
         }
          return [
             'distribucion' => $distribucion,
             'id_distribucion_or_cost_code' => $fk_interrupcion_code,
             'descripcion_trabajo'=>$modelo->descripcion_trabajo,
-            'horas_trabajadas' => $modelo->hr_trabajo,
+            'hr_trabajo' => $modelo->hr_trabajo,
+            'nombre_interrupcion' => $interrupciones_nombre,
+            'nombre_centro_costo' => $nombre_centro_costo,
+            'concepto' => $concepto,
            ];
      }
-
-
-
-
 }

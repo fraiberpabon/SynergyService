@@ -439,4 +439,9 @@ return [
     'kg' => 'Kg',
     'diurno' => 'Diurno',
     'nocturno' => 'Notturno',
+    'validacion_numerico_parte_diario'=>'L\'identificativo del report giornaliero deve essere numerico.',
+    'ingrese_motivo_parte_diario'=>'Inserisci il motivo dell\'annullamento per il rapporto giornaliero',
+    'parte_diario_no_existe'=>'Il rapporto giornaliero non esiste',
+    'parte_diario_anulado'=>'Il report giornaliero con le rispettive distribuzioni è stato cancellato correttamente',
+    'error_al_anular_parte_diario'=>'Errore durante l\'annullamento della parte del diario',
 ];
