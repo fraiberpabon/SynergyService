@@ -185,7 +185,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
             return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));
         } catch (\Throwable $th) {
             \Log::error('transport-background ' . $th->getMessage());
-            return $this->handleAlert($th->getMessage());
+            return $this->handleAlert(__('messages.error_servicio'));
         }
     }
 
@@ -341,7 +341,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
             return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));
         } catch (\Throwable $th) {
             \Log::error('transport-background ' . $th->getMessage());
-            return $this->handleAlert($th->getMessage());
+            return $this->handleAlert(__('messages.error_servicio'));
         }
     }
 
@@ -372,7 +372,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
             return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));
         } catch (\Throwable $th) {
             \Log::error('transport-background ' . $th->getMessage());
-            return $this->handleAlert($th->getMessage());
+            return $this->handleAlert(__('messages.error_servicio'));
         }
     }
 
@@ -539,7 +539,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
             }
         } catch (\Throwable $th) {
             Log::info($th->getMessage());
-            return $this->handleAlert($th->getMessage());
+            return $this->handleAlert(__('messages.error_servicio'));
         }
     }
 

@@ -444,4 +444,5 @@ return [
     'parte_diario_no_existe'=>'Il rapporto giornaliero non esiste',
     'parte_diario_anulado'=>'Il report giornaliero con le rispettive distribuzioni è stato cancellato correttamente',
     'error_al_anular_parte_diario'=>'Errore durante l\'annullamento della parte del diario',
+    'error_servicio'=>'There was an error processing your request. Please try again.'
 ];

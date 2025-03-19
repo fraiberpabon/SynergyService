@@ -45,7 +45,7 @@ class SyTurnosController extends BaseController implements Vervos
             return $this->handleResponse($request, $this->SyTurnosEquiposArray($turnos), __('messages.consultado'));
         } catch (Exception $e) {
             \Log::error('error al obtener parte diario ' . $e->getMessage());
-            return $this->handleAlert(__('messages.error_interno_del_servidor'), false);
+            return $this->handleAlert(__('messages.error_servicio'));
         }
     }
 }

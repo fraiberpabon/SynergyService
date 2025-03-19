@@ -446,4 +446,5 @@ return [
     'parte_diario_no_existe'=>'The daily report does not exist',
     'parte_diario_anulado'=>'The daily report with its respective distributions was correctly cancelled.',
     'error_al_anular_parte_diario'=>'Error canceling daily report',
+    'error_servicio'=>'There was an error processing your request. Please try again.'
 ];

@@ -68,7 +68,7 @@ class InterrupcionesController extends BaseController implements Vervos
          //   }
         } catch (\Throwable $th) {
             \Log::error('Sy parte diario' . $th->getMessage());
-            return $this->handleAlert($th->getMessage());
+            return $this->handleAlert(__('messages.error_servicio'));
         }
     }
 
@@ -105,7 +105,7 @@ class InterrupcionesController extends BaseController implements Vervos
             }
         } catch (\Throwable $th) {
             \Log::error('Sy parte diario' . $th->getMessage());
-            return $this->handleAlert($th->getMessage());
+            return $this->handleAlert(__('messages.error_servicio'));
         }
     }
 
@@ -199,9 +199,8 @@ class InterrupcionesController extends BaseController implements Vervos
                 return $this->handleAlert("empty");
             }
         } catch (\Throwable $th) {
-            \Log::error( ' info: ' . json_encode($general) . ' Error: ' . $th->getMessage());
             \Log::error($th->getMessage());
-            return $this->handleAlert(__('messages.error_interno_del_servidor'));
+            return $this->handleAlert(__('messages.error_servicio'));
         }
     }
 
@@ -304,9 +303,8 @@ class InterrupcionesController extends BaseController implements Vervos
             return $this->handleAlert("empty");
         }
     } catch (\Throwable $th) {
-        \Log::error('sync_array_horometers ' . ' Usuario:' . $usuario . ' info: ' . json_encode($general) . ' Error: ' . $th->getMessage());
         \Log::error($th->getMessage());
-        return $this->handleAlert(__('messages.error_interno_del_servidor'));
+        return $this->handleAlert(__('messages.error_servicio'));
     }
 }
 
@@ -350,7 +348,7 @@ class InterrupcionesController extends BaseController implements Vervos
             );
         } catch (Exception $e) {
              \Log::error('error get conductores ' . $e->getMessage());
-            return $this->handleAlert(__('messages.error_interno_del_servidor'), false);
+            return $this->handleAlert(__('messages.error_servicio'));
         }
     }
 
@@ -389,7 +387,7 @@ Obtener la lista de parte diario con sus respectivas
         return $this->handleResponse($request, $this->WbParteDiarioToArray($sorted->values()), __('messages.consultado'), $limitePaginas);
         } catch (Exception $e) {
              \Log::error('error al obtener parte diario ' . $e->getMessage());
-            return $this->handleAlert(__('messages.error_interno_del_servidor'), false);
+            return $this->handleAlert(__('messages.error_servicio'));
         }
     }
 
@@ -438,12 +436,8 @@ public function AnularParteDiario(Request $request ,$id_parte_diario)
         }
         return $this->handleAlert(__('messages.parte_diario_anulado'), true);
     } catch (\Exception $e) {
-        return $this->handleAlert(__('messages.error_al_anular_parte_diario', $e->getMessage()));
+        \Log::error('error al anular parte diario ' . $e->getMessage());
+        return $this->handleAlert(__('messages.error_servicio'));
     }
 }
-
-
-
-
-
 }
