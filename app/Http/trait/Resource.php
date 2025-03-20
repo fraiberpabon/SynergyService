@@ -1646,7 +1646,7 @@ trait Resource
             'formula' => $modelo->formula_concreto ? $modelo->formula_concreto->formula . ' ('. $modelo->formula_concreto->resistencia . ' - ' . $modelo->formula_concreto->dmx . ' - ' . $modelo->tipoMezcla . ')' : null,
             'planta_id' => $modelo->plantas ? $modelo->plantas->id_plata : null,
             'planta' => $modelo->plantas ? $modelo->plantas->NombrePlanta : null,
-            'cantidad' => $modelo->volumenReal ? $modelo->volumenReal : ($modelo->volumen ?? null),
+            'cantidad' => $modelo->volumen ?? null,
             'usuario_crea' => $modelo->usuario ? ($modelo->usuario->Nombre ?? '') . ' ' . ($modelo->usuario->Apellido ?? '') : null,
             'notaUsuario' => $modelo->nota,
             'nomenclatura' => $modelo->nomenclatura && $modelo->nomenclatura != '...'? $modelo->nomenclatura : null,
@@ -1662,7 +1662,9 @@ trait Resource
             'cant_viajes_llegada' => $modelo->cant_viajes_llegada,
             'cant_despachada' => $modelo->cant_despachada,
             'cant_viajes_salida' => $modelo->cant_viajes_salida,
-            'estado' => $modelo->estado ? ($modelo->estado == 'PENDIENTE'?  '0' : ($modelo->estado == 'ENVIADO' ? '2' : '1')) : null
+            'estado' => $modelo->estado ? ($modelo->estado == 'PENDIENTE'?  '0' :
+            ($modelo->estado == 'ENVIADO' ? '2' :
+            ($modelo->estado == 'ANULADO' ? '3' : '1'))) : null
         ];
     }
 
