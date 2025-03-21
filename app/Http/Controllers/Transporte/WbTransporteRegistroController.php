@@ -655,7 +655,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
             ->where('fk_id_project_Company', $item->fk_id_project_Company)
             ->with([
                 'transporte' => function ($sub) {
-                    $sub->with('equipo')->where('tipo', 2)->where('estado', 1);
+                    $sub->with('equipo')->where('tipo', 2)->where('tipo_solicitud', 'M')->where('estado', 1);
                 }
             ])
             ->first();
@@ -722,7 +722,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
             ->where('fk_id_project_Company', $item->fk_id_project_Company)
             ->with([
                 'transporte' => function ($sub) {
-                    $sub->where('tipo', 2)->where('estado', 1);
+                    $sub->where('tipo', 2)->where('tipo_solicitud', 'A')->where('estado', 1);
                 }
             ])
             ->first();
@@ -830,7 +830,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
             ->where('fk_id_project_Company', $item->fk_id_project_Company)
             ->with([
                 'transporte' => function ($sub) {
-                    $sub->where('tipo', 2)->where('estado', 1);
+                    $sub->where('tipo', 2)->where('tipo_solicitud', 'C')->where('estado', 1);
                 }
             ])
             ->first();
@@ -868,6 +868,9 @@ class WbTransporteRegistroController extends BaseController implements Vervos
             $solicitud->estado = 'ENVIADO';
             $solicitud->fecha_cierre = Carbon::now()->format('d/m/Y h:i:s A');
             $solicitud->user_despacho = $item->user_created;
+            $solicitud->toneFaltante = 0;
+        } else {
+            $solicitud->toneFaltante = $cantidadNecesaria - $total;
         }
 
         if ($solicitud->save()) {
@@ -893,7 +896,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
             $modelo->formula = $tranport->formulaCon ? $tranport->formulaCon->resistencia : null;
             $modelo->cantidad = $solicitud->volumen;
             $modelo->firma = '--';
-            $modelo->observacion = $solicitud->elementoVaciar;
+            $modelo->observacion = $solicitud->elementoVaciar . ($item->observacion ? ', ' . $item->observacion : '');
             $modelo->fecha = $fecha;
             $modelo->fk_id_usuario = $item->user_created;
             $modelo->cantiEnviada = $tranport->cantidad;
