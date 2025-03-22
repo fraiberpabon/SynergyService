@@ -896,7 +896,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
             $modelo->formula = $tranport->formulaCon ? $tranport->formulaCon->resistencia : null;
             $modelo->cantidad = $solicitud->volumen;
             $modelo->firma = '--';
-            $modelo->observacion = $solicitud->elementoVaciar . ($item->observacion ? ', ' . $item->observacion : '');
+            $modelo->observacion = $item->observacion ? $item->observacion : null;
             $modelo->fecha = $fecha;
             $modelo->fk_id_usuario = $item->user_created;
             $modelo->cantiEnviada = $tranport->cantidad;
