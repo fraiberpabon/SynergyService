@@ -116,50 +116,81 @@ trait Resource
             return $this->equipoToModel($data);
         });
     }
-
     public function equipoToModel($modelo): array
-    {
-        return [
-            'identificador' => $modelo->id,
-            'equipo' => $modelo->equiment_id,
-            'descripcion' => $modelo->descripcion,
-            'cubicaje' => $modelo->cubicaje,
-            'marca' => $modelo->marca,
-            'modelo' => $modelo->modelo,
-            'placa' => $modelo->placa,
-            'dueno' => $modelo->dueno,
-            'estado' => $modelo->estado,
-            'peso' => $modelo->vehiculos_pesos ? $modelo->vehiculos_pesos->peso : null,
-            'compania' => $modelo->fk_compania,
-            'companiaNombre' => $modelo->compania ? $modelo->compania->nombreCompañia : null,
-            'nombreTipoEquipo' => $modelo->tipo_equipo ? $modelo->tipo_equipo->nombre : null,
-            'tipoEquipo' => $modelo->fk_id_tipo_equipo,
-            'tipocontrato' => $modelo->tipocontrato,
-            'codigoExterno' => $modelo->codigo_externo,
-            'horometro' => $modelo->horometros ? $modelo->horometros->horometro : $modelo->horometro_inicial,
-            'fechaHorometro' => $modelo->horometros ?
-                $modelo->horometros->fecha_registro :
-                ($modelo->updated_at ?
-                    Carbon::parse($modelo->updated_at)->format('Y-m-d H:i:s') :
-                    ($modelo->created_at ? Carbon::parse($modelo->created_at)->format('Y-m-d H:i:s') : null)
-                ),
-            'ubicacionTramo' => $modelo->ubicacion ?
-                ($modelo->ubicacion->tramo ?
-                    $modelo->ubicacion->tramo->Id_Tramo . ($modelo->ubicacion->tramo->Descripcion ?
-                        ' - ' . $modelo->ubicacion->tramo->Descripcion : '')
-                    : null)
-                : null,
-            'ubicacionHito' => $modelo->ubicacion ?
-                ($modelo->ubicacion->hito ?
-                    $modelo->ubicacion->hito->Id_Hitos . ($modelo->ubicacion->hito->Descripcion ?
-                        ' - ' . $modelo->ubicacion->hito->Descripcion : '')
-                    : null)
-                : null,
-            'fechaUbicacion' => $modelo->ubicacion ? $modelo->ubicacion->fecha_registro : null,
-            'proyecto' => $modelo->fk_id_project_Company,
-        ];
+{
+
+  // var_dump($modelo->parte_diario);
+    // Obtener fechas y horómetros de las relaciones
+    $parte_diario_fecha = $modelo->parte_diario ? $modelo->parte_diario->fecha_registro : null;
+    $parte_diario_horometro = $modelo->parte_diario ? $modelo->parte_diario->horometro_final : null;
+
+    $horometro_fecha = $modelo->horometros ? $modelo->horometros->fecha_registro : null;
+    $horometro_valor = $modelo->horometros ? $modelo->horometros->horometro : null;
+
+    // Inicializar variables
+    $horometro = $modelo->horometro_inicial; // Valor por defecto
+    $fechaHorometro = null;
+
+    // Determinar el horómetro y la fecha según la lógica
+    if ($parte_diario_fecha && $horometro_fecha) {
+        // Comparar fechas y usar el valor más reciente
+        if ($parte_diario_fecha > $horometro_fecha) {
+            $fechaHorometro = $parte_diario_fecha;
+            $horometro = $parte_diario_horometro;
+        } else {
+            $fechaHorometro = $horometro_fecha;
+            $horometro = $horometro_valor;
+        }
+    } elseif ($parte_diario_fecha) {
+        // Solo existe parte diario
+        $fechaHorometro = $parte_diario_fecha;
+        $horometro = $parte_diario_horometro;
+    } elseif ($horometro_fecha) {
+        // Solo existe horómetro
+        $fechaHorometro = $horometro_fecha;
+        $horometro = $horometro_valor;
+    } else {
+        // No hay parte diario ni horómetro, usar valores por defecto
+        $fechaHorometro = $modelo->updated_at
+            ? Carbon::parse($modelo->updated_at)->format('Y-m-d H:i:s')
+            : ($modelo->created_at ? Carbon::parse($modelo->created_at)->format('Y-m-d H:i:s') : null);
     }
 
+    return [
+        'identificador' => $modelo->id,
+        'equipo' => $modelo->equiment_id,
+        'descripcion' => $modelo->descripcion,
+        'cubicaje' => $modelo->cubicaje,
+        'marca' => $modelo->marca,
+        'modelo' => $modelo->modelo,
+        'placa' => $modelo->placa,
+        'dueno' => $modelo->dueno,
+        'estado' => $modelo->estado,
+        'peso' => $modelo->vehiculos_pesos ? $modelo->vehiculos_pesos->peso : null,
+        'compania' => $modelo->fk_compania,
+        'companiaNombre' => $modelo->compania ? $modelo->compania->nombreCompañia : null,
+        'nombreTipoEquipo' => $modelo->tipo_equipo ? $modelo->tipo_equipo->nombre : null,
+        'tipoEquipo' => $modelo->fk_id_tipo_equipo,
+        'tipocontrato' => $modelo->tipocontrato,
+        'codigoExterno' => $modelo->codigo_externo,
+        'horometro' => $horometro,
+        'fechaHorometro' => $fechaHorometro,
+        'ubicacionTramo' => $modelo->ubicacion ?
+            ($modelo->ubicacion->tramo ?
+                $modelo->ubicacion->tramo->Id_Tramo . ($modelo->ubicacion->tramo->Descripcion ?
+                    ' - ' . $modelo->ubicacion->tramo->Descripcion : '')
+                : null)
+            : null,
+        'ubicacionHito' => $modelo->ubicacion ?
+            ($modelo->ubicacion->hito ?
+                $modelo->ubicacion->hito->Id_Hitos . ($modelo->ubicacion->hito->Descripcion ?
+                    ' - ' . $modelo->ubicacion->hito->Descripcion : '')
+                : null)
+            : null,
+        'fechaUbicacion' => $modelo->ubicacion ? $modelo->ubicacion->fecha_registro : null,
+        'proyecto' => $modelo->fk_id_project_Company,
+    ];
+}
     public function tipoEquipoToArray($lista): Collection|\Illuminate\Support\Collection
     {
         return $lista->map(function ($data) {

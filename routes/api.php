@@ -107,6 +107,13 @@ Route::middleware('desencript')->group(function () {
          // conductores
          Route::prefix('conductores')->controller(WbConductoresController::class)->group(function () {
             Route::get('/backgound', 'get');
+         });
+
+        Route::prefix('parte-diario')->controller(InterrupcionesController::class)->group(function () {
+            Route::post('/insertar', 'post');
+            Route::post('/insertarD', 'postInterrupciones');
+            Route::post('/insertar-paquete', 'postArray');
+            Route::post('/insertar-paquete-distribuciones', 'postArrayDistribuciones');
         });
     });
 
@@ -251,7 +258,10 @@ Route::prefix('')->group(function () {
 
     Route::get('tables', function () {
     });
-
+    Route::prefix('parte-diario')->controller(InterrupcionesController::class)->group(function () {
+        Route::post('/insertar', 'post');
+        Route::post('/insertarD', 'postInterrupciones');
+    });
 
 
     Route::get('encrypt/{tipoPassword}', [encrypt::class, 'index']);

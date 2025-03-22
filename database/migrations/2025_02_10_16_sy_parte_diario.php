@@ -23,8 +23,8 @@ return new class extends Migration
     {
         Schema::create('Sy_Parte_diario', function (Blueprint $table) {
             $table->bigIncrements('id_parte_diario')->comment('clave primaria que identifica al registro');
-            $table->dateTime('fecha_registro')->format('d/m/Y')->comment('campo que identifica la fecha del registro');
-            $table->dateTime('fecha_creacion_registro')->format('d/m/Y H:i:s')->comment('campo que identifica la fecha y hora del registro');
+            $table->string('fecha_registro')->comment('campo que identifica la fecha del registro');
+            $table->string('fecha_creacion_registro')->comment('campo que identifica la fecha y hora del registro');
             $table->string('fk_equiment_id')->comment('llave foranea de wb_equipos');
             $table->string('observacion', 255)->comment('campo que indentifica la observacion del parte diario');
             $table->string('fk_id_seguridad_sitio_turno')->comment('llave forarena de wb_seguridad_sitio_turno');
@@ -34,7 +34,7 @@ return new class extends Migration
             $table->string('hash')->comment('hash unico de registro');
             $table->integer('estado')->comment('indicador de estado 0 representa no sincronizado 1 sincronizado 2 modificado 3 anulado');
             $table->string('fk_id_user_created')->comment('id del usuario que crea el registro');
-            $table->string('fk_id_user_updated')->comment('id del usuario que actualiza el registro');
+            $table->string('fk_id_user_updated')->nullable()->comment('id del usuario que actualiza el registro');
             $table->integer('fk_id_project_Company')->comment('id del proyecto al cual pertenece el registro');
             $table->timestamps();
         });
