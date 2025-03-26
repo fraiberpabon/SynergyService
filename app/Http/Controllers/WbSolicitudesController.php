@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\interfaces\Vervos;
+use App\Models\solicitudConcreto;
 use App\Models\WbFormulaCentroProduccion;
 use App\Models\WbSolicitudMateriales;
 use App\Models\WbSolitudAsfalto;
@@ -23,6 +24,13 @@ class WbSolicitudesController extends BaseController implements Vervos
     private $estados_soli_asfalto = [
         'pendiente' => 'PENDIENTE',
         'despachado' => 'ENVIADO'
+    ];
+
+    private $estados_soli_concreto = [
+        'pendiente' => 'PENDIENTE',
+        'despachado' => 'ENVIADO',
+        'rechazado' => 'RECHAZADO',
+        'anulado' => 'ANULADO',
     ];
 
     public function update(Request $req, $id)
@@ -535,11 +543,19 @@ class WbSolicitudesController extends BaseController implements Vervos
 
     public function findForIdV3($idSolicitud, $tipo)
     {
-        if ($tipo == 'M') {
-            $repuesta = $this->getSolicitudMaterial($idSolicitud);
-        } else {
-            $repuesta = $this->getSolicitudAsfalto($idSolicitud);
+        switch ($tipo) {
+            case 'M':
+                $repuesta = $this->getSolicitudMaterial($idSolicitud);
+                break;
+            case 'A':
+                $repuesta = $this->getSolicitudAsfalto($idSolicitud);
+                break;
+            case 'C':
+                $repuesta = $this->getSolicitudConcreto($idSolicitud);
+                break;
+            default: break;
         }
+
         return $repuesta;
     }
 
@@ -721,6 +737,7 @@ class WbSolicitudesController extends BaseController implements Vervos
         }
 
     }
+
 
     public function getAppByFecha(Request $request)
     {
@@ -1498,7 +1515,7 @@ class WbSolicitudesController extends BaseController implements Vervos
         $query = $this->filtrarPorProyecto($req, $query)->orderBy('fechaProgramacion', 'DESC')->get();
 
         $query = $query->map(function ($item) {
-            $info = WbFormulaCentroProduccion::select('codigoFormulaCdp')
+            $info = WbFormulaCentroProduccion::select('id_formula_centroProduccion')
                 ->where('fk_id_formula_lista', $item->fk_id_formula)
                 ->where('fk_id_planta', $item->fk_id_planta)
                 ->where('Estado', 'A')
@@ -1506,7 +1523,7 @@ class WbSolicitudesController extends BaseController implements Vervos
                 ->orderBy('dateCreate', 'DESC')
                 ->first();
 
-            $item->fk_formula_cdp = $info->codigoFormulaCdp ?? null;
+            $item->fk_formula_cdp = $info->id_formula_centroProduccion ?? null;
 
             if ($item->transporte) {
                 //$cubicaje = 0;
@@ -1547,7 +1564,7 @@ class WbSolicitudesController extends BaseController implements Vervos
     {
         $estados = array_values($this->estados_soli_asfalto);
         $fecha = Carbon::now()->subDays(3)->toDateString();
-        $query = WbSolitudAsfalto::where(function ($q) use($estados) {
+        $query = WbSolitudAsfalto::where(function ($q) use ($estados) {
             $q->whereIn('estado', $estados)
                 ->orWhereNull('toneladaReal');
         })
@@ -1632,6 +1649,130 @@ class WbSolicitudesController extends BaseController implements Vervos
             }
 
             return $this->solicitudesAsfaltoAppToModel($item);
+        });
+
+        return $query;
+    }
+
+    public function getAppV5(Request $req)
+    {
+        try {
+            $material = $this->getSolicitudesMaterialesV2($req);
+            $asfalto = $this->getSolicitudesAsfaltoV2($req);
+            $concreto = $this->getSolicitudesConcreto($req);
+
+            $concat = $material->concat($asfalto);
+            $respuesta = $concat->concat($concreto);
+
+            return $this->handleResponse($req, $respuesta, __('messages.consultado'));
+        } catch (\Throwable $e) {
+            $this->handleAlert('' . $e->getMessage(), false);
+        }
+
+    }
+
+    public function getSolicitudesConcreto(Request $req)
+    {
+        $estados = array_values($this->estados_soli_concreto);
+        $fecha = Carbon::now()->subDays(3)->format('j-n-Y'); //->toDateString();
+        $query = solicitudConcreto::whereIn('estado', $estados)
+            ->whereNotNull('fechaProgramacion')
+            ->where('fechaProgramacion', '<>', 'N/A')
+            /* where(function ($q) use($estados) {
+                $q->whereIn('estado', $estados);
+                    ->orWhereNull('toneladaReal');
+            }) */
+            ->whereRaw("CONVERT(DATE, fechaProgramacion, 103) >=  CONVERT(DATE, ?, 103)", [$fecha])
+            ->with([
+                'usuario',
+                'plantas',
+                'formula_concreto',
+                'cost_code',
+                'transporte' => function ($sub) {
+                    $sub->where('estado', 1)->where('tipo_solicitud', 'C')->where('user_created', '!=', 0);
+                }
+            ])
+            ->select(
+                'id_solicitud as identificador',
+                'id_solicitud',
+                DB::raw("'C' as tipo"), // Ponemos el tipo de la solicitud, en el caso solicitud de asfalto
+                'fk_usuario',
+                'elementoVaciar',
+                'nomenclatura',
+                'tipoMezcla',
+                'fechaHoraSolicitud',
+                DB::raw("CONVERT(DATE, [fechaHoraSolicitud], 103) AS dateCreation"),
+                'fk_id_formula',
+                'abscisas',
+                'hito',
+                'tramo',
+                'volumen',
+                'volumenReal',
+                'resistencia',
+                'asentamiento',
+                'nota',
+                'fechaProgramacion',
+                DB::raw("CONVERT(DATE, [fechaProgramacion], 103) AS fechaDeProgramacion"),
+                'nota',
+                'PlantaDestino',
+                'fechaAceptacion',
+                'CostCode',
+                'toneFaltante',
+                'notaCierre',
+                'fk_id_project_Company',
+                'estado',
+            );
+
+        $query = $this->filtrarPorProyecto($req, $query)
+            ->orderByRaw("CONVERT(DATE,[fechaProgramacion], 103) DESC")
+            ->get();
+
+        $query = $query->map(function ($item) {
+
+            if ($item->abscisas && $item->abscisas != '...') {
+                // Extraemos los valores entre "Inicial K"
+                if (preg_match('/Inicial K(\d+)\+(\d+).*Final K(\d+)\+(\d+)/', $item->abscisas, $matches)) {
+                    // Combinamos los grupos para obtener los valores completos
+                    $inicial = str_pad($matches[1] . $matches[2], 5, '0', STR_PAD_LEFT);
+                    $final = str_pad($matches[3] . $matches[4], 5, '0', STR_PAD_LEFT);
+
+                    $item->abscisaInicialReferencia = $inicial;
+                    $item->abscisaFinalReferencia = $final;
+                } else {
+                    $cadena = str_replace(['K', '+'], '', $item->abscisas); // Elimina 'K' y '+'
+                    $inicial = explode(',', $cadena)[0]; // Toma solo lo antes de la coma
+                    $item->abscisaInicialReferencia = $inicial;
+                }
+            }
+
+
+            if ($item->transporte) {
+                $vLlegada = $vSalida = $cLlegada = $cSalida = 0;
+
+                foreach ($item->transporte as $tr) {
+                    if ($tr->tipo == 1) {
+                        $vLlegada++;
+                        $cLlegada += $tr->cantidad ? $tr->cantidad : 0;
+                    } else if ($tr->tipo == 2) {
+                        $vSalida++;
+                        $cSalida += $tr->cantidad ? $tr->cantidad : 0;
+                    }
+                }
+
+                $item->total_despachada = max($cLlegada, $cSalida);
+                $item->cant_recibida = $cLlegada;
+                $item->cant_viajes_llegada = $vLlegada;
+                $item->cant_despachada = $cSalida;
+                $item->cant_viajes_salida = $vSalida;
+            } else {
+                $item->total_despachada = 0;
+                $item->cant_recibida = 0;
+                $item->cant_viajes_llegada = 0;
+                $item->cant_despachada = 0;
+                $item->cant_viajes_salida = 0;
+            }
+
+            return $this->solicitudesConcretoAppToModel($item);
         });
 
         return $query;
@@ -1815,7 +1956,7 @@ class WbSolicitudesController extends BaseController implements Vervos
 
         $estados = array_values($this->estados_soli_asfalto);
         $fecha = Carbon::now()->subDays(3)->toDateString();
-        $query = WbSolitudAsfalto::where(function ($q) use($estados) {
+        $query = WbSolitudAsfalto::where(function ($q) use ($estados) {
             //$q->where('estado', 'PENDIENTE')
             $q->whereIn('estado', $estados)
                 ->orWhereNull('toneladaReal');
@@ -1906,4 +2047,259 @@ class WbSolicitudesController extends BaseController implements Vervos
         return $query;
     }
 
+    public function getListForIdsV4(Request $req)
+    {
+        $validate = Validator::make($req->all(), [
+            'datos' => 'required',
+        ]);
+
+        if ($validate->fails()) {
+            return $this->handleAlert($validate->errors());
+        }
+
+        $listAsk = json_decode($req->datos, true);
+
+        if (!is_array($listAsk) || sizeof($listAsk) == 0) {
+            return $this->handleAlert('empty');
+        }
+
+        // Separar en dos listas según el tipo de solicitud
+        $listMaterial = [];
+        $listAsfalto = [];
+        $listConcreto = [];
+
+        foreach ($listAsk as $item) {
+            if (!isset($item['tipo']) || !isset($item['tipo'])) {
+                continue;
+            }
+
+            if ($item['tipo'] == 'M') {
+                $listMaterial[] = $item['identificador'];
+            } elseif ($item['tipo'] == 'A') {
+                $listAsfalto[] = $item['identificador'];
+            } elseif ($item['tipo'] == 'C') {
+                $listConcreto[] = $item['identificador'];
+            }
+        }
+
+        $proy = $this->traitGetProyectoCabecera($req);
+
+        $respMaterial = $this->getListForIdsMaterialV2($listMaterial, $proy);
+
+        $respAsfalto = $this->getListForIdsAsfaltoV2($listAsfalto, $proy);
+
+        $respConcreto = $this->getListForIdsConcreto($listConcreto, $proy);
+
+        $concat = $respMaterial->concat($respAsfalto);
+
+        $respuesta = $concat->concat($respConcreto);
+
+        return $this->handleResponse($req, $respuesta, __('messages.consultado'));
+    }
+
+    private function getListForIdsConcreto($listAsk, $proy)
+    {
+        // Si la lista está vacía, retornar colección vacía para evitar errores
+        if (empty($listAsk)) {
+            return collect();
+        }
+
+        $estados = array_values($this->estados_soli_asfalto);
+        $fecha = Carbon::now()->subDays(3)->format('j-n-Y');
+        $query = solicitudConcreto::whereIn('estado', $estados)
+            ->whereNotNull('fechaProgramacion')
+            ->where('fechaProgramacion', '<>', 'N/A')
+            ->whereIn('id_solicitud', $listAsk)
+            ->where('fk_id_project_Company', $proy)
+            /* where(function ($q) use($estados) {
+                $q->whereIn('estado', $estados);
+                    ->orWhereNull('toneladaReal');
+            }) */
+            ->whereRaw("CONVERT(DATE, fechaProgramacion, 103) >=  CONVERT(DATE, ?, 103)", [$fecha])
+            ->with([
+                'usuario',
+                'plantas',
+                'formula_concreto',
+                'cost_code',
+                'transporte' => function ($sub) {
+                    $sub->where('estado', 1)->where('tipo_solicitud', 'C')->where('user_created', '!=', 0);
+                }
+            ])
+            ->select(
+                'id_solicitud as identificador',
+                'id_solicitud',
+                DB::raw("'C' as tipo"), // Ponemos el tipo de la solicitud, en el caso solicitud de asfalto
+                'fk_usuario',
+                'elementoVaciar',
+                'nomenclatura',
+                'tipoMezcla',
+                'fechaHoraSolicitud',
+                DB::raw("CONVERT(DATE, [fechaHoraSolicitud], 103) AS dateCreation"),
+                'fk_id_formula',
+                'abscisas',
+                'hito',
+                'tramo',
+                'volumen',
+                'volumenReal',
+                'resistencia',
+                'asentamiento',
+                'nota',
+                'fechaProgramacion',
+                DB::raw("CONVERT(DATE, [fechaProgramacion], 103) AS fechaDeProgramacion"),
+                'nota',
+                'PlantaDestino',
+                'fechaAceptacion',
+                'CostCode',
+                'toneFaltante',
+                'notaCierre',
+                'fk_id_project_Company',
+                'estado',
+            )
+            ->orderByRaw("CONVERT(DATE, [fechaProgramacion], 103) DESC")
+            ->get();
+
+        $query = $query->map(function ($item) {
+            if ($item->abscisas && $item->abscisas != '...') {
+                // Extraemos los valores entre "Inicial K"
+                if (preg_match('/Inicial K(\d+)\+(\d+).*Final K(\d+)\+(\d+)/', $item->abscisas, $matches)) {
+                    // Combinamos los grupos para obtener los valores completos
+                    $inicial = str_pad($matches[1] . $matches[2], 5, '0', STR_PAD_LEFT);
+                    $final = str_pad($matches[3] . $matches[4], 5, '0', STR_PAD_LEFT);
+
+                    $item->abscisaInicialReferencia = $inicial;
+                    $item->abscisaFinalReferencia = $final;
+                } else {
+                    $cadena = str_replace(['K', '+'], '', $item->abscisas); // Elimina 'K' y '+'
+                    $inicial = explode(',', $cadena)[0]; // Toma solo lo antes de la coma
+                    $item->abscisaInicialReferencia = $inicial;
+                }
+            }
+
+
+            if ($item->transporte) {
+                $vLlegada = $vSalida = $cLlegada = $cSalida = 0;
+
+                foreach ($item->transporte as $tr) {
+                    if ($tr->tipo == 1) {
+                        $vLlegada++;
+                        $cLlegada += $tr->cantidad ? $tr->cantidad : 0;
+                    } else if ($tr->tipo == 2) {
+                        $vSalida++;
+                        $cSalida += $tr->cantidad ? $tr->cantidad : 0;
+                    }
+                }
+
+                $item->total_despachada = max($cLlegada, $cSalida);
+                $item->cant_recibida = $cLlegada;
+                $item->cant_viajes_llegada = $vLlegada;
+                $item->cant_despachada = $cSalida;
+                $item->cant_viajes_salida = $vSalida;
+            } else {
+                $item->total_despachada = 0;
+                $item->cant_recibida = 0;
+                $item->cant_viajes_llegada = 0;
+                $item->cant_despachada = 0;
+                $item->cant_viajes_salida = 0;
+            }
+
+            return $this->solicitudesConcretoAppToModel($item);
+        });
+
+        return $query;
+    }
+
+    private function getSolicitudConcreto($idSolicitud)
+    {
+        try {
+            $query = solicitudConcreto::where('id_solicitud', $idSolicitud)
+            ->with([
+                'transporte' => function ($sub) {
+                    $sub->where('estado', 1)->where('tipo_solicitud', 'C')->where('user_created', '!=', 0);
+                }
+            ])
+            ->select(
+                'id_solicitud as identificador',
+                'id_solicitud',
+                DB::raw("'C' as tipo"), // Ponemos el tipo de la solicitud, en el caso solicitud de asfalto
+                'fk_usuario',
+                'elementoVaciar',
+                'nomenclatura',
+                'tipoMezcla',
+                'fechaHoraSolicitud',
+                DB::raw("CONVERT(DATE, [fechaHoraSolicitud], 103) AS dateCreation"),
+                'fk_id_formula',
+                'abscisas',
+                'hito',
+                'tramo',
+                'volumen',
+                'volumenReal',
+                'resistencia',
+                'asentamiento',
+                'nota',
+                'fechaProgramacion',
+                DB::raw("CONVERT(DATE, [fechaProgramacion], 103) AS fechaDeProgramacion"),
+                'nota',
+                'PlantaDestino',
+                'fechaAceptacion',
+                'CostCode',
+                'toneFaltante',
+                'notaCierre',
+                'fk_id_project_Company',
+                'estado',
+            )->first();
+
+            if ($query == null) {
+                return null;
+            }
+
+            if ($query->abscisas && $query->abscisas != '...') {
+                // Extraemos los valores entre "Inicial K"
+                if (preg_match('/Inicial K(\d+)\+(\d+).*Final K(\d+)\+(\d+)/', $query->abscisas, $matches)) {
+                    // Combinamos los grupos para obtener los valores completos
+                    $inicial = str_pad($matches[1] . $matches[2], 5, '0', STR_PAD_LEFT);
+                    $final = str_pad($matches[3] . $matches[4], 5, '0', STR_PAD_LEFT);
+
+                    $query->abscisaInicialReferencia = $inicial;
+                    $query->abscisaFinalReferencia = $final;
+                } else {
+                    $cadena = str_replace(['K', '+'], '', $query->abscisas); // Elimina 'K' y '+'
+                    $inicial = explode(',', $cadena)[0]; // Toma solo lo antes de la coma
+                    $query->abscisaInicialReferencia = $inicial;
+                }
+            }
+
+
+            if ($query->transporte) {
+                $vLlegada = $vSalida = $cLlegada = $cSalida = 0;
+
+                foreach ($query->transporte as $tr) {
+                    if ($tr->tipo == 1) {
+                        $vLlegada++;
+                        $cLlegada += $tr->cantidad ? $tr->cantidad : 0;
+                    } else if ($tr->tipo == 2) {
+                        $vSalida++;
+                        $cSalida += $tr->cantidad ? $tr->cantidad : 0;
+                    }
+                }
+
+                $query->total_despachada = max($cLlegada, $cSalida);
+                $query->cant_recibida = $cLlegada;
+                $query->cant_viajes_llegada = $vLlegada;
+                $query->cant_despachada = $cSalida;
+                $query->cant_viajes_salida = $vSalida;
+            } else {
+                $query->total_despachada = 0;
+                $query->cant_recibida = 0;
+                $query->cant_viajes_llegada = 0;
+                $query->cant_despachada = 0;
+                $query->cant_viajes_salida = 0;
+            }
+
+            return $this->solicitudesConcretoAppToModel($query);
+        } catch (\Throwable $th) {
+            \Log::error('getSolicitudConcreto: ' . $th->getMessage());
+            return null;
+        }
+
+    }
 }

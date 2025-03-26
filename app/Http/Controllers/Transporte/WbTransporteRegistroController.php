@@ -11,6 +11,8 @@ use App\Http\interfaces\Vervos;
 use App\Jobs\TransporteActualizarSolicitud;
 use App\Models\Equipos\WbEquipo;
 use App\Models\PlanillaControlAsfalto;
+use App\Models\PlanillaControlConcreto;
+use App\Models\solicitudConcreto;
 use App\Models\WbConfiguraciones;
 use App\Models\Transporte\WbTransporteRegistro;
 use App\Models\WbSolicitudMateriales;
@@ -415,6 +417,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
             'formula' => 'nullable|string',
             'turno' => 'nullable|numeric',
             'temperatura' => 'nullable|string',
+            'fk_formula_cdp' => 'nullable|string',
         ]);
 
         if ($validacion->fails()) {
@@ -474,6 +477,8 @@ class WbTransporteRegistroController extends BaseController implements Vervos
 
         $model->turno = isset($info['turno']) ? $info['turno'] : null;
         $model->temperatura = isset($info['temperatura']) ? $info['temperatura'] : null;
+
+        $model->temperatura = isset($info['fk_formula_cdp']) ? $info['fk_formula_cdp'] : null;
 
         $model->tipo_sync = $typeSyncMsg != "" ? $typeSyncMsg : null;
 
@@ -631,10 +636,16 @@ class WbTransporteRegistroController extends BaseController implements Vervos
 
     public function actualizarSolicitudV2(WbTransporteRegistro $item)
     {
-        if ($item->tipo_solicitud == 'M') {
-            $this->actualizarSolicitudMaterial($item);
-        } else {
-            $this->actualizarSolicitudAsfalto($item);
+        switch ($item->tipo_solicitud) {
+            case 'M':
+                $this->actualizarSolicitudMaterial($item);
+                break;
+            case 'A':
+                $this->actualizarSolicitudAsfalto($item);
+                break;
+            case 'C':
+                $this->actualizarSolicitudConcreto($item);
+                break;
         }
     }
 
@@ -644,7 +655,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
             ->where('fk_id_project_Company', $item->fk_id_project_Company)
             ->with([
                 'transporte' => function ($sub) {
-                    $sub->with('equipo')->where('tipo', 2)->where('estado', 1);
+                    $sub->with('equipo')->where('tipo', 2)->where('tipo_solicitud', 'M')->where('estado', 1);
                 }
             ])
             ->first();
@@ -711,7 +722,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
             ->where('fk_id_project_Company', $item->fk_id_project_Company)
             ->with([
                 'transporte' => function ($sub) {
-                    $sub->where('tipo', 2)->where('estado', 1);
+                    $sub->where('tipo', 2)->where('tipo_solicitud', 'A')->where('estado', 1);
                 }
             ])
             ->first();
@@ -806,6 +817,111 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                     }
                 } catch (\Throwable $th) {
                     Log::error('error enviar sms solicitud asfalto ' . $th->getMessage());
+                }
+            }
+        }
+    }
+
+    private function actualizarSolicitudConcreto(WbTransporteRegistro $item)
+    {
+        if ($item->tipo == 1) return;
+
+        $solicitud = solicitudConcreto::where('id_solicitud', $item->fk_id_solicitud)
+            ->where('fk_id_project_Company', $item->fk_id_project_Company)
+            ->with([
+                'transporte' => function ($sub) {
+                    $sub->where('tipo', 2)->where('tipo_solicitud', 'C')->where('estado', 1);
+                }
+            ])
+            ->first();
+
+        // Consultamos si encontramos una solicitud
+        if (!$solicitud) {
+            return;
+        }
+
+        // Consultamos que la solicitud no ha sido despachada en su totalidad
+        if ($solicitud->estado && $solicitud->estado == 'ENVIADO') {
+            return;
+        }
+
+        // Consultamos si la solicitud tiene por lo menos algun transporte registrado
+        if (!$solicitud->transporte) {
+            return;
+        }
+
+        $cantidad = 0;
+
+        $cantidad = $solicitud->transporte->filter(fn($tr) => $tr->cantidad != null)
+            ->sum(fn($tr) => $tr->cantidad ?? 0);
+
+        $redondear = $cantidad ?? 0;
+
+        $total = $redondear > 0 ? $redondear : 0;
+
+        // Convertir el valor de la cantidad fuera del condicional
+        $cantSolicitada = $solicitud->volumen ?? 0;
+        $cantidadNecesaria = floatval($cantSolicitada);
+
+        if ($cantidadNecesaria <= $total) {
+            // Asignar valores y guardar la solicitud solo si pasa la validación
+            $solicitud->estado = 'ENVIADO';
+            $solicitud->fecha_cierre = Carbon::now()->format('d/m/Y h:i:s A');
+            $solicitud->user_despacho = $item->user_created;
+            $solicitud->toneFaltante = 0;
+        } else {
+            $solicitud->toneFaltante = $cantidadNecesaria - $total;
+        }
+
+        if ($solicitud->save()) {
+
+            $modelo = new PlanillaControlConcreto();
+
+            $carbonFecha = Carbon::parse($item->fecha_registro);
+            $fecha = $carbonFecha->format('j/n/Y');    // "2025-01-23"
+            $hora = $carbonFecha->format('h:i A');    // "10:10 AM"
+
+            $tranport = WbTransporteRegistro::where('id', $item->id)->with('formulaCon', 'equipo', 'destinoPlanta')->first();
+
+            $modelo->fk_solicitud = $item->fk_id_solicitud;
+            $modelo->placaVehiculo = $tranport && $tranport->equipo ? $tranport->equipo->placa : null;
+            $modelo->codigoVehiculo = $tranport && $tranport->equipo ? $tranport->equipo->equiment_id : null;
+            $modelo->hora = $hora;
+            $modelo->wbeDestino = $solicitud->CostCode;
+            $modelo->descripDestino = $tranport->destinoPlanta ? $tranport->destinoPlanta->planta : ($tranport->fk_id_tramo_destino ?
+                __('messages.tramo') . ' ' . $tranport->fk_id_tramo_destino . ' ' . ($tranport->fk_id_hito_destino ?
+                    __('messages.hito') . ' ' . $tranport->fk_id_hito_destino :
+                    '') :
+                null);
+            $modelo->formula = $tranport->formulaCon ? $tranport->formulaCon->resistencia : null;
+            $modelo->cantidad = $solicitud->volumen;
+            $modelo->firma = '--';
+            $modelo->observacion = $item->observacion ? $item->observacion : null;
+            $modelo->fecha = $fecha;
+            $modelo->fk_id_usuario = $item->user_created;
+            $modelo->cantiEnviada = $tranport->cantidad;
+            $modelo->turno = $item->turno == 1 ? __('messages.diurno') : __('messages.nocturno');
+            $modelo->plantaDespacho = $item->fk_id_planta_origen ? $item->fk_id_planta_origen : null;
+            $modelo->codeqr = $tranport->ticket;
+            $modelo->estado = 1;
+            $modelo->save();
+
+            if ($cantidadNecesaria <= $total) {
+                try {
+                    if ($this->isSendSmsConfig($item->fk_id_project_Company)) {
+                        $solicitudesTransporte = $this->getTransporte($item->hash);
+                        $usuarioId = data_get($solicitudesTransporte, 'solicitud.fk_id_usuarios', null);
+                        $id_usuarios = $usuarioId;
+                        $mensaje = __('messages.sms_synergy_despacho_cerrar', [
+                            'solicitud' => $item->fk_id_solicitud
+                        ]);
+                        $nota = __('messages.sms_synergy_despacho_nota');
+                        $this->sendSms($mensaje, $nota, $id_usuarios);
+                    } else {
+                        Log::info('No se permite enviar mensajes');
+                    }
+                } catch (\Throwable $th) {
+                    Log::error('error enviar sms solicitud concreto ' . $th->getMessage());
                 }
             }
         }

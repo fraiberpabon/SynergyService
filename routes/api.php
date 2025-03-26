@@ -95,13 +95,20 @@ Route::middleware('desencript')->group(function () {
             Route::post('/array-find', [WbSolicitudesController::class, 'getListForIdsV1']); //deprecated
             Route::post('/array-find-v2', [WbSolicitudesController::class, 'getListForIdsV2']);
             Route::post('/array-find-v3', [WbSolicitudesController::class, 'getListForIdsV3']);
+            Route::post('/array-find-v4', [WbSolicitudesController::class, 'getListForIdsV4']);
             Route::get('/backgound/v4', [WbSolicitudesController::class, 'getAppV4']);
+            Route::get('/backgound/v5', [WbSolicitudesController::class, 'getAppV5']);
         });
 
         Route::prefix('equipos')->group(function () {
             Route::post('/array-find', [WbEquipoControlles::class, 'getListForIds']);
             Route::get('/background', [WbEquipoControlles::class, 'equiposActivos']);
         });
+
+         // conductores
+         Route::prefix('conductores')->controller(WbConductoresController::class)->group(function () {
+            Route::get('/backgound', 'get');
+         });
 
         Route::prefix('parte-diario')->controller(InterrupcionesController::class)->group(function () {
             Route::post('/insertar', 'post');
@@ -114,6 +121,9 @@ Route::middleware('desencript')->group(function () {
             Route::get('/getTurnos', 'getTurnos');
         });
     });
+
+
+
     Route::middleware(['token', 'habilitado', 'proyecto'])->group(function () {
         Route::prefix('app/v1/')->group(function () {
 
@@ -134,6 +144,7 @@ Route::middleware('desencript')->group(function () {
             Route::prefix('formulas')->group(function () {
                 Route::get('/', [WbFormulasController::class, 'get']);
                 Route::get('/v2', [WbFormulasController::class, 'getV2']);
+                Route::get('/v3', [WbFormulasController::class, 'getV3']);
                 Route::get('/composicion', [WbFormulasController::class, 'getComposicion']);
             });
 
@@ -142,6 +153,7 @@ Route::middleware('desencript')->group(function () {
                 Route::get('/v2', [WbSolicitudesController::class, 'getAppV2']); //deprecated
                 Route::get('/v3', [WbSolicitudesController::class, 'getAppV3']);
                 Route::get('/v4', [WbSolicitudesController::class, 'getAppV4']);
+                Route::get('/v5', [WbSolicitudesController::class, 'getAppV5']);
             });
 
             Route::prefix('material-lista')->controller(WbMaterialListaController::class)->group(function () {
@@ -289,6 +301,8 @@ Route::prefix('')->group(function () {
         Route::get('/v4', [WbFormulasController::class, 'getV2']);
         Route::get('/v5', [WbSolicitudesController::class, 'getListForIdsV2']);
         Route::get('/v6', [WbSolicitudesController::class, 'getListForIdsV1']);
+        Route::get('/v7', [WbSolicitudesController::class, 'getAppV5']);
+        Route::get('/v8', [WbFormulasController::class, 'getV2']);
     }); */
 });
 

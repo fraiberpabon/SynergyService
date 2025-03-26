@@ -12,4 +12,9 @@ class Formula extends Model
     protected $table='Formula';
     Protected  $primaryKey='id';
     public $timestamps = false;
+
+    public function diseno()
+    {
+        return $this->hasOne(TipoMezcla::class, 'Id', 'fk_tipoMezcla');
+    }
 }

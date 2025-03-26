@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 class WbLiberacionesFormatoController extends BaseController implements Vervos
 {
 
-    private $formatosSyngergy = ['1009', '1008'];
+    private $formatosSyngergy = ['1010', '1009', '1008'];
     public function post(Request $req)
     {
     }
