@@ -15,7 +15,6 @@ use Exception;
 class InterrupcionesController extends BaseController implements Vervos
 {
 
-    public  $fk_id_parte_diario;
     public function post(Request $req)
     {
         try {
@@ -41,7 +40,14 @@ class InterrupcionesController extends BaseController implements Vervos
             $id_parte_diario = null;
             $respuesta = collect();
             $respuesta->put('hash', $req->hash);
+            $respuesta->put('id_parte_diario', $id_parte_diario);
             $find = WbParteDiario::select('id_parte_diario')->where('hash', $req->hash)->first();
+            if ($find != null) {
+                $respuesta->put('id_servidor', $find->id_parte_diario);
+                $respuesta->put('estado', '1');
+                $respuesta->put('distribuciones', $this->postInterrupciones($req, $find->id_parte_diario));
+                return $this->handleResponse($req, $respuesta, 'Parte diario registrado');
+            }
             $model = new WbParteDiario();
             $model->fecha_registro = $req->fecha_registro ? $req->fecha_registro : null;
             $model->fecha_creacion_registro = $req->fecha_creacion  ? $req->fecha_creacion : null;
@@ -57,18 +63,13 @@ class InterrupcionesController extends BaseController implements Vervos
             $model->fk_id_project_Company = $req->proyecto ? $req->proyecto : null;
             $model->estado = 1;
             if (!$model->save()) {
-                $itemRespuesta = collect();
-                $itemRespuesta->put('estado', '0');
-                $respuesta->push($itemRespuesta);
+                $respuesta->put('estado', '0');
                 return $this->handleAlert(__('messages.no_se_pudo_realizar_el_registro'), false);
             }
-            $itemRespuesta = collect();
-            $itemRespuesta->put('id_parte_diario', $id_parte_diario);
-            $itemRespuesta->put('hash', $req->hash ? $req->hash : null);
-            $itemRespuesta->put('estado', '1');
-            $respuesta->push($itemRespuesta);
-            $this->postInterrupciones($req);
-            return $this->handleResponse($req, $model, 'Parte diario registrado');
+            $respuesta->put('estado', '1');
+            $respuesta->put('id_servidor', $model->id_parte_diario);
+            $respuesta->put('distribuciones', $this->postInterrupciones($req, $model->id_parte_diario));
+            return $this->handleResponse($req, $respuesta, 'Parte diario registrado');
             //   }
         } catch (\Throwable $th) {
             \Log::error('Sy parte diario' . $th->getMessage());
@@ -77,7 +78,7 @@ class InterrupcionesController extends BaseController implements Vervos
     }
 
 
-    public function postInterrupciones(Request $req)
+    public function postInterrupciones(Request $req, $id_parte_diario)
     {
         try {
             $respuesta = collect();
@@ -87,10 +88,7 @@ class InterrupcionesController extends BaseController implements Vervos
                     $ultimoIdParteDiario = null;
                     $model = new WbDistribucionesParteDiario();
 
-                    if ($ultimoIdParteDiario === null) {
-                        $ultimoIdParteDiario = WbParteDiario::orderBy('id_parte_diario', 'desc')->pluck('id_parte_diario')->first();
-                    }
-                    $model->fk_id_parte_diario = $ultimoIdParteDiario ?? null;
+                    $model->fk_id_parte_diario = $id_parte_diario;
                     $model->descripcion_trabajo = $interrupcion['descripcion_trabajo'] ?? null;
                     $model->fk_id_centro_costo = $interrupcion['fk_centro_costo'] ?? null;
                     $model->hr_trabajo = $interrupcion['hr_trabajo'] ?? null;
@@ -104,21 +102,34 @@ class InterrupcionesController extends BaseController implements Vervos
                         ? date('Y-m-d H:i:s.v', strtotime($interrupcion['fecha_creacion_registro']))
                         : null;
                     $model->estado = 1;
-                    if (!$model->save()) {
+                    try {
+                        if (!$model->save()) {
+                            $itemRespuesta = collect();
+                            $itemRespuesta->put('hash', $interrupcion['hash'] ?? null);
+                            $itemRespuesta->put('estado', '0');
+                            $respuesta->push($itemRespuesta);
+                            continue;
+                        }
+                    } catch (\Exception $e) {
                         $itemRespuesta = collect();
+                        $itemRespuesta->put('hash', $interrupcion['hash'] ?? null);
                         $itemRespuesta->put('estado', '0');
-                        return $this->handleAlert(__('messages.no_se_pudo_realizar_el_registro'), false);
+                        $respuesta->push($itemRespuesta);
+                        continue;
+                        \Log::error('Sy parte diario' . $e->getMessage());
                     }
+
 
                     $itemRespuesta = collect();
                     $itemRespuesta->put('id_servidor', $model->id_distribuciones);
-                    $itemRespuesta->put('hash', $info['hash'] ?? null);
+                    $itemRespuesta->put('hash', $interrupcion['hash'] ?? null);
                     $itemRespuesta->put('estado', '1');
                     $respuesta->push($itemRespuesta);
                 }
+                return $respuesta;
             }
         } catch (\Throwable $th) {
-            \Log::error('Sy parte diario' . $th->getMessage());
+            \Log::error('2' . $th->getMessage());
             return $this->handleAlert(__('messages.error_servicio'));
         }
     }
@@ -169,7 +180,7 @@ class InterrupcionesController extends BaseController implements Vervos
                     if ($find != null) {
                         $guardados++;
                         $itemRespuesta = collect();
-                        $itemRespuesta->put('id_servidor', $info['id_parte_diario']);
+                        $itemRespuesta->put('id_servidor', $find->id_parte_diario);
                         $itemRespuesta->put('hash', $info['hash']);
                         $itemRespuesta->put('estado', '1');
                         $respuesta->push($itemRespuesta);
@@ -191,13 +202,24 @@ class InterrupcionesController extends BaseController implements Vervos
                     $model_parte_diario->hash = $info['hash'] ?? null;
                     $model_parte_diario->fk_id_user_updated = $info['usuario_actualizacion'] ?? null;
 
-                    if (!$model_parte_diario->save()) {
+
+                    try {
+                        if (!$model_parte_diario->save()) {
+                            $itemRespuesta = collect();
+                            $itemRespuesta->put('estado', '0');
+                            $itemRespuesta->put('hash', $info['hash']);
+                            $respuesta->push($itemRespuesta);
+                            \Log::error('sync_array_horometers ' . ' Usuario:' . $usuario . ' Error: ' . json_encode($info));
+                            continue;
+                        }
+                    } catch (\Exception $e) {
                         $itemRespuesta = collect();
                         $itemRespuesta->put('estado', '0');
+                        $itemRespuesta->put('hash', $info['hash']);
                         $respuesta->push($itemRespuesta);
-                        \Log::error('sync_array_horometers ' . ' Usuario:' . $usuario . ' Error: ' . json_encode($info));
                         continue;
                     }
+
 
                     $id_parte_diario = $model_parte_diario->id_parte_diario;
                     $idParteDiarioArray[] = $id_parte_diario; // Almacenar el id_parte_diario generado
@@ -291,16 +313,28 @@ class InterrupcionesController extends BaseController implements Vervos
                     $model->fk_id_user_created = $info['usuario'] ?? null;
                     $model->fk_id_user_updated = $info['usuario_actualizacion'] ?? null;
 
-                    // Guardar el modelo
-                    if (!$model->save()) {
+
+                    try {
+                        if (!$model->save()) {
+                            $find = WbDistribucionesParteDiario::select('id_distribuciones')->where('hash', $info['hash'])->first();
+                            $itemRespuesta = collect();
+                            $itemRespuesta->put('id_servidor', $find->id_distribuciones ?? 'vacio');
+                            $itemRespuesta->put('estado', '0'); // Estado 0 porque falló el guardado
+                            $respuesta->push($itemRespuesta);
+                            \Log::error('sync_array_horometers ' . ' Usuario:' . $usuario . ' Error: ' . json_encode($info));
+                            continue;
+                        }
+                    } catch (\Exception $e) {
                         $find = WbDistribucionesParteDiario::select('id_distribuciones')->where('hash', $info['hash'])->first();
                         $itemRespuesta = collect();
-                        $itemRespuesta->put('id_servidor', $find->id_distribuciones);
+                        $itemRespuesta->put('id_servidor', $find->id_distribuciones ?? 'vacio2');
                         $itemRespuesta->put('estado', '0'); // Estado 0 porque falló el guardado
                         $respuesta->push($itemRespuesta);
                         \Log::error('sync_array_horometers ' . ' Usuario:' . $usuario . ' Error: ' . json_encode($info));
                         continue;
                     }
+                    // Guardar el modelo
+
                     $id_distribuciones = $model->id_distribuciones;
                     $idParteDiarioArray[] = $id_distribuciones;
                     // Incrementar el contador de guardados
@@ -310,7 +344,7 @@ class InterrupcionesController extends BaseController implements Vervos
                     $find = WbDistribucionesParteDiario::select('id_distribuciones')->where('hash', $info['hash'])->first();
                     $itemRespuesta = collect();
                     $itemRespuesta->put('hash', $model->hash);
-                    $itemRespuesta->put('id_servidor', $find->id_distribuciones);
+                    $itemRespuesta->put('id_servidor', $find->id_distribuciones ?? 'vacio3');
                     $itemRespuesta->put('estado', '1'); // Estado 1 porque se guardó correctamente
                     $respuesta->push($itemRespuesta);
                 }
