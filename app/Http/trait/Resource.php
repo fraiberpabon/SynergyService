@@ -117,80 +117,99 @@ trait Resource
         });
     }
     public function equipoToModel($modelo): array
-{
+    {
+        // Obtener fechas y horómetros de las relaciones
+        $parte_diario_fecha = $modelo->parte_diario ? $modelo->parte_diario->fecha_registro : null;
+        $parte_diario_horometro = $modelo->parte_diario ? $modelo->parte_diario->horometro_final : null;
 
-  // var_dump($modelo->parte_diario);
-    // Obtener fechas y horómetros de las relaciones
-    $parte_diario_fecha = $modelo->parte_diario ? $modelo->parte_diario->fecha_registro : null;
-    $parte_diario_horometro = $modelo->parte_diario ? $modelo->parte_diario->horometro_final : null;
+        $horometro_fecha = $modelo->horometros ? Carbon::parse($modelo->horometros->fecha_registro)->format('Y-m-d') : null;
+        $horometro_fechasf = $modelo->horometros ? $modelo->horometros->fecha_registro : null;
+        $horometro_valor = $modelo->horometros ? $modelo->horometros->horometro : null;
 
-    $horometro_fecha = $modelo->horometros ? $modelo->horometros->fecha_registro : null;
-    $horometro_valor = $modelo->horometros ? $modelo->horometros->horometro : null;
+        // Inicializar variables
+        $horometro = $modelo->horometro_inicial; // Valor por defecto
 
-    // Inicializar variables
-    $horometro = $modelo->horometro_inicial; // Valor por defecto
-    $fechaHorometro = null;
-
-    // Determinar el horómetro y la fecha según la lógica
-    if ($parte_diario_fecha && $horometro_fecha) {
-        // Comparar fechas y usar el valor más reciente
-        if ($parte_diario_fecha > $horometro_fecha) {
+        $fechaHorometro = null;
+        // Determinar el horómetro y la fecha según la lógica
+        if ($parte_diario_fecha && $horometro_fecha) {
+            // Comparar fechas
+            if ($parte_diario_fecha > $horometro_fecha) {
+                $fechaHorometro = $parte_diario_fecha;
+                $horometro = $parte_diario_horometro;
+            } elseif ($parte_diario_fecha < $horometro_fecha) {
+                $fechaHorometro = $horometro_fechasf;
+                $horometro = $horometro_valor;
+            } else {
+                // Si las fechas son iguales, comparar horómetros
+                if ($parte_diario_horometro > $horometro_valor) {
+                    $fechaHorometro = $parte_diario_fecha;
+                    $horometro = $parte_diario_horometro;
+                } else {
+                    $fechaHorometro = $horometro_fechasf;
+                    $horometro = $horometro_valor;
+                }
+            }
+        } elseif ($parte_diario_fecha) {
+            // Solo existe parte diario
             $fechaHorometro = $parte_diario_fecha;
             $horometro = $parte_diario_horometro;
-        } else {
-            $fechaHorometro = $horometro_fecha;
+        } elseif ($horometro_fechasf) {
+            // Solo existe horómetro
+            $fechaHorometro = $horometro_fechasf;
             $horometro = $horometro_valor;
+        } else {
+            // No hay parte diario ni horómetro, usar valores por defecto
+            if (isset($horometro) && !empty($horometro)) {
+            $fechaHorometro = $modelo->updated_at
+                ? Carbon::parse($modelo->updated_at)->format('Y-m-d H:i:s')
+                : ($modelo->created_at ? Carbon::parse($modelo->created_at)->format('Y-m-d H:i:s') : null);
+            }
         }
-    } elseif ($parte_diario_fecha) {
-        // Solo existe parte diario
-        $fechaHorometro = $parte_diario_fecha;
-        $horometro = $parte_diario_horometro;
-    } elseif ($horometro_fecha) {
-        // Solo existe horómetro
-        $fechaHorometro = $horometro_fecha;
-        $horometro = $horometro_valor;
-    } else {
-        // No hay parte diario ni horómetro, usar valores por defecto
-        $fechaHorometro = $modelo->updated_at
-            ? Carbon::parse($modelo->updated_at)->format('Y-m-d H:i:s')
-            : ($modelo->created_at ? Carbon::parse($modelo->created_at)->format('Y-m-d H:i:s') : null);
+
+        // Asegurar que la fecha tenga el formato YYYY-MM-DD HH:MM:SS
+        if ($fechaHorometro) {
+            $fechaHorometro = Carbon::parse($fechaHorometro)->format('Y-m-d H:i:s');
+        }
+        // } else {
+        //     $fechaHorometro = Carbon::now()->format('Y-m-d 00:00:00'); // Si no hay fecha, usar la fecha actual con hora 00:00:00
+        // }
+
+        return [
+            'identificador' => $modelo->id,
+            'equipo' => $modelo->equiment_id,
+            'descripcion' => $modelo->descripcion,
+            'cubicaje' => $modelo->cubicaje,
+            'marca' => $modelo->marca,
+            'modelo' => $modelo->modelo,
+            'placa' => $modelo->placa,
+            'dueno' => $modelo->dueno,
+            'estado' => $modelo->estado,
+            'peso' => $modelo->vehiculos_pesos ? $modelo->vehiculos_pesos->peso : null,
+            'compania' => $modelo->fk_compania,
+            'companiaNombre' => $modelo->compania ? $modelo->compania->nombreCompañia : null,
+            'nombreTipoEquipo' => $modelo->tipo_equipo ? $modelo->tipo_equipo->nombre : null,
+            'tipoEquipo' => $modelo->fk_id_tipo_equipo,
+            'tipocontrato' => $modelo->tipocontrato,
+            'codigoExterno' => $modelo->codigo_externo,
+            'horometro' => $horometro,
+            'fechaHorometro' => $fechaHorometro,
+            'ubicacionTramo' => $modelo->ubicacion ?
+                ($modelo->ubicacion->tramo ?
+                    $modelo->ubicacion->tramo->Id_Tramo . ($modelo->ubicacion->tramo->Descripcion ?
+                        ' - ' . $modelo->ubicacion->tramo->Descripcion : '')
+                    : null)
+                : null,
+            'ubicacionHito' => $modelo->ubicacion ?
+                ($modelo->ubicacion->hito ?
+                    $modelo->ubicacion->hito->Id_Hitos . ($modelo->ubicacion->hito->Descripcion ?
+                        ' - ' . $modelo->ubicacion->hito->Descripcion : '')
+                    : null)
+                : null,
+            'fechaUbicacion' => $modelo->ubicacion ? $modelo->ubicacion->fecha_registro : null,
+            'proyecto' => $modelo->fk_id_project_Company,
+        ];
     }
 
-    return [
-        'identificador' => $modelo->id,
-        'equipo' => $modelo->equiment_id,
-        'descripcion' => $modelo->descripcion,
-        'cubicaje' => $modelo->cubicaje,
-        'marca' => $modelo->marca,
-        'modelo' => $modelo->modelo,
-        'placa' => $modelo->placa,
-        'dueno' => $modelo->dueno,
-        'estado' => $modelo->estado,
-        'peso' => $modelo->vehiculos_pesos ? $modelo->vehiculos_pesos->peso : null,
-        'compania' => $modelo->fk_compania,
-        'companiaNombre' => $modelo->compania ? $modelo->compania->nombreCompañia : null,
-        'nombreTipoEquipo' => $modelo->tipo_equipo ? $modelo->tipo_equipo->nombre : null,
-        'tipoEquipo' => $modelo->fk_id_tipo_equipo,
-        'tipocontrato' => $modelo->tipocontrato,
-        'codigoExterno' => $modelo->codigo_externo,
-        'horometro' => $horometro,
-        'fechaHorometro' => $fechaHorometro,
-        'ubicacionTramo' => $modelo->ubicacion ?
-            ($modelo->ubicacion->tramo ?
-                $modelo->ubicacion->tramo->Id_Tramo . ($modelo->ubicacion->tramo->Descripcion ?
-                    ' - ' . $modelo->ubicacion->tramo->Descripcion : '')
-                : null)
-            : null,
-        'ubicacionHito' => $modelo->ubicacion ?
-            ($modelo->ubicacion->hito ?
-                $modelo->ubicacion->hito->Id_Hitos . ($modelo->ubicacion->hito->Descripcion ?
-                    ' - ' . $modelo->ubicacion->hito->Descripcion : '')
-                : null)
-            : null,
-        'fechaUbicacion' => $modelo->ubicacion ? $modelo->ubicacion->fecha_registro : null,
-        'proyecto' => $modelo->fk_id_project_Company,
-    ];
-}
     public function tipoEquipoToArray($lista): Collection|\Illuminate\Support\Collection
     {
         return $lista->map(function ($data) {
@@ -1816,4 +1835,110 @@ trait Resource
             'proyecto'=>$modelo->fk_id_project_Company
         ];
     }
+
+
+    /**
+     * Añadir en un resource aparte
+     */
+    public function SyTurnosEquiposArray($lista): Collection|\Illuminate\Support\Collection
+    {
+        return $lista->map(function ($data) {
+            return $this->SyTurnosEquiposToModel($data);
+        });
+    }
+
+    public function SyTurnosEquiposToModel($modelo): array
+    {
+        return [
+            'identificador' => $modelo->id_turnos,
+            'turno' => $modelo->nombre_turno,
+            'horas' => $modelo->horas_turno,
+            'hora_inicio' => $modelo->hora_inicio_turno,
+            'hora_final' => $modelo->hora_final_turno,
+            'estado' => $modelo->estado,
+            'proyecto' =>$modelo->fk_id_project_Company
+        ];
+    }
+
+
+
+
+    /**
+     * Parte diario web
+     */
+
+     public function WbParteDiarioToArray($lista): Collection|\Illuminate\Support\Collection
+     {
+         return $lista->map(function ($data) {
+             return $this->WbParteDiarioToModel($data);
+         });
+     }
+
+     public function WbParteDiarioToModel($modelo): array
+     {
+        $usuario_creador = $modelo->usuario_creador ? $modelo->usuario_creador->usuario: null;
+        $usuario_creador_nombre = $modelo->usuario_creador ? $modelo->usuario_creador->Nombre ." ".$modelo->usuario_creador->Apellido : null;
+         return [
+             'id_parte_diario' => $modelo->id_parte_diario,
+             'fecha_registro' => $modelo->fecha_registro,
+             'fecha_creacion_registro' => $modelo->fecha_creacion_registro,
+             'fk_equiment_id' => $modelo->equipos ? $modelo->equipos->equiment_id : null,
+             'descripcion_equipo' => $modelo->equipos ? $modelo->equipos->descripcion : null,
+             'contratista' => $modelo->compania ? $modelo->compania->nombreCompañia : null,
+             'tipo_equipo'=>$modelo->tipo_equipo ? $modelo->tipo_equipo->nombre:null,
+             'usuario_creador' => $usuario_creador,
+             'usuario_creador_nombre' => $usuario_creador_nombre,
+             'observacion' => $modelo->observacion,
+             'turno' => $modelo->turno ? $modelo->turno->nombre_turno : null,
+             'horometro_inicial' => $modelo->horometro_inicial,
+             'horometro_final' => $modelo->horometro_final,
+             'operador' => $modelo->operador ? $modelo->operador->nombreCompleto : null,
+             'proyecto' => $modelo->fk_id_project_Company,
+             'total_horas' => $modelo->distribuciones->sum('hr_trabajo'),
+             'horas_interrupcion' => $modelo->distribuciones->where('fk_id_centro_costo')->sum('hr_trabajo'),
+             'horas_trabajadas' => $modelo->distribuciones->where('fk_id_interrupcion')->sum('hr_trabajo'),
+             'listaDistribuciones'=>($modelo->distribuciones)?$this->WbDistribucionesParteDiarioToArray($modelo->distribuciones):null,
+
+         ];
+     }
+
+     public function WbDistribucionesParteDiarioToArray($lista): Collection|\Illuminate\Support\Collection
+     {
+         return $lista->map(function ($data) {
+             return $this->WbDistribucionesParteDiarioToModel($data);
+         });
+     }
+
+     public function WbDistribucionesParteDiarioToModel($modelo): array
+     {
+        $interrupciones_nombre = $modelo->interrupciones ? $modelo->interrupciones->nombre_interrupcion : null;
+        $nombre_centro_costo = $modelo->centro_costo ? $modelo->centro_costo->COCENAME : null;
+        $fk_id_interrupcion=$modelo->fk_id_interrupcion;
+        $fk_id_centro_costo=$modelo->fk_id_centro_costo;
+        if ($interrupciones_nombre) {
+            $distribucion = $interrupciones_nombre;
+        } else {
+            $distribucion = $nombre_centro_costo;
+        }
+        if ($fk_id_interrupcion) {
+            $fk_interrupcion_code = $interrupciones_nombre;
+        } else {
+            $fk_interrupcion_code = $fk_id_centro_costo . " - ". $nombre_centro_costo;
+        }
+        if($fk_id_interrupcion){
+            $concepto = $interrupciones_nombre;
+            $distribucion = "";
+        }else{
+            $concepto = $fk_id_centro_costo;
+        }
+         return [
+            'distribucion' => $distribucion,
+            'id_distribucion_or_cost_code' => $fk_interrupcion_code,
+            'descripcion_trabajo'=>$modelo->descripcion_trabajo,
+            'hr_trabajo' => $modelo->hr_trabajo,
+            'nombre_interrupcion' => $interrupciones_nombre,
+            'nombre_centro_costo' => $nombre_centro_costo,
+            'concepto' => $concepto,
+           ];
+     }
 }

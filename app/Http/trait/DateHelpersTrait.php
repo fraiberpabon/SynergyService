@@ -16,6 +16,9 @@ trait DateHelpersTrait
         return Carbon::createFromFormat('Y-m-d H:i:s', $date)->format('d-m-Y');
     }
 
+
+
+
     public function traitGetDateNowFormatFull() {
         $date = Carbon::now()->toDateTimeString();
         return Carbon::createFromFormat('Y-m-d H:i:s', $date)->format('YmdHis');

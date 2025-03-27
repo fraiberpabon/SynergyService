@@ -15,4 +15,11 @@ class wbTipoEquipo extends Model
     public $incrementing = true;
 
     //protected $dateFormat = 'd-m-Y H:i:s.v'; //activar solo en pruebas
+
+
+
+    public function equipo()
+    {
+        return $this->hasOne(WbEquipo::class, 'fk_id_tipo_equipo', 'id_tipo_equipo');
+    }
 }

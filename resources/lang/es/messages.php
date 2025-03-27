@@ -460,4 +460,11 @@ return [
     'kg' => 'Kg',
     'diurno' => 'Diurno',
     'nocturno' => 'Nocturno',
+    'validacion_numerico_parte_diario'=>'El identificador del parte diario debe ser de tipo numerico',
+    'ingrese_motivo_parte_diario'=>'Ingresar motivo de anulación para el parte diario',
+    'parte_diario_no_existe'=>'El parte diario no existe',
+    'parte_diario_anulado'=>'El parte diario con sus respectivas distribuciones fue anulado correctamente',
+    'error_al_anular_parte_diario'=>'Error al anular parte diario',
+    'error_servicio'=>'Hubo un error al procesar su solicitud. Por favor, inténtelo nuevamente.'
+
 ];

@@ -156,7 +156,7 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
             return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));
         } catch (\Throwable $th) {
             \Log::error('bascula-movil-insert ' . $th->getMessage());
-            return $this->handleAlert($th->getMessage());
+            return $this->handleAlert(__('messages.error_servicio'));
         }
     }
 
@@ -294,7 +294,7 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
                 return $this->handleAlert("empty");
             }
         } catch (\Throwable $th) {
-            return $this->handleAlert($th->getMessage());
+            return $this->handleAlert(__('messages.error_servicio'));
         }
     }
 
@@ -329,23 +329,28 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
 
     public function GetBasculas(Request $request)
     {
-    $consulta = WbBasculaMovilTransporte::with([
-        'origenPlanta',
-        'origenTramo',
-        'origenHito',
-        'destinoPlanta',
-        'destinoTramo',
-        'destinoHito',
-        'cdcOrigen',
-        'cdcDestino',
-        'material',
-        'formula',
-        'usuario_creador',
-        'usuario_actualizador',
-        'equipo',
-        'conductores'
-    ])->get();
-    //var_dump($consulta);
-    return $this->handleResponse($request, $this->BasculasToArray($consulta), 'Consultado.');
+        try{
+            $consulta = WbBasculaMovilTransporte::with([
+                'origenPlanta',
+                'origenTramo',
+                'origenHito',
+                'destinoPlanta',
+                'destinoTramo',
+                'destinoHito',
+                'cdcOrigen',
+                'cdcDestino',
+                'material',
+                'formula',
+                'usuario_creador',
+                'usuario_actualizador',
+                'equipo',
+                'conductores'
+            ])->get();
+            //var_dump($consulta);
+            return $this->handleResponse($request, $this->BasculasToArray($consulta), 'Consultado.');
+        }catch (\Exception $e){
+            return $this->handleAlert(__('messages.error_servicio'));
+        }
+
     }
 }

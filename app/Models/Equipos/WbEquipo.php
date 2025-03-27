@@ -49,6 +49,8 @@ class WbEquipo extends Model implements Auditable
         return $this->hasOne(Compania::class, 'id_compañia', 'fk_compania');
     }
 
+
+
     // Relacion con la tabla sync_relacion_vehiculosPesos
     public function vehiculos_pesos()
     {
@@ -92,7 +94,7 @@ class WbEquipo extends Model implements Auditable
 
 public function parte_diario()
 {
-    return $this->hasOne(WbParteDiario::class, 'fk_equiment_id', 'id')->ofMany([
+    return $this->hasOne(WbParteDiario::class, 'fk_equiment_id', 'id')->where('estado',1)->ofMany([
         'fecha_registro' => 'max', // Primero, ordena por la fecha más reciente
         'horometro_final' => 'max', // En caso de empate, ordena por el mayor horometro_final
     ])->select([
