@@ -1666,7 +1666,8 @@ class WbSolicitudesController extends BaseController implements Vervos
 
             return $this->handleResponse($req, $respuesta, __('messages.consultado'));
         } catch (\Throwable $e) {
-            $this->handleAlert('' . $e->getMessage(), false);
+            \Log::error('' . $e->getMessage());
+            return $this->handleAlert(__('messages.error_servicio'));
         }
 
     }

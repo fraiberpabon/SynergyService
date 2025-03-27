@@ -39,7 +39,8 @@ class WbMaterialListaController extends BaseController implements Vervos
             return $this->handleResponse($request, $this->wbMaterialListaToArray($consulta), __("messages.consultado"));
         } catch (\Throwable $th) {
             //throw $th;
-            return $this->handleAlert($th->getMessage(), false);
+            \Log::error($th->getMessage());
+            return $this->handleAlert(__('messages.error_interno'));
         }
     }
 

@@ -83,7 +83,7 @@ class WbHorometrosUbicacionesController extends BaseController implements Vervos
             return $this->handleResponse($req, $response, __('messages.registro_exitoso'));
         } catch (\Throwable $th) {
             \Log::error('error post horometro y ubicaciones -> ' . $th->getMessage());
-            return $this->handleAlert($th->getMessage());
+            return $this->handleAlert(__('messages.error_interno'));
         }
     }
 

@@ -88,7 +88,8 @@ class WbConductoresController extends BaseController implements Vervos
                 return $this->handleAlert("empty");
             }
         } catch (\Throwable $th) {
-            return $this->handleAlert($th->getMessage());
+            \Log::error($th->getMessage());
+            return $this->handleAlert(__('messages.error_servicio'));
         }
     }
 

@@ -79,7 +79,7 @@ class AuthController extends BaseController
             } */
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
-            return $this->handleAlert(__('messages.error_interno'));
+            return $this->handleAlert(__('messages.error_servicio'));
             //return $this->handleAlert($th->getMessage());
         }
     }
