@@ -84,7 +84,7 @@ class TokenIsValido
                     ->where('id', '>', $id)
                     ->orderBy('id', 'desc')
                     ->get();
-                $tokenELiminar = PersonalAccessToken::
+                /* $tokenELiminar = PersonalAccessToken::
                 where('tokenable_id', $tokenPersonal->tokenable_id)
                     ->where('id', '<', $id)
                     ->orderBy('id', 'desc')
@@ -100,7 +100,7 @@ class TokenIsValido
                         //temporalmente se bloquea el eliminar de un token debido a que se registran consultas en interbloqueo, y al no poder continuar causa fallos en el servicio - Fraiber
                         //personal_access_tokens::where('id', $data->id)->forcedelete();
                     }
-                }
+                } */
                 if($ultimosToken->count() > 0) {
                     $tokenRefresh = 0;
                 } else {
@@ -114,6 +114,7 @@ class TokenIsValido
             }
         }
         $request->headers->set('tokenRefresh', $tokenRefresh);
+        $request->headers->set('is_md_token', 'yes');
         $response = $next($request);
         $response->withHeaders([
             'tokenRefresh' => $tokenRefresh,

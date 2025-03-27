@@ -63,51 +63,77 @@ class SmsController extends Controller
      */
     public function Enviar_CabecerasSoap($numero, $mensaje, $nota = '')
     {
+        // Diccionario de reemplazos
+        $reemplazos = [
+            'á' => 'a',
+            'é' => 'e',
+            'í' => 'i',
+            'ó' => 'o',
+            'ú' => 'u',
+            'Á' => 'A',
+            'É' => 'E',
+            'Í' => 'I',
+            'Ó' => 'O',
+            'Ú' => 'U',
+            'ñ' => 'n',
+            'Ñ' => 'N',
+            '¿' => '',
+            '¡' => '',
+            '&' => 'y' // Reemplazar & por "y"
+        ];
+    
+        // Limpieza del mensaje
+        $mensaje = strtr($mensaje, $reemplazos);
+        $nota = strtr($nota, $reemplazos);
+    
+        // Construcción del SOAP request
         $soapRequest = '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
             <soap:Body>
                 <EnviarMensaje xmlns="urn:servicioweb">
-                    <numero>'.$numero.'</numero>
-                    <mensaje>'.$mensaje.'</mensaje>
-                    <nota>'.$nota.'</nota>
-                    <usuario>'.$this->username.'</usuario>
-                    <clave>'.$this->password.'</clave>
+                    <numero>' . $numero . '</numero>
+                    <mensaje>' . $mensaje . '</mensaje>
+                    <nota>' . $nota . '</nota>
+                    <usuario>' . $this->username . '</usuario>
+                    <clave>' . $this->password . '</clave>
                 </EnviarMensaje>
             </soap:Body>
         </soap:Envelope>';
-
+    
         try {
+            // Enviar la solicitud SOAP
             $response = $this->client->post($this->soapUrl, [
                 'headers' => [
                     'Content-Type' => 'text/xml; charset=UTF-8',
-                    'SOAPAction' => $this->soapUrl.'/EnviarMensaje',
+                    'SOAPAction' => $this->soapUrl . '/EnviarMensaje',
                 ],
                 'body' => $soapRequest,
             ]);
-
+    
             $xmlResponse = $response->getBody()->getContents();
             $xmlResponse = html_entity_decode($xmlResponse, ENT_QUOTES, 'ISO-8859-1');
-
+    
             $start = strpos($xmlResponse, '<respuesta xsi:type="xsd:string">') + 33;
             $end = strpos($xmlResponse, '</respuesta>');
             $length = $end - $start;
-
+    
             $respuesta = substr($xmlResponse, $start, $length);
             $responseData = json_decode($respuesta, true);
-
-            // Si la respuesta no es un JSON válido, se maneja como un error
+    
+            // Validación de la respuesta JSON
             if (json_last_error() !== JSON_ERROR_NONE) {
                 throw new \Exception('Invalid JSON response');
             }
-
+    
             Log::info(json_encode($responseData));
-
+    
             return $responseData; // Retorna el array decodificado
         } catch (RequestException $e) {
             Log::error($e->getMessage());
-
+    
             return ['envio' => false, 'mensaje' => $e->getMessage()];
         }
     }
+    
 
     /**
      * Esta función genera un token valido para comenzar hacer el

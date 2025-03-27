@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Transporte\TransporteTicketController;
+use App\Http\Controllers\BasculaMovil\Transporte\BasculaMovilTicketController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -24,3 +25,5 @@ Route::get('/', function () {
 }); */
 
 Route::get('/transport/{ticket}', [TransporteTicketController::class, 'index'])->name("export");
+
+Route::get('/scale/{ticket}', [BasculaMovilTicketController::class, 'index'])->name("export");

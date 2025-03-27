@@ -4,9 +4,11 @@ namespace App\Models\Transporte;
 
 use App\Models\CostCode;
 use App\Models\Equipos\WbEquipo;
+use App\Models\Formula;
 use App\Models\Materiales\WbMaterialLista;
 use App\Models\Usuarios\usuarios_M;
 use App\Models\UsuPlanta;
+use App\Models\WbAsfaltFormula;
 use App\Models\WbFormulaLista;
 use App\Models\WbHitos;
 use App\Models\WbSolicitudMateriales;
@@ -113,6 +115,16 @@ class WbTransporteRegistro extends Model implements Auditable
     public function formula()
     {
         return $this->belongsTo(WbFormulaLista::class, 'fk_id_formula', 'id_formula_lista');
+    }
+
+    public function formulaAsf()
+    {
+        return $this->belongsTo(WbAsfaltFormula::class, 'fk_id_formula', 'id_asfal_formula');
+    }
+
+    public function formulaCon()
+    {
+        return $this->belongsTo(Formula::class, 'fk_id_formula', 'id');
     }
 
     public function usuario_created()

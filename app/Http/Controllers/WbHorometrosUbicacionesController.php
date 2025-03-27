@@ -8,6 +8,7 @@ namespace App\Http\Controllers;
 
 use App\Http\interfaces\Vervos;
 use App\Models\Equipos\WbEquipoHorometrosUbicaciones;
+use App\Http\Controllers\WbEquipoControlles;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -17,6 +18,73 @@ class WbHorometrosUbicacionesController extends BaseController implements Vervos
 
     public function post(Request $req)
     {
+        try {
+            $validator = Validator::make($req->all(), [
+                'identificador' => 'required|numeric',
+                'equipo_id' => 'required|numeric',
+                'horometro' => 'nullable|string',
+                'horometro_foto' => 'nullable|string',
+                'tramo_id' => 'required|string',
+                'hito_id' => 'required|string',
+                'ubicacion_gps' => 'nullable|string',
+                'fecha_creacion' => 'required|string',
+                'observacion' => 'nullable|string',
+                'proyecto' => 'required|string',
+                'hash' => 'required|string',
+                'equipo_estado_id' => 'nullable|string'
+            ]);
+
+            if ($validator->fails()) {
+                return $this->handleAlert($validator->errors());
+            }
+
+            $equipo = null;
+            $response = collect();
+            $response->put('hash', $req->hash);
+
+            $find = WbEquipoHorometrosUbicaciones::select('id_equipos_horometros_ubicaciones')->where('hash', $req->hash)->first();
+            if ($find) {
+                $response->put('estado', '1');
+                $equipo = (new WbEquipoControlles())->findForId($find->fk_id_equipo, $find->fk_id_project_Company);
+            } else {
+                $model = new WbEquipoHorometrosUbicaciones();
+
+                $model->fk_id_equipo = $req->equipo_id ? $req->equipo_id : null;
+                $model->fk_id_tramo = $req->tramo_id ? $req->tramo_id : null;
+                $model->fk_id_hito = $req->hito_id ? $req->hito_id : null;
+                $model->horometro = $req->horometro ? $req->horometro : null;
+                $model->horometro_foto = $req->horometro_foto ? $req->horometro_foto : null;
+                $model->observaciones = $req->observacion ? $req->observacion : null;
+                $model->fecha_registro = $req->fecha_creacion ? $req->fecha_creacion : null;
+                $model->estado = 0;
+                $model->fk_id_project_Company = $req->proyecto ? $req->proyecto : null;
+                $model->ubicacion_gps = $req->ubicacion_gps ? $req->ubicacion_gps : null;
+                $model->user_created = $req->usuario ? $req->usuario : null;
+                $model->hash = $req->hash ? $req->hash : null;
+                $model->fk_id_equipo_estado = $req->equipo_estado_id ? $req->equipo_estado_id : null;
+
+                if (!$model->save()) {
+                    return $this->handleAlert(__('messages.no_se_pudo_realizar_el_registro'), false);
+                }
+
+                $response->put('estado', '1');
+
+                $equipo = (new WbEquipoControlles())->findForId($model->fk_id_equipo, $model->fk_id_project_Company);
+            }
+
+            if ($equipo != null) {
+                $response->put('horometro', $equipo['horometro']);
+                $response->put('fechaHorometro', $equipo['fechaHorometro']);
+                $response->put('ubicacionTramo', $equipo['ubicacionTramo']);
+                $response->put('ubicacionHito', $equipo['ubicacionHito']);
+                $response->put('fechaUbicacion', $equipo['fechaUbicacion']);
+            }
+
+            return $this->handleResponse($req, $response, __('messages.registro_exitoso'));
+        } catch (\Throwable $th) {
+            \Log::error('error post horometro y ubicaciones -> ' . $th->getMessage());
+            return $this->handleAlert($th->getMessage());
+        }
     }
 
     public function postArray(Request $req)

@@ -116,50 +116,81 @@ trait Resource
             return $this->equipoToModel($data);
         });
     }
-
     public function equipoToModel($modelo): array
-    {
-        return [
-            'identificador' => $modelo->id,
-            'equipo' => $modelo->equiment_id,
-            'descripcion' => $modelo->descripcion,
-            'cubicaje' => $modelo->cubicaje,
-            'marca' => $modelo->marca,
-            'modelo' => $modelo->modelo,
-            'placa' => $modelo->placa,
-            'dueno' => $modelo->dueno,
-            'estado' => $modelo->estado,
-            'peso' => $modelo->vehiculos_pesos ? $modelo->vehiculos_pesos->peso : null,
-            'compania' => $modelo->fk_compania,
-            'companiaNombre' => $modelo->compania ? $modelo->compania->nombreCompañia : null,
-            'nombreTipoEquipo' => $modelo->tipo_equipo ? $modelo->tipo_equipo->nombre : null,
-            'tipoEquipo' => $modelo->fk_id_tipo_equipo,
-            'tipocontrato' => $modelo->tipocontrato,
-            'codigoExterno' => $modelo->codigo_externo,
-            'horometro' => $modelo->horometros ? $modelo->horometros->horometro : $modelo->horometro_inicial,
-            'fechaHorometro' => $modelo->horometros ?
-                $modelo->horometros->fecha_registro :
-                ($modelo->updated_at ?
-                    Carbon::parse($modelo->updated_at)->format('Y-m-d H:i:s') :
-                    ($modelo->created_at ? Carbon::parse($modelo->created_at)->format('Y-m-d H:i:s') : null)
-                ),
-            'ubicacionTramo' => $modelo->ubicacion ?
-                ($modelo->ubicacion->tramo ?
-                    $modelo->ubicacion->tramo->Id_Tramo . ($modelo->ubicacion->tramo->Descripcion ?
-                        ' - ' . $modelo->ubicacion->tramo->Descripcion : '')
-                    : null)
-                : null,
-            'ubicacionHito' => $modelo->ubicacion ?
-                ($modelo->ubicacion->hito ?
-                    $modelo->ubicacion->hito->Id_Hitos . ($modelo->ubicacion->hito->Descripcion ?
-                        ' - ' . $modelo->ubicacion->hito->Descripcion : '')
-                    : null)
-                : null,
-            'fechaUbicacion' => $modelo->ubicacion ? $modelo->ubicacion->fecha_registro : null,
-            'proyecto' => $modelo->fk_id_project_Company,
-        ];
+{
+
+  // var_dump($modelo->parte_diario);
+    // Obtener fechas y horómetros de las relaciones
+    $parte_diario_fecha = $modelo->parte_diario ? $modelo->parte_diario->fecha_registro : null;
+    $parte_diario_horometro = $modelo->parte_diario ? $modelo->parte_diario->horometro_final : null;
+
+    $horometro_fecha = $modelo->horometros ? $modelo->horometros->fecha_registro : null;
+    $horometro_valor = $modelo->horometros ? $modelo->horometros->horometro : null;
+
+    // Inicializar variables
+    $horometro = $modelo->horometro_inicial; // Valor por defecto
+    $fechaHorometro = null;
+
+    // Determinar el horómetro y la fecha según la lógica
+    if ($parte_diario_fecha && $horometro_fecha) {
+        // Comparar fechas y usar el valor más reciente
+        if ($parte_diario_fecha > $horometro_fecha) {
+            $fechaHorometro = $parte_diario_fecha;
+            $horometro = $parte_diario_horometro;
+        } else {
+            $fechaHorometro = $horometro_fecha;
+            $horometro = $horometro_valor;
+        }
+    } elseif ($parte_diario_fecha) {
+        // Solo existe parte diario
+        $fechaHorometro = $parte_diario_fecha;
+        $horometro = $parte_diario_horometro;
+    } elseif ($horometro_fecha) {
+        // Solo existe horómetro
+        $fechaHorometro = $horometro_fecha;
+        $horometro = $horometro_valor;
+    } else {
+        // No hay parte diario ni horómetro, usar valores por defecto
+        $fechaHorometro = $modelo->updated_at
+            ? Carbon::parse($modelo->updated_at)->format('Y-m-d H:i:s')
+            : ($modelo->created_at ? Carbon::parse($modelo->created_at)->format('Y-m-d H:i:s') : null);
     }
 
+    return [
+        'identificador' => $modelo->id,
+        'equipo' => $modelo->equiment_id,
+        'descripcion' => $modelo->descripcion,
+        'cubicaje' => $modelo->cubicaje,
+        'marca' => $modelo->marca,
+        'modelo' => $modelo->modelo,
+        'placa' => $modelo->placa,
+        'dueno' => $modelo->dueno,
+        'estado' => $modelo->estado,
+        'peso' => $modelo->vehiculos_pesos ? $modelo->vehiculos_pesos->peso : null,
+        'compania' => $modelo->fk_compania,
+        'companiaNombre' => $modelo->compania ? $modelo->compania->nombreCompañia : null,
+        'nombreTipoEquipo' => $modelo->tipo_equipo ? $modelo->tipo_equipo->nombre : null,
+        'tipoEquipo' => $modelo->fk_id_tipo_equipo,
+        'tipocontrato' => $modelo->tipocontrato,
+        'codigoExterno' => $modelo->codigo_externo,
+        'horometro' => $horometro,
+        'fechaHorometro' => $fechaHorometro,
+        'ubicacionTramo' => $modelo->ubicacion ?
+            ($modelo->ubicacion->tramo ?
+                $modelo->ubicacion->tramo->Id_Tramo . ($modelo->ubicacion->tramo->Descripcion ?
+                    ' - ' . $modelo->ubicacion->tramo->Descripcion : '')
+                : null)
+            : null,
+        'ubicacionHito' => $modelo->ubicacion ?
+            ($modelo->ubicacion->hito ?
+                $modelo->ubicacion->hito->Id_Hitos . ($modelo->ubicacion->hito->Descripcion ?
+                    ' - ' . $modelo->ubicacion->hito->Descripcion : '')
+                : null)
+            : null,
+        'fechaUbicacion' => $modelo->ubicacion ? $modelo->ubicacion->fecha_registro : null,
+        'proyecto' => $modelo->fk_id_project_Company,
+    ];
+}
     public function tipoEquipoToArray($lista): Collection|\Illuminate\Support\Collection
     {
         return $lista->map(function ($data) {
@@ -1486,6 +1517,10 @@ trait Resource
             'unidad_medida' => $modelo->unidadMedida,
             'proyecto' => $modelo->fk_id_project_Company,
             'tipo' => $modelo->tipo,
+            'mso' => $modelo->mso,
+            'resistencia' => $modelo->resistencia,
+            'dmx' => $modelo->dmx,
+            'diseno' => $modelo->diseno ? $modelo->diseno->Tipo : null,
         ];
     }
 
@@ -1595,6 +1630,7 @@ trait Resource
             'cant_viajes_salida' => $modelo->cant_viajes_salida,
             'tramo_origen' => $modelo->fk_id_tramo_origen ?? null,
             'hito_origen' => $modelo->fk_id_hito_origen ?? null,
+            'estado' => $modelo->fk_id_estados ? ($modelo->fk_id_estados == 12 ? '0' : ($modelo->fk_id_estados == 15 ? '2' : '1')) : null,
         ];
     }
 
@@ -1617,13 +1653,92 @@ trait Resource
             'fechaProgramacion' => $modelo->fechaProgramacion,
             'fechaCreacion' => $modelo->dateCreation,
             'proyecto' => $modelo->fk_id_project_Company,
-            'costCenter_id' => $modelo->cost_code ? $modelo->cost_code->COCEIDENTIFICATION : null,
-            'costCenter' => $modelo->CostCode,
+            'cost_code_id' => $modelo->cost_code ? $modelo->cost_code->COCEIDENTIFICATION : null,
+            'cost_code' => $modelo->CostCode,
             'total_despachada' => $modelo->total_despachada,
             'cant_recibida' => $modelo->cant_recibida,
             'cant_viajes_llegada' => $modelo->cant_viajes_llegada,
             'cant_despachada' => $modelo->cant_despachada,
             'cant_viajes_salida' => $modelo->cant_viajes_salida,
+            'estado' => $modelo->estado ? ($modelo->estado == 'PENDIENTE'?  '0' : '2') : null
+        ];
+    }
+
+    public function solicitudesConcretoAppToModel($modelo): array
+    {
+        return [
+            'identificador' => $modelo->identificador,
+            'tipo' => $modelo->tipo,
+            'tramo' => $modelo->tramo,
+            'hito' => $modelo->hito,
+            'abscisaInicial' => $modelo->abscisaInicialReferencia,
+            'abscisaFinal' => $modelo->abscisaFinalReferencia,
+            'formula_id' => $modelo->formula_concreto ? $modelo->formula_concreto->id : null,
+            'formula' => $modelo->formula_concreto ? $modelo->formula_concreto->formula . ' ('. $modelo->formula_concreto->resistencia . ' - ' . $modelo->formula_concreto->dmx . ' - ' . $modelo->tipoMezcla . ')' : null,
+            'planta_id' => $modelo->plantas ? $modelo->plantas->id_plata : null,
+            'planta' => $modelo->plantas ? $modelo->plantas->NombrePlanta : null,
+            'cantidad' => $modelo->volumen ?? null,
+            'usuario_crea' => $modelo->usuario ? ($modelo->usuario->Nombre ?? '') . ' ' . ($modelo->usuario->Apellido ?? '') : null,
+            'notaUsuario' => $modelo->nota,
+            'nomenclatura' => $modelo->nomenclatura && $modelo->nomenclatura != '...'? $modelo->nomenclatura : null,
+            'elemento_vaciar' => $modelo->elementoVaciar,
+            'asentamiento' => $modelo->asentamiento,
+            'fechaProgramacion' => $modelo->fechaDeProgramacion,
+            'fechaCreacion' => $modelo->dateCreation,
+            'proyecto' => $modelo->fk_id_project_Company,
+            'cost_code_id' => $modelo->cost_code ? $modelo->cost_code->COCEIDENTIFICATION : null,
+            'cost_code' => $modelo->CostCode,
+            'total_despachada' => $modelo->total_despachada,
+            'cant_recibida' => $modelo->cant_recibida,
+            'cant_viajes_llegada' => $modelo->cant_viajes_llegada,
+            'cant_despachada' => $modelo->cant_despachada,
+            'cant_viajes_salida' => $modelo->cant_viajes_salida,
+            'estado' => $modelo->estado ? ($modelo->estado == 'PENDIENTE'?  '0' :
+            ($modelo->estado == 'ENVIADO' ? '2' :
+            ($modelo->estado == 'ANULADO' ? '3' : '1'))) : null
+        ];
+    }
+
+    /**
+     * Añadir en un resource aparte
+     */
+
+     public function BasculasToArray($lista): Collection|\Illuminate\Support\Collection
+     {
+         return $lista->map(function ($data) {
+             return $this->BasculasToModel($data);
+         });
+     }
+
+    public function BasculasToModel($modelo): array
+    {
+
+        $fecha_sin_formatear = $modelo->fecha_registro;
+        $fecha = Carbon::parse($fecha_sin_formatear)->format('Y-m-d');
+        $hora = Carbon::parse($fecha_sin_formatear)->format('H:i:s');
+        $tipo = $modelo->tipo == 1 ? __('messages.tipo_bascula_entrada') : __('messages.tipo_bascula_salida');
+        return [
+        'id' => $modelo->id,
+        'fecha' => $fecha,
+        'hora' => $hora,
+        'equipo' => $modelo->equipo ? $modelo->equipo->equiment_id : null,
+        'placa' => $modelo->equipo ? $modelo->equipo->placa : null,
+        'pesoInicial' => $modelo->peso1,
+        'pesoFinal' => $modelo->peso2,
+        'pesoNeto' => $modelo->peso_neto,
+        'boucher' => $modelo->boucher,
+        'tipo' => $tipo,
+        'formula'=> $modelo->formula ? $modelo->formula->Nombre : null,
+        'material'=> $modelo->material ? $modelo->material->Nombre : null,
+        'plantaOrigen' => $modelo->origenPlanta ? $modelo->origenPlanta->NombrePlanta : null,
+        'tramoOrigen' => $modelo->origenTramo ? $modelo->origenTramo->Descripcion : null,
+        'plantaDestino' =>  $modelo->destinoPlanta ? $modelo->destinoPlanta->NombrePlanta : null,
+        'conductor' => $modelo->conductores ? $modelo->conductores->nombreCompleto : null,
+        'cedulaConductor' => $modelo->conductor,
+        'observacion' => $modelo->observacion,
+        'estado' => $modelo->estado,
+        'proyecto' => $modelo->fk_id_project_Company,
+        'usuarioCreador' => $modelo->usuario_creador ? $modelo->usuario_creador->usuario : null,
         ];
     }
 
@@ -1657,6 +1772,48 @@ trait Resource
             'nombre' => $modelo->nombre,
             'descripcion' => $modelo->descripcion,
             'proyecto' => $modelo->fk_id_project_Company,
+        ];
+    }
+
+    public function WbLibFormatoToArray($lista): Collection|\Illuminate\Support\Collection
+    {
+        return $lista->map(function ($data) {
+            return $this->WbLibFormatoToModel($data);
+        });
+    }
+
+    public function WbLibFormatoToModel($modelo): array
+    {
+        return [
+            'identificador' => $modelo->id_liberaciones_formatos,
+            'code' => $modelo->codigo,
+            'revision' => $modelo->revision,
+            'title' => $modelo->titulo,
+            'tipo_formato' => $modelo->fk_tipo_formato,
+            'fecha_formato' => $modelo->fecha_formato,
+            'tipo_equipo' => $modelo->fk_id_tipo_equipo,
+            'html_format' => $modelo->html_report,
+            'proyecto' => $modelo->fk_id_project_Company,
+        ];
+    }
+
+    public function WbInterrupcionesToArray($lista): Collection|\Illuminate\Support\Collection
+    {
+        return $lista->map(function ($data) {
+            return $this->WbInterrupcionesToModel($data);
+        });
+    }
+
+    public function WbInterrupcionesToModel($modelo): array
+    {
+        return [
+            'identificador' => $modelo->id,
+            'nombre' => $modelo->nombre_interrupcion,
+            'descripcion' => $modelo->descripcion_interrupcion,
+            'estado'=>$modelo->estado,
+            'fk_centro_costo_id'=>$modelo->fk_id_centro_de_costos,
+            'es_obligatorio'=>$modelo->es_obligatorio,
+            'proyecto'=>$modelo->fk_id_project_Company
         ];
     }
 }

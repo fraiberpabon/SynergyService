@@ -7,14 +7,14 @@ use OwenIt\Auditing\Contracts\Resolver;
 
 use App\Http\trait\TokenHelpersTrait;
 
-class UserIdResolver implements Resolver
+class UserTypeResolver implements Resolver
 {
     use TokenHelpersTrait;
 
     public static function resolve(Auditable $auditable)
     {
         $request = request();
-        $resolverInstance = new UserIdResolver();
+        $resolverInstance = new UserTypeResolver();
         $userId = $resolverInstance->traitGetIdUsuarioToken($request);
         return $userId;
     }
