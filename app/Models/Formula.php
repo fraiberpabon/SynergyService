@@ -9,12 +9,17 @@ class Formula extends Model
 {
     use HasFactory;
     protected $connection = 'sqlsrv2';
-    protected $table='Formula';
-    Protected  $primaryKey='id';
+    protected $table = 'Formula';
+    protected $primaryKey = 'id';
     public $timestamps = false;
 
     public function diseno()
     {
         return $this->hasOne(TipoMezcla::class, 'Id', 'fk_tipoMezcla');
+    }
+
+    public function transports()
+    {
+        return $this->morphOne(WbTransporteRegistro::class, 'formulas');
     }
 }

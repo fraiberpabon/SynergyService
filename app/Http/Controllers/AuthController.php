@@ -78,7 +78,9 @@ class AuthController extends BaseController
                 return $this->loginWeb($request, $ip, $user, $proyectoDefault);
             } */
         } catch (\Throwable $th) {
-            return $this->handleAlert($th->getMessage());
+            Log::error($th->getMessage());
+            return $this->handleAlert(__('messages.error_interno'));
+            //return $this->handleAlert($th->getMessage());
         }
     }
 
