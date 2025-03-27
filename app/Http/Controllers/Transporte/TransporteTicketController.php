@@ -249,6 +249,7 @@ class TransporteTicketController extends BaseController
                 "ubicacion_salida" => $ubicacion_salida,
             ]);
         } catch (\Exception $e) {
+            \Log::error('transporte-ticket-process-transport-data ' . $e->getMessage());
             return $this->handleAlert(__('messages.error_servicio'));
         }
     }

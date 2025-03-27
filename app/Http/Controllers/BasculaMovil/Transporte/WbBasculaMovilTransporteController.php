@@ -155,7 +155,7 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
 
             return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));
         } catch (\Throwable $th) {
-            \Log::error('bascula-movil-insert ' . $th->getMessage());
+            \Log::error('bascula-movil-single-insert ' . $th->getMessage());
             return $this->handleAlert(__('messages.error_servicio'));
         }
     }
@@ -294,6 +294,7 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
                 return $this->handleAlert("empty");
             }
         } catch (\Throwable $th) {
+            \Log::error('bascula-movil-array-insert ' . $th->getMessage());
             return $this->handleAlert(__('messages.error_servicio'));
         }
     }
@@ -349,6 +350,7 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
             //var_dump($consulta);
             return $this->handleResponse($request, $this->BasculasToArray($consulta), 'Consultado.');
         }catch (\Exception $e){
+            \Log::error('bascula-movil-getBascula ' . $e->getMessage());
             return $this->handleAlert(__('messages.error_servicio'));
         }
 
