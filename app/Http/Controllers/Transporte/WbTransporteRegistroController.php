@@ -350,12 +350,14 @@ class WbTransporteRegistroController extends BaseController implements Vervos
     public function postV3(Request $req)
     {
         try {
+            \Log::info('transport-single-insert-v3 iniciando -> ' . $req->hash . ' solicitud ' . $req->solicitud_id);
             $solicitud = null;
             $respuesta = collect();
             $respuesta->put('hash', $req->hash);
 
             $action = $this->postAction($req->all(), 'Automática individual');
             if (!$action) {
+                \Log::info('transport-single-insert-v3 error insertar -> ' . $req->hash  . ' solicitud ' . $req->solicitud_id);
                 return $this->handleAlert(__('messages.no_se_pudo_realizar_el_registro'), false);
             }
 
@@ -370,10 +372,10 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                 $respuesta->put('cant_viajes_salida', $solicitud['cant_viajes_salida']);
                 $respuesta->put('estado', $solicitud['estado']);
             }
-
+            \Log::info('transport-single-insert-v3 registrado -> ' . $req->hash . ' solicitud ' . $req->solicitud_id);
             return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));
         } catch (\Throwable $th) {
-            \Log::error('transport-single-insert-v3 ' . $th->getMessage());
+            \Log::error('transport-single-insert-v3 ' . $req->hash . ' solicitud ' . $req->solicitud_id . ' error '. $th->getMessage());
             return $this->handleAlert(__('messages.error_servicio'));
         }
     }
