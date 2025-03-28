@@ -13,6 +13,13 @@ class WbFormulaLista extends Model
     protected $table = 'Wb_Formula_Lista';
     protected $primaryKey = 'id_formula_lista';
 
+    public function scopeColsFormula($query) {
+        return $query->select(
+            'id_formula_lista',
+            'id_formula_lista as identificador',
+        );
+    }
+
     public function transports()
     {
         return $this->morphOne(WbTransporteRegistro::class, 'formulas');

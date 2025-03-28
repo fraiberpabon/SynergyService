@@ -37,11 +37,16 @@ class TransporteTicketController extends BaseController
                     'cdc',
                     'material',
                     'formulas',
+                    /* 'formulas' => function ($sub) {
+                        $sub->colsFormula();
+                    }, */
                     'usuario_created',
                     'equipo'
                 ])
                 ->orderBy('tipo', 'DESC')
                 ->get();
+
+                //var_dump($transporteInicial);
 
             // Segunda consulta: basada en codigo_viaje y fk_id_equipo
             $transporteFiltrado = collect(); // Inicializar vacío

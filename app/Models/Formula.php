@@ -13,6 +13,10 @@ class Formula extends Model
     protected $primaryKey = 'id';
     public $timestamps = false;
 
+    public function scopeColsFormula($query) {
+        return $query->select('id as identificador');
+    }
+
     public function diseno()
     {
         return $this->hasOne(TipoMezcla::class, 'Id', 'fk_tipoMezcla');

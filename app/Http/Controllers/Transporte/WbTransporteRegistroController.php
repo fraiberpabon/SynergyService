@@ -359,7 +359,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                 return $this->handleAlert(__('messages.no_se_pudo_realizar_el_registro'), false);
             }
 
-            $solicitud = (new WbSolicitudesController())->findForIdV3($req->solicitud_id, $req->tipo_solicitud);
+            $solicitud = $this->getSolicitudInfoTransport($req->solicitud_id, $req->tipo_solicitud);
 
             if ($solicitud != null) {
                 $respuesta->put('solicitud', $solicitud['identificador']);
@@ -378,7 +378,8 @@ class WbTransporteRegistroController extends BaseController implements Vervos
         }
     }
 
-    private function postAction($info, $typeSyncMsg = "") {
+    private function postAction($info, $typeSyncMsg = "")
+    {
         $validacion = Validator::make($info, [
             'identificador' => 'required|numeric',
             'numero_vale' => 'required|string',
@@ -492,7 +493,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
             }
         }
 
-        if(!empty($info['destino_planta_id'])){
+        if (!empty($info['destino_planta_id'])) {
             RecibirPlantaAutomatico::dispatch($model);
         }
 
@@ -545,6 +546,70 @@ class WbTransporteRegistroController extends BaseController implements Vervos
         } catch (\Throwable $th) {
             \Log::error('transport-array-insert ' . $th->getMessage());
             return $this->handleAlert(__('messages.error_servicio'));
+        }
+    }
+
+    public function getSolicitudInfoTransport($idSolicitud, $tipo)
+    {
+        try {
+            $query = WbTransporteRegistro::where('estado', 1)
+                ->where('tipo_solicitud', $tipo)
+                ->where('user_created', '!=', 0)
+                ->where('fk_id_solicitud', $idSolicitud)
+                ->with('solicitudes')->get();
+
+            if ($query->count() == 0) {
+                return null;
+            }
+
+
+            $respuesta = collect();
+            $respuesta->put('identificador', $idSolicitud);
+            $solicitudes = $query->first()->solicitudes;
+            if ($solicitudes) {
+                $estado = $solicitudes->fk_id_estados ?
+                    (
+                        $solicitudes->fk_id_estados == 12 ? '0' :
+                        ($solicitudes->fk_id_estados == 15 ? '2' : '1')
+                    ) : (
+                        $solicitudes->estado ?
+                        (
+                            $solicitudes->estado == 'PENDIENTE' ? '0' :
+                            ($solicitudes->estado == 'ENVIADO' ? '2' :
+                                ($solicitudes->estado == 'ANULADO' ? '3' : '1'))
+                        ) : null
+                    );
+
+
+                $respuesta->put('estado', $estado);
+            }
+
+
+            $vLlegada = $vSalida = $cLlegada = $cSalida = 0;
+            $vLlegada = $query->where('tipo', 1)->count();
+            $vSalida = $query->where('tipo', 2)->count();
+
+            $colSuma = $tipo == 'M' ? 'cubicaje' : 'cantidad';
+
+
+            $cLlegada = $query->where('tipo', 1)->sum($colSuma);
+            $cSalida = $query->where('tipo', 2)->sum($colSuma);
+
+            if ($tipo == 'A') {
+                $cLlegada /= 1000;
+                $cSalida /= 1000;
+            }
+
+            $respuesta->put('total_despachada', max($cLlegada, $cSalida));
+            $respuesta->put('cant_recibida', $cLlegada);
+            $respuesta->put('cant_viajes_llegada', $vLlegada);
+            $respuesta->put('cant_despachada', $cSalida);
+            $respuesta->put('cant_viajes_salida', $vSalida);
+
+            return $respuesta;
+        } catch (Exception $e) {
+            \Log::error('getTransportInfoSolicitud: ' . $th->getMessage());
+            return null;
         }
     }
 
@@ -716,7 +781,8 @@ class WbTransporteRegistroController extends BaseController implements Vervos
 
     private function actualizarSolicitudAsfalto(WbTransporteRegistro $item)
     {
-        if ($item->tipo == 1) return;
+        if ($item->tipo == 1)
+            return;
 
         $solicitud = WbSolitudAsfalto::where('id_solicitudAsf', $item->fk_id_solicitud)
             ->where('fk_id_project_Company', $item->fk_id_project_Company)
@@ -824,7 +890,8 @@ class WbTransporteRegistroController extends BaseController implements Vervos
 
     private function actualizarSolicitudConcreto(WbTransporteRegistro $item)
     {
-        if ($item->tipo == 1) return;
+        if ($item->tipo == 1)
+            return;
 
         $solicitud = solicitudConcreto::where('id_solicitud', $item->fk_id_solicitud)
             ->where('fk_id_project_Company', $item->fk_id_project_Company)
