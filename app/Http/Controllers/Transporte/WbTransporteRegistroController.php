@@ -481,8 +481,6 @@ class WbTransporteRegistroController extends BaseController implements Vervos
         $model->turno = isset($info['turno']) ? $info['turno'] : null;
         $model->temperatura = isset($info['temperatura']) ? $info['temperatura'] : null;
 
-        $model->temperatura = isset($info['fk_formula_cdp']) ? $info['fk_formula_cdp'] : null;
-
         $model->tipo_sync = $typeSyncMsg != "" ? $typeSyncMsg : null;
 
         if (!$model->save()) {
@@ -610,7 +608,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
 
             return $respuesta;
         } catch (Exception $e) {
-            \Log::error('getTransportInfoSolicitud: ' . $th->getMessage());
+            \Log::error('getTransportInfoSolicitud: ' . $e->getMessage());
             return null;
         }
     }
