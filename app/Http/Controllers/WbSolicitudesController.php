@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\interfaces\Vervos;
 use App\Models\solicitudConcreto;
+use App\Models\Transporte\WbTransporteRegistro;
 use App\Models\WbFormulaCentroProduccion;
 use App\Models\WbSolicitudMateriales;
 use App\Models\WbSolitudAsfalto;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -564,55 +566,15 @@ class WbSolicitudesController extends BaseController implements Vervos
         try {
             $query = WbSolicitudMateriales::with([
                 'transporte' => function ($sub) {
-                    $sub->with('equipo')->where('estado', 1)->where('tipo_solicitud', 'M')->where('user_created', '!=', 0);
+                    $sub->where('estado', 1)->where('tipo_solicitud', 'M')->where('user_created', '!=', 0);
                 }
             ])
                 ->where('id_solicitud_Materiales', $idSolicitud)
-                ->select(
-                    'id_solicitud_Materiales as identificador',
-                    'id_solicitud_Materiales',
-                    DB::raw("'M' as tipo"), // Ponemos el tipo de la solicitud, en este caso solicitud de material
-                    'fk_id_usuarios',
-                    'fk_id_usuarios_update',
-                    'fk_id_tipo_capa',
-                    'fk_id_tramo',
-                    'fk_id_hito',
-                    'abscisaInicialReferencia',
-                    'abscisaFinalReferencia',
-                    'fk_id_tipo_carril',
-                    'fk_id_tipo_calzada',
-                    'fk_id_material',
-                    'fk_id_formula',
-                    'fk_id_planta',
-                    'fk_id_plantaReasig',
-                    'Cantidad',
-                    'cantidad_real',
-                    'numeroCapa',
-                    'notaUsuario',
-                    'notaSU',
-                    'fk_id_planta_destino',
-                    DB::raw("CAST(fechaProgramacion as DATE) as fechaProgramacion"),
-                    DB::raw("CAST(dateCreation as DATE) as dateCreation"),
-                    'fk_id_project_Company',
-                    'fk_id_tramo_origen',
-                    'fk_id_hito_origen',
-                    'fk_id_estados',
-                )->first();
+                ->first();
 
             if ($query == null) {
                 return null;
             }
-
-
-            $info = WbFormulaCentroProduccion::select('codigoFormulaCdp')
-                ->where('fk_id_formula_lista', $query->fk_id_formula)
-                ->where('fk_id_planta', $query->fk_id_planta)
-                ->where('Estado', 'A')
-                ->where('fk_id_project_Company', $query->fk_id_project_Company)
-                ->orderBy('dateCreate', 'DESC')
-                ->first();
-
-            $query->fk_formula_cdp = $info->codigoFormulaCdp ?? null;
 
             if ($query->transporte) {
 
@@ -621,10 +583,10 @@ class WbSolicitudesController extends BaseController implements Vervos
                 foreach ($query->transporte as $tr) {
                     if ($tr->tipo == 1) {
                         $vLlegada++;
-                        $cLlegada += $tr->equipo && $tr->equipo->cubicaje ? $tr->equipo->cubicaje : 0;
+                        $cLlegada += $tr->cubicaje ? $tr->cubicaje : 0;
                     } else if ($tr->tipo == 2) {
                         $vSalida++;
-                        $cSalida += $tr->equipo && $tr->equipo->cubicaje ? $tr->equipo->cubicaje : 0;
+                        $cSalida += $tr->cubicaje ? $tr->cubicaje : 0;
                     }
                 }
 
@@ -1666,7 +1628,8 @@ class WbSolicitudesController extends BaseController implements Vervos
 
             return $this->handleResponse($req, $respuesta, __('messages.consultado'));
         } catch (\Throwable $e) {
-            $this->handleAlert('' . $e->getMessage(), false);
+            \Log::error('' . $e->getMessage());
+            return $this->handleAlert(__('messages.error_servicio'));
         }
 
     }

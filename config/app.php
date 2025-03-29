@@ -205,7 +205,10 @@ return [
         SimpleSoftwareIO\QrCode\QrCodeServiceProvider::class,
 
 
-
+        /**
+         * Provider para relacionar solicitudes
+         */
+        App\Providers\MorphMapServiceProvider::class,
     ],
 
     /*

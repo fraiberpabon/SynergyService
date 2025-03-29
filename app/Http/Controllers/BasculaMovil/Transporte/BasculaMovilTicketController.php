@@ -67,6 +67,7 @@ class BasculaMovilTicketController extends BaseController
             }
 
         } catch (\Exception $e) {
+            \Log::error('bascula index ' . $e->getMessage());
             return $this->handleError(__('messages.error_servicio'));
         }
     }

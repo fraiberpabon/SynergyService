@@ -73,4 +73,8 @@ class solicitudConcreto extends Model implements Auditable
     public function transporte() {
         return $this->hasMany(WbTransporteRegistro::class,  'fk_id_solicitud', 'id_solicitud',);
     }
+
+    public function transports() {
+        return $this->morphOne(WbTransporteRegistro::class, 'solicitudes');
+    }
 }

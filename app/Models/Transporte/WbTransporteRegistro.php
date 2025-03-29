@@ -6,12 +6,14 @@ use App\Models\CostCode;
 use App\Models\Equipos\WbEquipo;
 use App\Models\Formula;
 use App\Models\Materiales\WbMaterialLista;
+use App\Models\solicitudConcreto;
 use App\Models\Usuarios\usuarios_M;
 use App\Models\UsuPlanta;
 use App\Models\WbAsfaltFormula;
 use App\Models\WbFormulaLista;
 use App\Models\WbHitos;
 use App\Models\WbSolicitudMateriales;
+use App\Models\WbSolitudAsfalto;
 use App\Models\WbTramos;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -46,10 +48,28 @@ class WbTransporteRegistro extends Model implements Auditable
         ];
     }
 
+    //se define appends para no modificar la estructura de la base de datos
+    //estos te permiten crear un atributo extra
+    protected $appends = ['tipo_formulas', 'tipo_solicitudes'];
+
+    //metodo get para devolver el valor de tipo_formulas debe tener la connotacion get
+    //y Attribute ademas de utilizar el nombre del appends
+    public function getTipoFormulasAttribute() {
+        return $this->attributes['tipo_solicitud'] . 'F';
+    }
+
+    public function getTipoSolicitudesAttribute() {
+        return $this->attributes['tipo_solicitud'] . 'S';
+    }
+
     /**** Relaciones ****/
     public function solicitud()
     {
         return $this->hasOne(WbSolicitudMateriales::class, 'id_solicitud_Materiales', 'fk_id_solicitud');
+    }
+
+    public function solicitudes() {
+        return $this->morphTo('solicitudes', 'tipo_solicitudes', 'fk_id_solicitud');
     }
 
     public function origenPlanta()
@@ -125,6 +145,10 @@ class WbTransporteRegistro extends Model implements Auditable
     public function formulaCon()
     {
         return $this->belongsTo(Formula::class, 'fk_id_formula', 'id');
+    }
+
+    public function formulas() {
+        return $this->morphTo('formulas', 'tipo_formulas', 'fk_id_formula');
     }
 
     public function usuario_created()

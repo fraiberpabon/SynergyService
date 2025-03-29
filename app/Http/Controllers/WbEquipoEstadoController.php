@@ -68,7 +68,8 @@ class WbEquipoEstadoController extends BaseController implements Vervos
 
             return $this->handleResponse($req, $this->WbEquipoEstadotoArray($query), __('messages.consultado'));
         } catch (\Exception $e) {
-            return $this->handleAlert($e->getMessage(), false);
+            \Log::error($e->getMessage());
+            return $this->handleAlert(__('messages.error_interno'));
         }
     }
 
