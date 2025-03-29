@@ -409,7 +409,7 @@ class InterrupcionesController extends BaseController implements Vervos
         // TODO: Implement getPorProyecto() method.
     }
 
-    /**
+    /*
     Obtener la lista de parte diario con sus respectivas
      * distribuciones
      */
@@ -464,11 +464,6 @@ class InterrupcionesController extends BaseController implements Vervos
             if ($AnularParteDiario == null) {
                 return $this->handleAlert(__('messages.parte_diario_no_existe'));
             }
-            // $proyecto = $this->traitGetProyectoCabecera($request);
-            //$id_usuarios = $this->traitGetIdUsuarioToken($request);
-            //if ($AnularParteDiario->fk_id_project_Company != $proyecto) {
-            //    return $this->handleAlert(__('messages.no_tiene_permiso'));
-            //}
             if ($AnularParteDiario) {
                 $AnularParteDiario->motivo_anulacion = $motivo;
                 $AnularParteDiario->fk_usuario_anulacion = $fk_usuario_anulacion;
@@ -490,6 +485,104 @@ class InterrupcionesController extends BaseController implements Vervos
             return $this->handleAlert(__('messages.parte_diario_anulado'), true);
         } catch (\Exception $e) {
             \Log::error('error al anular parte diario ' . $e->getMessage());
+            return $this->handleAlert(__('messages.error_servicio'));
+        }
+    }
+
+    /**
+     * Funcion que recibe un array de id_parte_diarios con su respectivo hash
+     * al encontrar dicho registro se procede anular el parte diario con sus respectivas distribuciones,
+     * ir devolviendo uno a uno la respuesta si se anulo correctamente con esto procedemos 
+     * eliminar del telefono el parte diario que se encuentra anulado en el servidor
+     */
+
+    public function AnularParteDiarioMobile(Request $request)
+    {
+        try {
+            $respuesta = [
+                'parte_diario' => collect(),
+                'distribuciones' => collect()
+            ];
+
+            $partesDiarios = $request->input('partes_diarios');
+
+            // Validaciones iniciales (solo estas deben cortar la ejecución)
+            if (!is_array($partesDiarios) || empty($partesDiarios)) {
+                return $this->handleAlert(__('messages.validacion_array_parte_diario'));
+            }
+
+            foreach ($partesDiarios as $parte) {
+                // Validaciones de estructura (sin return, solo marcar error y continuar)
+                if (!isset($parte['id_parte_diario']) || !isset($parte['motivo'])) {
+                    continue;
+                }
+
+                $id_parte_diario = $parte['id_parte_diario'];
+                $motivo = $parte['motivo'];
+
+                if (!is_numeric($id_parte_diario)) {
+                    continue;
+                }
+
+                if (empty($motivo)) {
+                    continue;
+                }
+
+                // Buscar el parte diario
+                $AnularParteDiario = WbParteDiario::find($id_parte_diario);
+
+                if (!$AnularParteDiario) {
+                    continue;
+                }
+
+                // Procesar anulación del parte diario
+                try {
+                    $fecha_anulacion = $this->traitGetDateTimeNow();
+                    $fk_usuario_anulacion = 60072; // Ejemplo estático (ajustar)
+
+                    $AnularParteDiario->motivo_anulacion = $motivo;
+                    $AnularParteDiario->fk_usuario_anulacion = $fk_usuario_anulacion;
+                    $AnularParteDiario->fecha_anulacion = $fecha_anulacion;
+                    $AnularParteDiario->estado = 0;
+
+                    if ($AnularParteDiario->save()) {
+                        $respuesta['parte_diario']->push([
+                            'estado' => '2',
+                            'hash' => $AnularParteDiario->hash
+                        ]);
+                    }
+                } catch (\Exception $e) {
+                    continue;
+                }
+                $AnularDistribucionesParteDiario = WbDistribucionesParteDiario::where('fk_id_parte_diario', $id_parte_diario)->get();
+                foreach ($AnularDistribucionesParteDiario as $distribucion) {
+                    try {
+                        $distribucion->motivo_anulacion = $motivo;
+                        $distribucion->fk_usuario_anulacion = $fk_usuario_anulacion;
+                        $distribucion->fecha_anulacion = $fecha_anulacion;
+                        $distribucion->estado = 0;
+
+                        if ($distribucion->save()) {
+                            $respuesta['distribuciones']->push([
+                                'estado' => '2',
+                                'hash' => $distribucion->hash
+                            ]);
+                        }
+                    } catch (\Exception $e) {
+                        continue;
+                    }
+                }
+            }
+
+            // Respuesta final (solo éxitos)
+            $respuestaFinal = [
+                'parte_diario' => $respuesta['parte_diario']->toArray(),
+                'distribuciones' => $respuesta['distribuciones']->toArray()
+            ];
+
+            return $this->handleResponse($request, $respuestaFinal, __('messages.registro_exitoso'));
+        } catch (\Exception $e) {
+            \Log::error('Error general en anulación: ' . $e->getMessage());
             return $this->handleAlert(__('messages.error_servicio'));
         }
     }
