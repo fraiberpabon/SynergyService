@@ -107,9 +107,12 @@ class WbSolicitudMateriales extends Model implements Auditable
         return $this->hasOne(estado::class, 'id_estados', 'fk_id_estados');
     }
 
-    public function formula_cdc()
+    public function formula_cdp()
     {
-        return $this->hasOne(WbFormulaCentroProduccion::class, 'fk_id_formula_lista', 'fk_id_formula');
+        return $this->hasOne(WbFormulaCentroProduccion::class, 'fk_id_formula_lista', 'fk_id_formula')
+        ->whereColumn('fk_id_planta', 'fk_id_planta')
+        ->whereColumn('fk_id_project_Company', 'fk_id_project_Company')
+        ->orderBy('dateCreate', 'DESC');
     }
 
     public function transporte() {

@@ -555,7 +555,8 @@ class WbSolicitudesController extends BaseController implements Vervos
             case 'C':
                 $repuesta = $this->getSolicitudConcreto($idSolicitud);
                 break;
-            default: break;
+            default:
+                break;
         }
 
         return $repuesta;
@@ -1404,10 +1405,7 @@ class WbSolicitudesController extends BaseController implements Vervos
     {
         $estados = array_values($this->estados_soli_material);
         $query = WbSolicitudMateriales::whereDate('fechaProgramacion', '>=', Carbon::now()->subDays(3)->toDateString())
-            /* ->where(function ($q) {
-                $q->where('fk_id_estados', 12)
-                    ->orWhereNotNull('user_despacho');
-            }) */
+
             ->whereIn('fk_id_estados', $estados)
             ->with([
                 'usuario' => function ($sub) {
@@ -1442,7 +1440,8 @@ class WbSolicitudesController extends BaseController implements Vervos
                 },
                 'transporte' => function ($sub) {
                     $sub->with('equipo')->where('estado', 1)->where('tipo_solicitud', 'M')->where('user_created', '!=', 0);
-                }
+                },
+                'formula_cdp'
             ])->select(
                 'id_solicitud_Materiales as identificador',
                 'id_solicitud_Materiales',
@@ -1477,44 +1476,10 @@ class WbSolicitudesController extends BaseController implements Vervos
         $query = $this->filtrarPorProyecto($req, $query)->orderBy('fechaProgramacion', 'DESC')->get();
 
         $query = $query->map(function ($item) {
-            $info = WbFormulaCentroProduccion::select('id_formula_centroProduccion')
-                ->where('fk_id_formula_lista', $item->fk_id_formula)
-                ->where('fk_id_planta', $item->fk_id_planta)
-                ->where('Estado', 'A')
-                ->where('fk_id_project_Company', $item->fk_id_project_Company)
-                ->orderBy('dateCreate', 'DESC')
-                ->first();
 
-            $item->fk_formula_cdp = $info->id_formula_centroProduccion ?? null;
+            $item->fk_formula_cdp = $item->formula_cdp ? $item->formula_cdp->id_formula_centroProduccion : null;
 
-            if ($item->transporte) {
-                //$cubicaje = 0;
-                //$viajes = 0;
-
-                $vLlegada = $vSalida = $cLlegada = $cSalida = 0;
-
-                foreach ($item->transporte as $tr) {
-                    if ($tr->tipo == 1) {
-                        $vLlegada++;
-                        $cLlegada += $tr->equipo && $tr->equipo->cubicaje ? $tr->equipo->cubicaje : 0;
-                    } else if ($tr->tipo == 2) {
-                        $vSalida++;
-                        $cSalida += $tr->equipo && $tr->equipo->cubicaje ? $tr->equipo->cubicaje : 0;
-                    }
-                }
-
-                $item->total_despachada = max($cLlegada, $cSalida);
-                $item->cant_recibida = $cLlegada;
-                $item->cant_viajes_llegada = $vLlegada;
-                $item->cant_despachada = $cSalida;
-                $item->cant_viajes_salida = $vSalida;
-            } else {
-                $item->total_despachada = 0;
-                $item->cant_recibida = 0;
-                $item->cant_viajes_llegada = 0;
-                $item->cant_despachada = 0;
-                $item->cant_viajes_salida = 0;
-            }
+            $item = $this->formatInfoItemTransport($item, $item->transporte);
 
             return $this->solicitudesAppV2ToModel($item);
         });
@@ -1584,31 +1549,7 @@ class WbSolicitudesController extends BaseController implements Vervos
                 $item->abscisaFinalReferencia = $final;
             }
 
-            if ($item->transporte) {
-                $vLlegada = $vSalida = $cLlegada = $cSalida = 0;
-
-                foreach ($item->transporte as $tr) {
-                    if ($tr->tipo == 1) {
-                        $vLlegada++;
-                        $cLlegada += $tr->cantidad ? $tr->cantidad / 1000 : 0;
-                    } else if ($tr->tipo == 2) {
-                        $vSalida++;
-                        $cSalida += $tr->cantidad ? $tr->cantidad / 1000 : 0;
-                    }
-                }
-
-                $item->total_despachada = max($cLlegada, $cSalida);
-                $item->cant_recibida = $cLlegada;
-                $item->cant_viajes_llegada = $vLlegada;
-                $item->cant_despachada = $cSalida;
-                $item->cant_viajes_salida = $vSalida;
-            } else {
-                $item->total_despachada = 0;
-                $item->cant_recibida = 0;
-                $item->cant_viajes_llegada = 0;
-                $item->cant_despachada = 0;
-                $item->cant_viajes_salida = 0;
-            }
+            $item = $this->formatInfoItemTransport($item, $item->transporte);
 
             return $this->solicitudesAsfaltoAppToModel($item);
         });
@@ -1641,10 +1582,6 @@ class WbSolicitudesController extends BaseController implements Vervos
         $query = solicitudConcreto::whereIn('estado', $estados)
             ->whereNotNull('fechaProgramacion')
             ->where('fechaProgramacion', '<>', 'N/A')
-            /* where(function ($q) use($estados) {
-                $q->whereIn('estado', $estados);
-                    ->orWhereNull('toneladaReal');
-            }) */
             ->whereRaw("CONVERT(DATE, fechaProgramacion, 103) >=  CONVERT(DATE, ?, 103)", [$fecha])
             ->with([
                 'usuario',
@@ -1708,32 +1645,7 @@ class WbSolicitudesController extends BaseController implements Vervos
                 }
             }
 
-
-            if ($item->transporte) {
-                $vLlegada = $vSalida = $cLlegada = $cSalida = 0;
-
-                foreach ($item->transporte as $tr) {
-                    if ($tr->tipo == 1) {
-                        $vLlegada++;
-                        $cLlegada += $tr->cantidad ? $tr->cantidad : 0;
-                    } else if ($tr->tipo == 2) {
-                        $vSalida++;
-                        $cSalida += $tr->cantidad ? $tr->cantidad : 0;
-                    }
-                }
-
-                $item->total_despachada = max($cLlegada, $cSalida);
-                $item->cant_recibida = $cLlegada;
-                $item->cant_viajes_llegada = $vLlegada;
-                $item->cant_despachada = $cSalida;
-                $item->cant_viajes_salida = $vSalida;
-            } else {
-                $item->total_despachada = 0;
-                $item->cant_recibida = 0;
-                $item->cant_viajes_llegada = 0;
-                $item->cant_despachada = 0;
-                $item->cant_viajes_salida = 0;
-            }
+            $item = $this->formatInfoItemTransport($item, $item->transporte);
 
             return $this->solicitudesConcretoAppToModel($item);
         });
@@ -1794,10 +1706,6 @@ class WbSolicitudesController extends BaseController implements Vervos
 
         $estados = array_values($this->estados_soli_material);
         $query = WbSolicitudMateriales::whereDate('fechaProgramacion', '>=', Carbon::now()->subDays(3)->toDateString())
-            /* ->where(function ($q) {
-                $q->where('fk_id_estados', 12)
-                    ->orWhereNotNull('user_despacho');
-            }) */
             ->whereIn('fk_id_estados', $estados)
             ->whereIn('id_solicitud_Materiales', $listAsk)
             ->where('fk_id_project_Company', $proy)->with([
@@ -1910,6 +1818,132 @@ class WbSolicitudesController extends BaseController implements Vervos
         return $query;
     }
 
+    private function getListForIdsMaterialV3($listAsk, $proy)
+    {
+        // Si la lista está vacía, retornar colección vacía para evitar errores
+        if (empty($listAsk)) {
+            return collect();
+        }
+
+        $estados = array_values($this->estados_soli_material);
+        $query = WbSolicitudMateriales::whereDate('fechaProgramacion', '>=', Carbon::now()->subDays(3)->toDateString())
+            ->whereIn('fk_id_estados', $estados)
+            ->whereIn('id_solicitud_Materiales', $listAsk)
+            ->where('fk_id_project_Company', $proy)->with([
+                    'usuario' => function ($sub) {
+                        $sub->select('id_usuarios', 'usuario', 'Nombre', 'Apellido');
+                    },
+                    'usuarioAprobador' => function ($sub) {
+                        $sub->select('id_usuarios', 'usuario', 'Nombre', 'Apellido');
+                    },
+                    'materialLista' => function ($sub) {
+                        $sub->select('id_material_lista', 'Nombre', 'Descripcion', 'unidadMedida');
+                    },
+                    'tipoCapa' => function ($sub) {
+                        $sub->select('id_tipo_capa', 'Descripcion');
+                    },
+                    'tipoCalzada' => function ($sub) {
+                        $sub->select('id_tipo_calzada', 'Calzada', 'Descripcion');
+                    },
+                    'tipoCarril' => function ($sub) {
+                        $sub->select('id_tipo_carril', 'Carril', 'Descripcion');
+                    },
+                    'formulaLista' => function ($sub) {
+                        $sub->select('id_formula_lista', 'Nombre', 'formulaDescripcion');
+                    },
+                    'plantas' => function ($sub) {
+                        $sub->select('id_plata', 'NombrePlanta', 'descripcion');
+                    },
+                    'plantaReasig' => function ($sub) {
+                        $sub->select('id_plata', 'NombrePlanta', 'descripcion');
+                    },
+                    'plantas_destino' => function ($sub) {
+                        $sub->select('id_plata', 'NombrePlanta', 'descripcion');
+                    },
+                    'formula_cdp' => function ($sub) {
+                        $sub->where('Estado', 'A');
+                    },
+                    'transporte' => function ($sub) {
+                        $sub->with('equipo')->where('estado', 1)->where('tipo_solicitud', 'M')->where('user_created', '!=', 0);
+                    }
+                ])
+            ->select(
+                'id_solicitud_Materiales as identificador',
+                'id_solicitud_Materiales',
+                DB::raw("'M' as tipo"), // Ponemos el tipo de la solicitud, en este caso solicitud de material
+                'fk_id_usuarios',
+                'fk_id_usuarios_update',
+                'fk_id_tipo_capa',
+                'fk_id_tramo',
+                'fk_id_hito',
+                'abscisaInicialReferencia',
+                'abscisaFinalReferencia',
+                'fk_id_tipo_carril',
+                'fk_id_tipo_calzada',
+                'fk_id_material',
+                'fk_id_formula',
+                'fk_id_planta',
+                'fk_id_plantaReasig',
+                'Cantidad',
+                'cantidad_real',
+                'numeroCapa',
+                'notaUsuario',
+                'notaSU',
+                'fk_id_planta_destino',
+                DB::raw("CAST(fechaProgramacion as DATE) as fechaProgramacion"),
+                DB::raw("CAST(dateCreation as DATE) as dateCreation"),
+                'fk_id_project_Company',
+                'fk_id_tramo_origen',
+                'fk_id_hito_origen',
+                'fk_id_estados',
+            )->orderBy('fechaProgramacion', 'DESC')->get();
+
+        $query = $query->map(function ($item) {
+
+            $item->fk_formula_cdp = $item->formula_cdp ? $item->formula_cdp->id_formula_centroProduccion : null;
+
+            $item = $this->formatInfoItemTransport($item, $item->transporte);
+
+            return $this->solicitudesAppV2ToModel($item);
+        });
+
+        return $query;
+    }
+
+    private function formatInfoItemTransport($item, $transporte)
+    {
+        if ($transporte) {
+            $tipo = $item->tipo;
+            $vLlegada = $vSalida = $cLlegada = $cSalida = 0;
+            $vLlegada = $transporte->where('tipo', 1)->count();
+            $vSalida = $transporte->where('tipo', 2)->count();
+
+            $colSuma = $tipo == 'M' ? 'cubicaje' : 'cantidad';
+
+            $cLlegada = $transporte->where('tipo', 1)->sum($colSuma);
+            $cSalida = $transporte->where('tipo', 2)->sum($colSuma);
+
+            if ($tipo == 'A') {
+                $cLlegada /= 1000;
+                $cSalida /= 1000;
+            }
+
+            $item->total_despachada = max($cLlegada, $cSalida);
+            $item->cant_recibida = $cLlegada;
+            $item->cant_viajes_llegada = $vLlegada;
+            $item->cant_despachada = $cSalida;
+            $item->cant_viajes_salida = $vSalida;
+        } else {
+            $item->total_despachada = 0;
+            $item->cant_recibida = 0;
+            $item->cant_viajes_llegada = 0;
+            $item->cant_despachada = 0;
+            $item->cant_viajes_salida = 0;
+        }
+
+        return $item;
+    }
+
     private function getListForIdsAsfaltoV2($listAsk, $proy)
     {
         // Si la lista está vacía, retornar colección vacía para evitar errores
@@ -1978,31 +2012,7 @@ class WbSolicitudesController extends BaseController implements Vervos
                 $item->abscisaFinalReferencia = $final;
             }
 
-            if ($item->transporte) {
-                $vLlegada = $vSalida = $cLlegada = $cSalida = 0;
-
-                foreach ($item->transporte as $tr) {
-                    if ($tr->tipo == 1) {
-                        $vLlegada++;
-                        $cLlegada += $tr->cantidad ? $tr->cantidad / 1000 : 0;
-                    } else if ($tr->tipo == 2) {
-                        $vSalida++;
-                        $cSalida += $tr->cantidad ? $tr->cantidad / 1000 : 0;
-                    }
-                }
-
-                $item->total_despachada = max($cLlegada, $cSalida);
-                $item->cant_recibida = $cLlegada;
-                $item->cant_viajes_llegada = $vLlegada;
-                $item->cant_despachada = $cSalida;
-                $item->cant_viajes_salida = $vSalida;
-            } else {
-                $item->total_despachada = 0;
-                $item->cant_recibida = 0;
-                $item->cant_viajes_llegada = 0;
-                $item->cant_despachada = 0;
-                $item->cant_viajes_salida = 0;
-            }
+            $item = $this->formatInfoItemTransport($item, $item->transporte);
 
             return $this->solicitudesAsfaltoAppToModel($item);
         });
@@ -2010,7 +2020,7 @@ class WbSolicitudesController extends BaseController implements Vervos
         return $query;
     }
 
-    public function getListForIdsV4(Request $req)
+    /* public function getListForIdsV4(Request $req)
     {
         $validate = Validator::make($req->all(), [
             'datos' => 'required',
@@ -2058,6 +2068,39 @@ class WbSolicitudesController extends BaseController implements Vervos
         $respuesta = $concat->concat($respConcreto);
 
         return $this->handleResponse($req, $respuesta, __('messages.consultado'));
+    } */
+
+    public function getListForIdsV4(Request $req)
+    {
+        $validate = Validator::make($req->all(), [
+            'datos' => 'required',
+        ]);
+
+        if ($validate->fails()) {
+            return $this->handleAlert($validate->errors());
+        }
+
+        $listAsk = json_decode($req->datos, true);
+
+        if (!is_array($listAsk) || sizeof($listAsk) == 0) {
+            return $this->handleAlert('empty');
+        }
+
+        $classifiedList = collect($listAsk)
+            ->filter(fn($item) => isset($item['tipo'], $item['identificador']))
+            ->reduce(function ($obj, $item) {
+                $obj[$item['tipo'][] = $item['identificador']];
+                return $obj;
+            }, ['M' => [], 'A' => [], 'C' => []]);
+
+        $proy = $this->traitGetProyectoCabecera($req);
+
+        $respuesta = collect([])
+            ->concat($this->getListForIdsMaterialV2($classifiedList['M'], $proy))
+            ->concat($this->getListForIdsAsfaltoV2($classifiedList['A'], $proy))
+            ->concat($this->getListForIdsConcreto($classifiedList['C'], $proy));
+
+        return $this->handleResponse($req, $respuesta, __('messages.consultado'));
     }
 
     private function getListForIdsConcreto($listAsk, $proy)
@@ -2074,10 +2117,6 @@ class WbSolicitudesController extends BaseController implements Vervos
             ->where('fechaProgramacion', '<>', 'N/A')
             ->whereIn('id_solicitud', $listAsk)
             ->where('fk_id_project_Company', $proy)
-            /* where(function ($q) use($estados) {
-                $q->whereIn('estado', $estados);
-                    ->orWhereNull('toneladaReal');
-            }) */
             ->whereRaw("CONVERT(DATE, fechaProgramacion, 103) >=  CONVERT(DATE, ?, 103)", [$fecha])
             ->with([
                 'usuario',
@@ -2138,32 +2177,7 @@ class WbSolicitudesController extends BaseController implements Vervos
                 }
             }
 
-
-            if ($item->transporte) {
-                $vLlegada = $vSalida = $cLlegada = $cSalida = 0;
-
-                foreach ($item->transporte as $tr) {
-                    if ($tr->tipo == 1) {
-                        $vLlegada++;
-                        $cLlegada += $tr->cantidad ? $tr->cantidad : 0;
-                    } else if ($tr->tipo == 2) {
-                        $vSalida++;
-                        $cSalida += $tr->cantidad ? $tr->cantidad : 0;
-                    }
-                }
-
-                $item->total_despachada = max($cLlegada, $cSalida);
-                $item->cant_recibida = $cLlegada;
-                $item->cant_viajes_llegada = $vLlegada;
-                $item->cant_despachada = $cSalida;
-                $item->cant_viajes_salida = $vSalida;
-            } else {
-                $item->total_despachada = 0;
-                $item->cant_recibida = 0;
-                $item->cant_viajes_llegada = 0;
-                $item->cant_despachada = 0;
-                $item->cant_viajes_salida = 0;
-            }
+            $item = $this->formatInfoItemTransport($item, $item->transporte);
 
             return $this->solicitudesConcretoAppToModel($item);
         });
@@ -2175,41 +2189,41 @@ class WbSolicitudesController extends BaseController implements Vervos
     {
         try {
             $query = solicitudConcreto::where('id_solicitud', $idSolicitud)
-            ->with([
-                'transporte' => function ($sub) {
-                    $sub->where('estado', 1)->where('tipo_solicitud', 'C')->where('user_created', '!=', 0);
-                }
-            ])
-            ->select(
-                'id_solicitud as identificador',
-                'id_solicitud',
-                DB::raw("'C' as tipo"), // Ponemos el tipo de la solicitud, en el caso solicitud de asfalto
-                'fk_usuario',
-                'elementoVaciar',
-                'nomenclatura',
-                'tipoMezcla',
-                'fechaHoraSolicitud',
-                DB::raw("CONVERT(DATE, [fechaHoraSolicitud], 103) AS dateCreation"),
-                'fk_id_formula',
-                'abscisas',
-                'hito',
-                'tramo',
-                'volumen',
-                'volumenReal',
-                'resistencia',
-                'asentamiento',
-                'nota',
-                'fechaProgramacion',
-                DB::raw("CONVERT(DATE, [fechaProgramacion], 103) AS fechaDeProgramacion"),
-                'nota',
-                'PlantaDestino',
-                'fechaAceptacion',
-                'CostCode',
-                'toneFaltante',
-                'notaCierre',
-                'fk_id_project_Company',
-                'estado',
-            )->first();
+                ->with([
+                    'transporte' => function ($sub) {
+                        $sub->where('estado', 1)->where('tipo_solicitud', 'C')->where('user_created', '!=', 0);
+                    }
+                ])
+                ->select(
+                    'id_solicitud as identificador',
+                    'id_solicitud',
+                    DB::raw("'C' as tipo"), // Ponemos el tipo de la solicitud, en el caso solicitud de asfalto
+                    'fk_usuario',
+                    'elementoVaciar',
+                    'nomenclatura',
+                    'tipoMezcla',
+                    'fechaHoraSolicitud',
+                    DB::raw("CONVERT(DATE, [fechaHoraSolicitud], 103) AS dateCreation"),
+                    'fk_id_formula',
+                    'abscisas',
+                    'hito',
+                    'tramo',
+                    'volumen',
+                    'volumenReal',
+                    'resistencia',
+                    'asentamiento',
+                    'nota',
+                    'fechaProgramacion',
+                    DB::raw("CONVERT(DATE, [fechaProgramacion], 103) AS fechaDeProgramacion"),
+                    'nota',
+                    'PlantaDestino',
+                    'fechaAceptacion',
+                    'CostCode',
+                    'toneFaltante',
+                    'notaCierre',
+                    'fk_id_project_Company',
+                    'estado',
+                )->first();
 
             if ($query == null) {
                 return null;
@@ -2231,32 +2245,7 @@ class WbSolicitudesController extends BaseController implements Vervos
                 }
             }
 
-
-            if ($query->transporte) {
-                $vLlegada = $vSalida = $cLlegada = $cSalida = 0;
-
-                foreach ($query->transporte as $tr) {
-                    if ($tr->tipo == 1) {
-                        $vLlegada++;
-                        $cLlegada += $tr->cantidad ? $tr->cantidad : 0;
-                    } else if ($tr->tipo == 2) {
-                        $vSalida++;
-                        $cSalida += $tr->cantidad ? $tr->cantidad : 0;
-                    }
-                }
-
-                $query->total_despachada = max($cLlegada, $cSalida);
-                $query->cant_recibida = $cLlegada;
-                $query->cant_viajes_llegada = $vLlegada;
-                $query->cant_despachada = $cSalida;
-                $query->cant_viajes_salida = $vSalida;
-            } else {
-                $query->total_despachada = 0;
-                $query->cant_recibida = 0;
-                $query->cant_viajes_llegada = 0;
-                $query->cant_despachada = 0;
-                $query->cant_viajes_salida = 0;
-            }
+            $query = $this->formatInfoItemTransport($query, $query->transporte);
 
             return $this->solicitudesConcretoAppToModel($query);
         } catch (\Throwable $th) {

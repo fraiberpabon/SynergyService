@@ -856,7 +856,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
             $modelo->formula = $tranport->formulaAsf ? $tranport->formulaAsf->asfalt_formula : null;
             $modelo->cantidad = $solicitud->cantidadToneladas;
             $modelo->firma = '--';
-            $modelo->observacion = 'Enviado';
+            $modelo->observacion = $item->observacion ?? '--';
             $modelo->fecha = $fecha;
             $modelo->fk_id_usuario = $item->user_created;
             $modelo->cantiEnviada = $tranport->cantidad / 1000;
