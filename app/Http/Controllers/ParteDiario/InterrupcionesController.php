@@ -188,50 +188,57 @@ class InterrupcionesController extends BaseController implements Vervos
                     }
 
                     $model_parte_diario = new WbParteDiario();
-                    $model_parte_diario->fecha_registro = $info['fecha_registro'] ?? null;
-                    $model_parte_diario->fecha_creacion_registro = $info['fecha_creacion'] ?? null;
-                    $model_parte_diario->fk_equiment_id = $info['fk_equipo_id'] ?? null;
-                    $model_parte_diario->observacion = $info['observacion'] ?? null;
-                    $model_parte_diario->fk_id_seguridad_sitio_turno = $info['fk_turno'] ?? null;
-                    $model_parte_diario->horometro_inicial = $info['horometro_inicial'] ?? null;
-                    $model_parte_diario->horometro_final = $info['horometro_final'] ?? null;
-                    $model_parte_diario->estado = 1;
-                    $model_parte_diario->fk_id_project_Company = $info['proyecto'] ?? null;
-                    $model_parte_diario->fk_matricula_operador = $info['matricula_operador'] ?? null;
-                    $model_parte_diario->fk_id_user_created = $info['usuario'] ?? null;
-                    $model_parte_diario->hash = $info['hash'] ?? null;
-                    $model_parte_diario->fk_id_user_updated = $info['usuario_actualizacion'] ?? null;
+                    if ($info['estado'] == 2) {
+                        $itemRespuesta = collect();
+                        $itemRespuesta->put('estado', '2');
+                        $itemRespuesta->put('hash', $info['hash']);
+                        $respuesta->push($itemRespuesta);
+                        continue;
+                    } else {
+                        $model_parte_diario->fecha_registro = $info['fecha_registro'] ?? null;
+                        $model_parte_diario->fecha_creacion_registro = $info['fecha_creacion'] ?? null;
+                        $model_parte_diario->fk_equiment_id = $info['fk_equipo_id'] ?? null;
+                        $model_parte_diario->observacion = $info['observacion'] ?? null;
+                        $model_parte_diario->fk_id_seguridad_sitio_turno = $info['fk_turno'] ?? null;
+                        $model_parte_diario->horometro_inicial = $info['horometro_inicial'] ?? null;
+                        $model_parte_diario->horometro_final = $info['horometro_final'] ?? null;
+                        $model_parte_diario->estado = 1;
+                        $model_parte_diario->fk_id_project_Company = $info['proyecto'] ?? null;
+                        $model_parte_diario->fk_matricula_operador = $info['matricula_operador'] ?? null;
+                        $model_parte_diario->fk_id_user_created = $info['usuario'] ?? null;
+                        $model_parte_diario->hash = $info['hash'] ?? null;
+                        $model_parte_diario->motivo_anulacion = $info['motivo_anulacion'] ?? null;
+                        $model_parte_diario->fk_id_user_updated = $info['usuario_actualizacion'] ?? null;
+                        try {
+                            if (!$model_parte_diario->save()) {
+                                $itemRespuesta = collect();
+                                $itemRespuesta->put('estado', '0');
+                                $itemRespuesta->put('hash', $info['hash']);
+                                $respuesta->push($itemRespuesta);
 
-
-                    try {
-                        if (!$model_parte_diario->save()) {
+                                continue;
+                            }
+                        } catch (\Exception $e) {
                             $itemRespuesta = collect();
                             $itemRespuesta->put('estado', '0');
                             $itemRespuesta->put('hash', $info['hash']);
                             $respuesta->push($itemRespuesta);
-                            \Log::error('sync_array_horometers ' . ' Usuario:' . $usuario . ' Error: ' . json_encode($info));
+                            \Log::error('error al insertar parte diario' . $e->getMessage());
                             continue;
                         }
-                    } catch (\Exception $e) {
+
+
+                        $id_parte_diario = $model_parte_diario->id_parte_diario;
+                        $idParteDiarioArray[] = $id_parte_diario; // Almacenar el id_parte_diario generado
+
+                        $guardados++;
                         $itemRespuesta = collect();
-                        $itemRespuesta->put('estado', '0');
-                        $itemRespuesta->put('hash', $info['hash']);
+                        $itemRespuesta->put('id_servidor', $id_parte_diario);
+                        $itemRespuesta->put('hash', $info['hash'] ?? null);
+                        $itemRespuesta->put('estado', '1');
                         $respuesta->push($itemRespuesta);
-                        continue;
                     }
-
-
-                    $id_parte_diario = $model_parte_diario->id_parte_diario;
-                    $idParteDiarioArray[] = $id_parte_diario; // Almacenar el id_parte_diario generado
-
-                    $guardados++;
-                    $itemRespuesta = collect();
-                    $itemRespuesta->put('id_servidor', $id_parte_diario);
-                    $itemRespuesta->put('hash', $info['hash'] ?? null);
-                    $itemRespuesta->put('estado', '1');
-                    $respuesta->push($itemRespuesta);
                 }
-
                 if ($guardados == 0) return $this->handleAlert("empty");
 
                 return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));
@@ -312,6 +319,9 @@ class InterrupcionesController extends BaseController implements Vervos
                     $model->fk_id_project_Company = $info['proyecto'] ?? null;
                     $model->fk_id_user_created = $info['usuario'] ?? null;
                     $model->fk_id_user_updated = $info['usuario_actualizacion'] ?? null;
+                    $model->motivo_anulacion = $info['motivo_anulacion'] ?? null;
+                    $model->fecha_anulacion = $info['fecha_anulacion'] ?? null;
+                    $model->fk_usuario_anulacion = $info['usuario'] ?? null;
 
 
                     try {
@@ -321,7 +331,7 @@ class InterrupcionesController extends BaseController implements Vervos
                             $itemRespuesta->put('id_servidor', $find->id_distribuciones ?? 'vacio');
                             $itemRespuesta->put('estado', '0'); // Estado 0 porque falló el guardado
                             $respuesta->push($itemRespuesta);
-                            \Log::error('sync_array_horometers ' . ' Usuario:' . $usuario . ' Error: ' . json_encode($info));
+
                             continue;
                         }
                     } catch (\Exception $e) {
@@ -330,7 +340,7 @@ class InterrupcionesController extends BaseController implements Vervos
                         $itemRespuesta->put('id_servidor', $find->id_distribuciones ?? 'vacio2');
                         $itemRespuesta->put('estado', '0'); // Estado 0 porque falló el guardado
                         $respuesta->push($itemRespuesta);
-                        \Log::error('sync_array_horometers ' . ' Usuario:' . $usuario . ' Error: ' . json_encode($info));
+                        \Log::error('error al insertar distribuciones' . $e->getMessage());
                         continue;
                     }
                     // Guardar el modelo
@@ -504,32 +514,46 @@ class InterrupcionesController extends BaseController implements Vervos
                 'distribuciones' => collect()
             ];
 
-            $partesDiarios = $request->input('partes_diarios');
 
-            // Validaciones iniciales (solo estas deben cortar la ejecución)
-            if (!is_array($partesDiarios) || empty($partesDiarios)) {
+
+            $partesDiarios = $request->input('partes_diarios');
+            // Si es un string, decodificarlo
+            if (is_string($partesDiarios)) {
+                $partesDiarios = json_decode($partesDiarios, true);
+                // Verificar si el decode falló
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    return $this->handleAlert(__('messages.validacion_array_parte_diario'));
+                }
+            }
+            // Validar que sea un array y no esté vacío
+            if (!is_array($partesDiarios)) {
                 return $this->handleAlert(__('messages.validacion_array_parte_diario'));
             }
 
+            // Filtrar elementos vacíos (opcional)
+            $partesDiarios = array_filter($partesDiarios);
+
+            if (empty($partesDiarios)) {
+                return $this->handleAlert(__('messages.validacion_array_parte_diario_vacio'));
+            }
             foreach ($partesDiarios as $parte) {
                 // Validaciones de estructura (sin return, solo marcar error y continuar)
-                if (!isset($parte['id_parte_diario']) || !isset($parte['motivo'])) {
+                if (!isset($parte['hash']) || !isset($parte['motivo'])) {
                     continue;
                 }
 
-                $id_parte_diario = $parte['id_parte_diario'];
+                //  $id_parte_diario = $parte['id_parte_diario'];
                 $motivo = $parte['motivo'];
-
-                if (!is_numeric($id_parte_diario)) {
-                    continue;
-                }
+                $fk_usuario = $parte['fk_usuario'];
+                $hash = $parte['hash'];
 
                 if (empty($motivo)) {
                     continue;
                 }
 
                 // Buscar el parte diario
-                $AnularParteDiario = WbParteDiario::find($id_parte_diario);
+                $AnularParteDiario = WbParteDiario::where('hash', $hash)->first();
+                $id_parte_diario = $AnularParteDiario->id_parte_diario ?? null;
 
                 if (!$AnularParteDiario) {
                     continue;
@@ -538,10 +562,9 @@ class InterrupcionesController extends BaseController implements Vervos
                 // Procesar anulación del parte diario
                 try {
                     $fecha_anulacion = $this->traitGetDateTimeNow();
-                    $fk_usuario_anulacion = 60072; // Ejemplo estático (ajustar)
 
                     $AnularParteDiario->motivo_anulacion = $motivo;
-                    $AnularParteDiario->fk_usuario_anulacion = $fk_usuario_anulacion;
+                    $AnularParteDiario->fk_usuario_anulacion = $fk_usuario;
                     $AnularParteDiario->fecha_anulacion = $fecha_anulacion;
                     $AnularParteDiario->estado = 0;
 
@@ -552,13 +575,14 @@ class InterrupcionesController extends BaseController implements Vervos
                         ]);
                     }
                 } catch (\Exception $e) {
+                    \Log::error('Error al anular parte diario: ' . $e->getMessage());
                     continue;
                 }
                 $AnularDistribucionesParteDiario = WbDistribucionesParteDiario::where('fk_id_parte_diario', $id_parte_diario)->get();
                 foreach ($AnularDistribucionesParteDiario as $distribucion) {
                     try {
                         $distribucion->motivo_anulacion = $motivo;
-                        $distribucion->fk_usuario_anulacion = $fk_usuario_anulacion;
+                        $distribucion->fk_usuario_anulacion = $fk_usuario;
                         $distribucion->fecha_anulacion = $fecha_anulacion;
                         $distribucion->estado = 0;
 
@@ -569,6 +593,7 @@ class InterrupcionesController extends BaseController implements Vervos
                             ]);
                         }
                     } catch (\Exception $e) {
+                        \Log::error('Error al anular distribucion: ' . $e->getMessage());
                         continue;
                     }
                 }
@@ -583,7 +608,7 @@ class InterrupcionesController extends BaseController implements Vervos
             return $this->handleResponse($request, $respuestaFinal, __('messages.registro_exitoso'));
         } catch (\Exception $e) {
             \Log::error('Error general en anulación: ' . $e->getMessage());
-            return $this->handleAlert(__('messages.error_servicio'));
+            return $this->handleAlert($e->getMessage());
         }
     }
 }

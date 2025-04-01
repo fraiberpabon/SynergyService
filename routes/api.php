@@ -190,11 +190,11 @@ Route::middleware('desencript')->group(function () {
             });
         });
 
-        // Route::prefix('parte_diario')->controller(InterrupcionesController::class)->group(function () {
-        //     Route::get('/getParteDiarioWeb', 'GetParteDiarioWeb');
-        //     Route::put('/anularParteDiario/{id_parte_diario}', 'AnularParteDiario');
-        //     Route::put('/AnularParteDiarioMobile', 'AnularParteDiarioMobile');
-        // });
+        Route::prefix('parte_diario')->controller(InterrupcionesController::class)->group(function () {
+            Route::get('/getParteDiarioWeb', 'GetParteDiarioWeb');
+            Route::put('/anularParteDiario/{id_parte_diario}', 'AnularParteDiario');
+            Route::put('/AnularParteDiarioMobile', 'AnularParteDiarioMobile');
+        });
 
         /*
          * End endpoint para WebuApp
