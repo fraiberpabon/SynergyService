@@ -813,9 +813,9 @@ class WbTransporteRegistroController extends BaseController implements Vervos
         $cantidad = $solicitud->transporte->filter(fn($tr) => $tr->cantidad != null)
             ->sum(fn($tr) => $tr->cantidad ?? 0);
 
-        $redondear = ceil($cantidad ?? 0);
+        $redondear = ($cantidad ?? 0);
 
-        $total = $redondear > 0 ? ($redondear / 1000) : 0;
+        $total = $redondear > 0 ? ceil($redondear / 1000) : 0;
 
         // Convertir el valor de la cantidad fuera del condicional
         $convertCantidad = floatval($solicitud->cantidadToneladas);
@@ -856,7 +856,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
             $modelo->formula = $tranport->formulaAsf ? $tranport->formulaAsf->asfalt_formula : null;
             $modelo->cantidad = $solicitud->cantidadToneladas;
             $modelo->firma = '--';
-            $modelo->observacion = 'Enviado';
+            $modelo->observacion =  $item->observacion ?? '';
             $modelo->fecha = $fecha;
             $modelo->fk_id_usuario = $item->user_created;
             $modelo->cantiEnviada = $tranport->cantidad / 1000;
