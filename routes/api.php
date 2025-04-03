@@ -22,6 +22,7 @@ use App\Http\Controllers\WbEquipoEstadoController;
 use App\Http\Controllers\ParteDiario\InterrupcionesController;
 use App\Http\Controllers\BasculaMovil\Transporte\WbBasculaMovilTransporteController;
 use App\Http\Controllers\Turnos\SyTurnosController;
+use App\Http\Controllers\CostCenter\CostCenterController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
@@ -204,7 +205,12 @@ Route::middleware('desencript')->group(function () {
         /*
          * Start endpoint para la pagina web
          */
-
+        Route::prefix('cost-center')->controller(CostCenterController::class)->group(function () {
+            Route::get('/getCentroCostoMobile', 'getCostCenterMobile');
+            Route::put('/anularCentroCosto', 'AnularCentroCosto');
+            Route::post('/crear', 'postCentroCosto');
+            Route::put('/actualizar', 'updateCentroCosto');
+        });
         /*
          * End endpoint para la pagina web
          */
@@ -271,6 +277,13 @@ Route::prefix('')->group(function () {
         Route::put('/anularParteDiario/{id_parte_diario}', 'AnularParteDiario');
         Route::put('/AnularParteDiarioMobile', 'AnularParteDiarioMobile');
     });
+
+    // Route::prefix('cost-center')->controller(CostCenterController::class)->group(function () {
+    //     Route::get('/getCentroCostoMobile', 'getCostCenterMobile');
+    //     Route::put('/anularCentroCosto', 'AnularCentroCosto');
+    //     Route::post('/crear', 'postCentroCosto');
+    //     Route::put('/actualizar', 'updateCentroCosto');
+    // });
     //    Route::prefix('parte_diario')->controller(InterrupcionesController::class)->group(function () {
     //        Route::get('/getParteDiarioWeb', 'GetParteDiarioWeb');
     //    });

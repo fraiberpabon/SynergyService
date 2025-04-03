@@ -160,9 +160,9 @@ trait Resource
         } else {
             // No hay parte diario ni horómetro, usar valores por defecto
             if (isset($horometro) && !empty($horometro)) {
-            $fechaHorometro = $modelo->updated_at
-                ? Carbon::parse($modelo->updated_at)->format('Y-m-d H:i:s')
-                : ($modelo->created_at ? Carbon::parse($modelo->created_at)->format('Y-m-d H:i:s') : null);
+                $fechaHorometro = $modelo->updated_at
+                    ? Carbon::parse($modelo->updated_at)->format('Y-m-d H:i:s')
+                    : ($modelo->created_at ? Carbon::parse($modelo->created_at)->format('Y-m-d H:i:s') : null);
             }
         }
 
@@ -1603,7 +1603,6 @@ trait Resource
                 return $this->solicitudesAppV2ToModel($data);
             });
         }
-
     }
 
     public function solicitudesAppV2ToModel($modelo): array
@@ -1679,7 +1678,7 @@ trait Resource
             'cant_viajes_llegada' => $modelo->cant_viajes_llegada,
             'cant_despachada' => $modelo->cant_despachada,
             'cant_viajes_salida' => $modelo->cant_viajes_salida,
-            'estado' => $modelo->estado ? ($modelo->estado == 'PENDIENTE'?  '0' : '2') : null
+            'estado' => $modelo->estado ? ($modelo->estado == 'PENDIENTE' ?  '0' : '2') : null
         ];
     }
 
@@ -1693,13 +1692,13 @@ trait Resource
             'abscisaInicial' => $modelo->abscisaInicialReferencia,
             'abscisaFinal' => $modelo->abscisaFinalReferencia,
             'formula_id' => $modelo->formula_concreto ? $modelo->formula_concreto->id : null,
-            'formula' => $modelo->formula_concreto ? $modelo->formula_concreto->formula . ' ('. $modelo->formula_concreto->resistencia . ' - ' . $modelo->formula_concreto->dmx . ' - ' . $modelo->tipoMezcla . ')' : null,
+            'formula' => $modelo->formula_concreto ? $modelo->formula_concreto->formula . ' (' . $modelo->formula_concreto->resistencia . ' - ' . $modelo->formula_concreto->dmx . ' - ' . $modelo->tipoMezcla . ')' : null,
             'planta_id' => $modelo->plantas ? $modelo->plantas->id_plata : null,
             'planta' => $modelo->plantas ? $modelo->plantas->NombrePlanta : null,
             'cantidad' => $modelo->volumen ?? null,
             'usuario_crea' => $modelo->usuario ? ($modelo->usuario->Nombre ?? '') . ' ' . ($modelo->usuario->Apellido ?? '') : null,
             'notaUsuario' => $modelo->nota,
-            'nomenclatura' => $modelo->nomenclatura && $modelo->nomenclatura != '...'? $modelo->nomenclatura : null,
+            'nomenclatura' => $modelo->nomenclatura && $modelo->nomenclatura != '...' ? $modelo->nomenclatura : null,
             'elemento_vaciar' => $modelo->elementoVaciar,
             'asentamiento' => $modelo->asentamiento,
             'fechaProgramacion' => $modelo->fechaDeProgramacion,
@@ -1712,9 +1711,7 @@ trait Resource
             'cant_viajes_llegada' => $modelo->cant_viajes_llegada,
             'cant_despachada' => $modelo->cant_despachada,
             'cant_viajes_salida' => $modelo->cant_viajes_salida,
-            'estado' => $modelo->estado ? ($modelo->estado == 'PENDIENTE'?  '0' :
-            ($modelo->estado == 'ENVIADO' ? '2' :
-            ($modelo->estado == 'ANULADO' ? '3' : '1'))) : null
+            'estado' => $modelo->estado ? ($modelo->estado == 'PENDIENTE' ?  '0' : ($modelo->estado == 'ENVIADO' ? '2' : ($modelo->estado == 'ANULADO' ? '3' : '1'))) : null
         ];
     }
 
@@ -1722,12 +1719,12 @@ trait Resource
      * Añadir en un resource aparte
      */
 
-     public function BasculasToArray($lista): Collection|\Illuminate\Support\Collection
-     {
-         return $lista->map(function ($data) {
-             return $this->BasculasToModel($data);
-         });
-     }
+    public function BasculasToArray($lista): Collection|\Illuminate\Support\Collection
+    {
+        return $lista->map(function ($data) {
+            return $this->BasculasToModel($data);
+        });
+    }
 
     public function BasculasToModel($modelo): array
     {
@@ -1737,27 +1734,27 @@ trait Resource
         $hora = Carbon::parse($fecha_sin_formatear)->format('H:i:s');
         $tipo = $modelo->tipo == 1 ? __('messages.tipo_bascula_entrada') : __('messages.tipo_bascula_salida');
         return [
-        'id' => $modelo->id,
-        'fecha' => $fecha,
-        'hora' => $hora,
-        'equipo' => $modelo->equipo ? $modelo->equipo->equiment_id : null,
-        'placa' => $modelo->equipo ? $modelo->equipo->placa : null,
-        'pesoInicial' => $modelo->peso1,
-        'pesoFinal' => $modelo->peso2,
-        'pesoNeto' => $modelo->peso_neto,
-        'boucher' => $modelo->boucher,
-        'tipo' => $tipo,
-        'formula'=> $modelo->formula ? $modelo->formula->Nombre : null,
-        'material'=> $modelo->material ? $modelo->material->Nombre : null,
-        'plantaOrigen' => $modelo->origenPlanta ? $modelo->origenPlanta->NombrePlanta : null,
-        'tramoOrigen' => $modelo->origenTramo ? $modelo->origenTramo->Descripcion : null,
-        'plantaDestino' =>  $modelo->destinoPlanta ? $modelo->destinoPlanta->NombrePlanta : null,
-        'conductor' => $modelo->conductores ? $modelo->conductores->nombreCompleto : null,
-        'cedulaConductor' => $modelo->conductor,
-        'observacion' => $modelo->observacion,
-        'estado' => $modelo->estado,
-        'proyecto' => $modelo->fk_id_project_Company,
-        'usuarioCreador' => $modelo->usuario_creador ? $modelo->usuario_creador->usuario : null,
+            'id' => $modelo->id,
+            'fecha' => $fecha,
+            'hora' => $hora,
+            'equipo' => $modelo->equipo ? $modelo->equipo->equiment_id : null,
+            'placa' => $modelo->equipo ? $modelo->equipo->placa : null,
+            'pesoInicial' => $modelo->peso1,
+            'pesoFinal' => $modelo->peso2,
+            'pesoNeto' => $modelo->peso_neto,
+            'boucher' => $modelo->boucher,
+            'tipo' => $tipo,
+            'formula' => $modelo->formula ? $modelo->formula->Nombre : null,
+            'material' => $modelo->material ? $modelo->material->Nombre : null,
+            'plantaOrigen' => $modelo->origenPlanta ? $modelo->origenPlanta->NombrePlanta : null,
+            'tramoOrigen' => $modelo->origenTramo ? $modelo->origenTramo->Descripcion : null,
+            'plantaDestino' =>  $modelo->destinoPlanta ? $modelo->destinoPlanta->NombrePlanta : null,
+            'conductor' => $modelo->conductores ? $modelo->conductores->nombreCompleto : null,
+            'cedulaConductor' => $modelo->conductor,
+            'observacion' => $modelo->observacion,
+            'estado' => $modelo->estado,
+            'proyecto' => $modelo->fk_id_project_Company,
+            'usuarioCreador' => $modelo->usuario_creador ? $modelo->usuario_creador->usuario : null,
         ];
     }
 
@@ -1829,10 +1826,10 @@ trait Resource
             'identificador' => $modelo->id,
             'nombre' => $modelo->nombre_interrupcion,
             'descripcion' => $modelo->descripcion_interrupcion,
-            'estado'=>$modelo->estado,
-            'fk_centro_costo_id'=>$modelo->fk_id_centro_de_costos,
-            'es_obligatorio'=>$modelo->es_obligatorio,
-            'proyecto'=>$modelo->fk_id_project_Company
+            'estado' => $modelo->estado,
+            'fk_centro_costo_id' => $modelo->fk_id_centro_de_costos,
+            'es_obligatorio' => $modelo->es_obligatorio,
+            'proyecto' => $modelo->fk_id_project_Company
         ];
     }
 
@@ -1856,7 +1853,7 @@ trait Resource
             'hora_inicio' => $modelo->hora_inicio_turno,
             'hora_final' => $modelo->hora_final_turno,
             'estado' => $modelo->estado,
-            'proyecto' =>$modelo->fk_id_project_Company
+            'proyecto' => $modelo->fk_id_project_Company
         ];
     }
 
@@ -1867,54 +1864,54 @@ trait Resource
      * Parte diario web
      */
 
-     public function WbParteDiarioToArray($lista): Collection|\Illuminate\Support\Collection
-     {
-         return $lista->map(function ($data) {
-             return $this->WbParteDiarioToModel($data);
-         });
-     }
+    public function WbParteDiarioToArray($lista): Collection|\Illuminate\Support\Collection
+    {
+        return $lista->map(function ($data) {
+            return $this->WbParteDiarioToModel($data);
+        });
+    }
 
-     public function WbParteDiarioToModel($modelo): array
-     {
-        $usuario_creador = $modelo->usuario_creador ? $modelo->usuario_creador->usuario: null;
-        $usuario_creador_nombre = $modelo->usuario_creador ? $modelo->usuario_creador->Nombre ." ".$modelo->usuario_creador->Apellido : null;
-         return [
-             'id_parte_diario' => $modelo->id_parte_diario,
-             'fecha_registro' => $modelo->fecha_registro,
-             'fecha_creacion_registro' => $modelo->fecha_creacion_registro,
-             'fk_equiment_id' => $modelo->equipos ? $modelo->equipos->equiment_id : null,
-             'descripcion_equipo' => $modelo->equipos ? $modelo->equipos->descripcion : null,
-             'contratista' => $modelo->compania ? $modelo->compania->nombreCompañia : null,
-             'tipo_equipo'=>$modelo->tipo_equipo ? $modelo->tipo_equipo->nombre:null,
-             'usuario_creador' => $usuario_creador,
-             'usuario_creador_nombre' => $usuario_creador_nombre,
-             'observacion' => $modelo->observacion,
-             'turno' => $modelo->turno ? $modelo->turno->nombre_turno : null,
-             'horometro_inicial' => $modelo->horometro_inicial,
-             'horometro_final' => $modelo->horometro_final,
-             'operador' => $modelo->operador ? $modelo->operador->nombreCompleto : null,
-             'proyecto' => $modelo->fk_id_project_Company,
-             'total_horas' => $modelo->distribuciones->sum('hr_trabajo'),
-             'horas_interrupcion' => $modelo->distribuciones->where('fk_id_centro_costo')->sum('hr_trabajo'),
-             'horas_trabajadas' => $modelo->distribuciones->where('fk_id_interrupcion')->sum('hr_trabajo'),
-             'listaDistribuciones'=>($modelo->distribuciones)?$this->WbDistribucionesParteDiarioToArray($modelo->distribuciones):null,
+    public function WbParteDiarioToModel($modelo): array
+    {
+        $usuario_creador = $modelo->usuario_creador ? $modelo->usuario_creador->usuario : null;
+        $usuario_creador_nombre = $modelo->usuario_creador ? $modelo->usuario_creador->Nombre . " " . $modelo->usuario_creador->Apellido : null;
+        return [
+            'id_parte_diario' => $modelo->id_parte_diario,
+            'fecha_registro' => $modelo->fecha_registro,
+            'fecha_creacion_registro' => $modelo->fecha_creacion_registro,
+            'fk_equiment_id' => $modelo->equipos ? $modelo->equipos->equiment_id : null,
+            'descripcion_equipo' => $modelo->equipos ? $modelo->equipos->descripcion : null,
+            'contratista' => $modelo->compania ? $modelo->compania->nombreCompañia : null,
+            'tipo_equipo' => $modelo->tipo_equipo ? $modelo->tipo_equipo->nombre : null,
+            'usuario_creador' => $usuario_creador,
+            'usuario_creador_nombre' => $usuario_creador_nombre,
+            'observacion' => $modelo->observacion,
+            'turno' => $modelo->turno ? $modelo->turno->nombre_turno : null,
+            'horometro_inicial' => $modelo->horometro_inicial,
+            'horometro_final' => $modelo->horometro_final,
+            'operador' => $modelo->operador ? $modelo->operador->nombreCompleto : null,
+            'proyecto' => $modelo->fk_id_project_Company,
+            'total_horas' => $modelo->distribuciones->sum('hr_trabajo'),
+            'horas_interrupcion' => $modelo->distribuciones->where('fk_id_centro_costo')->sum('hr_trabajo'),
+            'horas_trabajadas' => $modelo->distribuciones->where('fk_id_interrupcion')->sum('hr_trabajo'),
+            'listaDistribuciones' => ($modelo->distribuciones) ? $this->WbDistribucionesParteDiarioToArray($modelo->distribuciones) : null,
 
-         ];
-     }
+        ];
+    }
 
-     public function WbDistribucionesParteDiarioToArray($lista): Collection|\Illuminate\Support\Collection
-     {
-         return $lista->map(function ($data) {
-             return $this->WbDistribucionesParteDiarioToModel($data);
-         });
-     }
+    public function WbDistribucionesParteDiarioToArray($lista): Collection|\Illuminate\Support\Collection
+    {
+        return $lista->map(function ($data) {
+            return $this->WbDistribucionesParteDiarioToModel($data);
+        });
+    }
 
-     public function WbDistribucionesParteDiarioToModel($modelo): array
-     {
+    public function WbDistribucionesParteDiarioToModel($modelo): array
+    {
         $interrupciones_nombre = $modelo->interrupciones ? $modelo->interrupciones->nombre_interrupcion : null;
         $nombre_centro_costo = $modelo->centro_costo ? $modelo->centro_costo->COCENAME : null;
-        $fk_id_interrupcion=$modelo->fk_id_interrupcion;
-        $fk_id_centro_costo=$modelo->fk_id_centro_costo;
+        $fk_id_interrupcion = $modelo->fk_id_interrupcion;
+        $fk_id_centro_costo = $modelo->fk_id_centro_costo;
         if ($interrupciones_nombre) {
             $distribucion = $interrupciones_nombre;
         } else {
@@ -1923,22 +1920,56 @@ trait Resource
         if ($fk_id_interrupcion) {
             $fk_interrupcion_code = $interrupciones_nombre;
         } else {
-            $fk_interrupcion_code = $fk_id_centro_costo . " - ". $nombre_centro_costo;
+            $fk_interrupcion_code = $fk_id_centro_costo . " - " . $nombre_centro_costo;
         }
-        if($fk_id_interrupcion){
+        if ($fk_id_interrupcion) {
             $concepto = $interrupciones_nombre;
             $distribucion = "";
-        }else{
+        } else {
             $concepto = $fk_id_centro_costo;
         }
-         return [
+        return [
             'distribucion' => $distribucion,
             'id_distribucion_or_cost_code' => $fk_interrupcion_code,
-            'descripcion_trabajo'=>$modelo->descripcion_trabajo,
+            'descripcion_trabajo' => $modelo->descripcion_trabajo,
             'hr_trabajo' => $modelo->hr_trabajo,
             'nombre_interrupcion' => $interrupciones_nombre,
             'nombre_centro_costo' => $nombre_centro_costo,
             'concepto' => $concepto,
-           ];
-     }
+        ];
+    }
+
+
+
+
+
+
+    public function CentrosCostoToArray($lista): Collection|\Illuminate\Support\Collection
+    {
+        return $lista->map(function ($data) {
+            return $this->CentrosCostoToModel($data);
+        });
+    }
+
+    public function CentrosCostoToModel($modelo): array
+    {
+        $distribuible = $modelo->Distribuible == 1 ? __('messages.si') : __('messages.no');
+        return [
+            'id' => $modelo->id,
+            'Codigo' => $modelo->Codigo,
+            'Descripcion' => $modelo->Descripcion,
+            'Observacion' => $modelo->Observacion,
+            'UnidadMedida' => $modelo->UM,
+            'Grupo' => $modelo->Grupo,
+            'Distribuible' => $distribuible,
+            'Estado' => $modelo->Estado,
+            'created_at' => $modelo->created_at,
+            'usuario_creador' => $modelo->usuario ? $modelo->usuario->Nombre . " " . $modelo->usuario->Apellido : null,
+            'updated_at' => $modelo->updated_at,
+            'usuario_actualizacion' => $modelo->fk_user_update,
+            'proyecto' => $modelo->fk_id_project_Company,
+            'fk_compania' => $modelo->fk_compania,
+            'compania' => $modelo->compania ? $modelo->compania->nombreCompañia : null,
+        ];
+    }
 }
