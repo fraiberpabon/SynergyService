@@ -105,16 +105,17 @@ Route::middleware('desencript')->group(function () {
             Route::get('/background', [WbEquipoControlles::class, 'equiposActivos']);
         });
 
-         // conductores
-         Route::prefix('conductores')->controller(WbConductoresController::class)->group(function () {
+        // conductores
+        Route::prefix('conductores')->controller(WbConductoresController::class)->group(function () {
             Route::get('/backgound', 'get');
-         });
+        });
 
         Route::prefix('parte-diario')->controller(InterrupcionesController::class)->group(function () {
             Route::post('/insertar', 'post');
             Route::post('/insertarD', 'postInterrupciones');
             Route::post('/insertar-paquete', 'postArray');
             Route::post('/insertar-paquete-distribuciones', 'postArrayDistribuciones');
+            Route::put('/AnularParteDiarioMobile', 'AnularParteDiarioMobile');
         });
 
         Route::prefix('turnos')->controller(SyTurnosController::class)->group(function () {
@@ -189,10 +190,11 @@ Route::middleware('desencript')->group(function () {
             });
         });
 
-         Route::prefix('parte_diario')->controller(InterrupcionesController::class)->group(function () {
-             Route::get('/getParteDiarioWeb', 'GetParteDiarioWeb');
-             Route::put('/anularParteDiario/{id_parte_diario}', 'AnularParteDiario');
-         });
+        Route::prefix('parte_diario')->controller(InterrupcionesController::class)->group(function () {
+            Route::get('/getParteDiarioWeb', 'GetParteDiarioWeb');
+            Route::put('/anularParteDiario/{id_parte_diario}', 'AnularParteDiario');
+            Route::put('/AnularParteDiarioMobile', 'AnularParteDiarioMobile');
+        });
 
         /*
          * End endpoint para WebuApp
@@ -264,13 +266,16 @@ Route::prefix('')->group(function () {
         Route::get('/confirmarNum', [UsuarioController::class, 'enviarCodigo']);
         Route::get('/confirmarCod', [UsuarioController::class, 'confirmarNumero']);
     });
-
-//    Route::prefix('parte_diario')->controller(InterrupcionesController::class)->group(function () {
-//        Route::get('/getParteDiarioWeb', 'GetParteDiarioWeb');
-//    });
-
-    Route::get('tables', function () {
+    Route::prefix('parte_diario')->controller(InterrupcionesController::class)->group(function () {
+        Route::get('/getParteDiarioWeb', 'GetParteDiarioWeb');
+        Route::put('/anularParteDiario/{id_parte_diario}', 'AnularParteDiario');
+        Route::put('/AnularParteDiarioMobile', 'AnularParteDiarioMobile');
     });
+    //    Route::prefix('parte_diario')->controller(InterrupcionesController::class)->group(function () {
+    //        Route::get('/getParteDiarioWeb', 'GetParteDiarioWeb');
+    //    });
+
+    Route::get('tables', function () {});
     // Route::prefix('parte-diario')->controller(InterrupcionesController::class)->group(function () {
     //     Route::post('/insertar', 'post');
     //     Route::post('/insertarD', 'postInterrupciones');
