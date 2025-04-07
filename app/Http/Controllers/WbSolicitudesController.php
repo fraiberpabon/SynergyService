@@ -1688,7 +1688,7 @@ class WbSolicitudesController extends BaseController implements Vervos
 
         $proy = $this->traitGetProyectoCabecera($req);
 
-        $respMaterial = $this->getListForIdsMaterialV2($listMaterial, $proy);
+        $respMaterial = $this->getListForIdsMaterialV3($listMaterial, $proy);
 
         $respAsfalto = $this->getListForIdsAsfaltoV2($listAsfalto, $proy);
 
@@ -1826,8 +1826,7 @@ class WbSolicitudesController extends BaseController implements Vervos
         }
 
         $estados = array_values($this->estados_soli_material);
-        $query = WbSolicitudMateriales::whereDate('fechaProgramacion', '>=', Carbon::now()->subDays(3)->toDateString())
-            ->whereIn('fk_id_estados', $estados)
+        $query = WbSolicitudMateriales::whereIn('fk_id_estados', $estados)
             ->whereIn('id_solicitud_Materiales', $listAsk)
             ->where('fk_id_project_Company', $proy)->with([
                     'usuario' => function ($sub) {
@@ -1864,7 +1863,7 @@ class WbSolicitudesController extends BaseController implements Vervos
                         $sub->where('Estado', 'A');
                     },
                     'transporte' => function ($sub) {
-                        $sub->with('equipo')->where('estado', 1)->where('tipo_solicitud', 'M')->where('user_created', '!=', 0);
+                        $sub->where('estado', 1)->where('tipo_solicitud', 'M')->where('user_created', '!=', 0);
                     }
                 ])
             ->select(
@@ -1952,13 +1951,11 @@ class WbSolicitudesController extends BaseController implements Vervos
         }
 
         $estados = array_values($this->estados_soli_asfalto);
-        $fecha = Carbon::now()->subDays(3)->toDateString();
         $query = WbSolitudAsfalto::where(function ($q) use ($estados) {
             //$q->where('estado', 'PENDIENTE')
             $q->whereIn('estado', $estados)
                 ->orWhereNull('toneladaReal');
         })
-            ->whereRaw("CAST(LEFT(FechaHoraProgramacion, CHARINDEX(' ', FechaHoraProgramacion + ' ') - 1) as date) >= ?", [$fecha])
             ->whereIn('id_solicitudAsf', $listAsk)
             ->where('fk_id_project_Company', $proy)
             ->with([
@@ -2096,7 +2093,7 @@ class WbSolicitudesController extends BaseController implements Vervos
         $proy = $this->traitGetProyectoCabecera($req);
 
         $respuesta = collect([])
-            ->concat($this->getListForIdsMaterialV2($classifiedList['M'], $proy))
+            ->concat($this->getListForIdsMaterialV3($classifiedList['M'], $proy))
             ->concat($this->getListForIdsAsfaltoV2($classifiedList['A'], $proy))
             ->concat($this->getListForIdsConcreto($classifiedList['C'], $proy));
 
@@ -2111,13 +2108,11 @@ class WbSolicitudesController extends BaseController implements Vervos
         }
 
         $estados = array_values($this->estados_soli_asfalto);
-        $fecha = Carbon::now()->subDays(3)->format('j-n-Y');
         $query = solicitudConcreto::whereIn('estado', $estados)
             ->whereNotNull('fechaProgramacion')
             ->where('fechaProgramacion', '<>', 'N/A')
             ->whereIn('id_solicitud', $listAsk)
             ->where('fk_id_project_Company', $proy)
-            ->whereRaw("CONVERT(DATE, fechaProgramacion, 103) >=  CONVERT(DATE, ?, 103)", [$fecha])
             ->with([
                 'usuario',
                 'plantas',
