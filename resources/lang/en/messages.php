@@ -452,4 +452,8 @@ return [
     'centro_costo_anulado' => 'Cost center anullated',
     'si' => 'Yes',
     'no' => 'Not',
+    'activo' => 'Active',
+    'inactivo' => 'Inactive',
+    'centro_costo_existe' => 'The cost center already exists',
+
 ];

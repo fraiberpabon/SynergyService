@@ -472,5 +472,7 @@ return [
     'si' => 'Si',
     'no' => 'No',
     'centro_costo_existe' => 'El centro de costo ya existe',
+    'activo' => 'Activo',
+    'inactivo' => 'Inactivo',
 
 ];

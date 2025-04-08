@@ -430,6 +430,14 @@ class Wb_PermisosController extends BaseController
         return $this->handleResponse($req, $permisos, __("messages.consultado"));
     }
 
+
+
+
+
+
+
+
+
     public function permisosMenuWeb(Request $req)
     {
         $token = $this->traitGetTokenCabecera($req);

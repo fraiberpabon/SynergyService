@@ -450,4 +450,6 @@ return [
     'centro_costo_anulado' => 'Il centro di costo è stato anullate correttamente',
     'si' => 'Si',
     'no' => 'NO',
+    'activo' => 'Risorsa',
+    'inactivo' => 'Oziare',
 ];

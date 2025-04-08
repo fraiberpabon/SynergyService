@@ -1954,6 +1954,7 @@ trait Resource
     public function CentrosCostoToModel($modelo): array
     {
         $distribuible = $modelo->Distribuible == 1 ? __('messages.si') : __('messages.no');
+        $estado_filtro = $modelo->Estado == 1 ? __('messages.activo') : __('messages.inactivo');
         return [
             'id' => $modelo->id,
             'Codigo' => $modelo->Codigo,
@@ -1963,6 +1964,7 @@ trait Resource
             'Grupo' => $modelo->Grupo,
             'Distribuible' => $distribuible,
             'Estado' => $modelo->Estado,
+            'Estado_filtro' => $estado_filtro,
             'created_at' => $modelo->created_at,
             'usuario_creador' => $modelo->usuario ? $modelo->usuario->Nombre . " " . $modelo->usuario->Apellido : null,
             'updated_at' => $modelo->updated_at,
