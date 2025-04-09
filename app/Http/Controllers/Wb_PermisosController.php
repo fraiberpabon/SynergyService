@@ -6,7 +6,7 @@ use App\Http\Controllers\BaseController as BaseController;
 use App\Http\Resources\Wb_PermisosResource;
 use App\Models\Wb_Seguri_Permiso;
 use App\Models\Roles\WbSeguriRolesPermiso;
-use App\Models\WbUsuarioProyecto;
+use App\Models\Usuarios\WbUsuarioProyecto;
 use App\Models\Usuarios\usuarios_M;
 use App\Models\Roles\WbSeguriRoles;
 use Illuminate\Http\Request;

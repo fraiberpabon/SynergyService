@@ -452,4 +452,5 @@ return [
     'no' => 'NO',
     'activo' => 'Risorsa',
     'inactivo' => 'Oziare',
+    'centro_costo_existe' => 'Il centro di costo esiste già',
 ];
