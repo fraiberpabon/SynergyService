@@ -42,18 +42,18 @@ return new class extends Migration
         DB::statement("
             INSERT INTO wb_costos (id,Codigo, Descripcion, Observacion, UM, Grupo, Distribuible, Estado, fk_user_creador, fk_id_project_Company, fk_compania)
             SELECT
-                COCEIDENTIFICATION, 
-                COSYNCCODE, 
-                COCENAME, 
-                COCEOBSERVATION, 
-                NULL, 
-                NULL, 
-                DISTRIBUTABLE, 
-                COCEENABLED, 
-                60088, 
-                1, 
-                1 
-            FROM SmartAccess.dbo.CNFCOSTCENTER
+                COCEIDENTIFICATION,
+                COSYNCCODE,
+                COCENAME,
+                COCEOBSERVATION,
+                NULL,
+                NULL,
+                DISTRIBUTABLE,
+                COCEENABLED,
+                60088,
+                1,
+                1
+            FROM [10.57.20.9].bdsolicitudes.dbo.CNFCOSTCENTER
             WHERE COSYNCCODE IS NOT NULL
         ");
 
