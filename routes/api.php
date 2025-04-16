@@ -278,6 +278,12 @@ Route::prefix('')->group(function () {
         Route::put('/AnularParteDiarioMobile', 'AnularParteDiarioMobile');
     });
 
+
+    Route::prefix('equipos')->group(function () {
+        Route::get('/', [WbEquipoControlles::class, 'equiposActivos']);
+        Route::get('/estado', [WbEquipoEstadoController::class, 'getActivosForProject']);
+    });
+
     // Route::prefix('cost-center')->controller(CostCenterController::class)->group(function () {
     //     Route::get('/getCentroCostoMobile', 'getCostCenterMobile');
     //     Route::put('/anularCentroCosto', 'AnularCentroCosto');

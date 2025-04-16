@@ -1,9 +1,12 @@
 <?php
 
 namespace App\Models\ParteDiario;
+
 use App\Models\CnfCostCenter;
+use App\Models\WbCostos\WbCostos;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+
 class WbDistribucionesParteDiario extends Model
 {
     use HasFactory;
@@ -23,6 +26,9 @@ class WbDistribucionesParteDiario extends Model
     public function centro_costo()
     {
         return $this->hasOne(
-            CnfCostCenter::class,'COSYNCCODE','fk_id_centro_costo');
+            WbCostos::class,
+            'Codigo',
+            'fk_id_centro_costo'
+        );
     }
 }

@@ -27,9 +27,7 @@ class WbEquipoControlles extends BaseController implements Vervos
      * Ademas de la funciones se valida si esta en proyecto 1 para actualizar la
      * tabla de TimeScan.
      */
-    public function post(Request $req)
-    {
-    }
+    public function post(Request $req) {}
 
     /**
      * Funcion de update no tocar por la interface de vervos
@@ -50,9 +48,7 @@ class WbEquipoControlles extends BaseController implements Vervos
     /**
      * Funcion de get no tocar por la interface de vervos
      */
-    public function get(Request $request)
-    {
-    }
+    public function get(Request $request) {}
 
     /**
      * Aqui procedemos a cambiar el estado del equipo de activo a inactivo
@@ -62,9 +58,7 @@ class WbEquipoControlles extends BaseController implements Vervos
      * con sus respectivos mensajes y luego guardamos el usuario que lo edito y guardamos el estado
      * y en el caso de que sea 1 el proyecto guardamos en timescan
      */
-    public function CambiarEstado(Request $request, $equipo)
-    {
-    }
+    public function CambiarEstado(Request $request, $equipo) {}
 
     /**
      * Aqui se encuentra la funcion de equipo viajes para bascula la cual
@@ -141,36 +135,37 @@ class WbEquipoControlles extends BaseController implements Vervos
         try {
             $proyecto = $this->traitGetProyectoCabecera($request);
             $consulta = WbEquipo::where('estado', '!=', 'I')
-            ->with([
-                'tipo_equipo' => function ($query) {
-                    $query->select('id_tipo_equipo', 'nombre');
-                },
-                'vehiculos_pesos' => function ($query) {
-                    $query->select('vehiculo', 'peso');
-                },
-                'compania' => function ($query) {
-                    $query->select('id_compañia', 'nombreCompañia');
-                },
-                'horometros' => function ($query) {
-                    $query->select('id_equipos_horometros_ubicaciones', 'fk_id_equipo', 'horometro', 'fecha_registro');
-                },
-                'parte_diario',
-                // 'parte_diario' => function ($query) {
-                //     $query->select('id_parte_diario','fecha_registro','fecha_creacion_registro','horometro_final','fk_equiment_id');
-                // },
-                'ubicacion' => function ($query) use ($proyecto) {
-                    $query->select('id_equipos_horometros_ubicaciones', 'fk_id_equipo', 'fk_id_tramo', 'fk_id_hito', 'fecha_registro')
-                        ->with([
-                            'tramo' => function ($query) use ($proyecto) {
-                                $query->select('id', 'Id_Tramo', 'Descripcion', 'fk_id_project_Company')->where('fk_id_project_Company', $proyecto);
-                            },
-                            'hito' => function ($query) use ($proyecto) {
-                                $query->select('id', 'Id_Hitos', 'Descripcion', 'fk_id_project_Company')->where('fk_id_project_Company', $proyecto);
-                            }
-                        ]);
-                }
-            ])  
-            ->select(
+                ->with([
+                    'tipo_equipo' => function ($query) {
+                        $query->select('id_tipo_equipo', 'nombre', 'horometro', 'kilometraje');
+                    },
+                    'vehiculos_pesos' => function ($query) {
+                        $query->select('vehiculo', 'peso');
+                    },
+                    'compania' => function ($query) {
+                        $query->select('id_compañia', 'nombreCompañia');
+                    },
+                    'horometros' => function ($query) {
+                        $query->select('id_equipos_horometros_ubicaciones', 'fk_id_equipo', 'horometro', 'fecha_registro');
+                    },
+                    'parte_diario',
+                    'parte_diario_kilometraje',
+                    // 'parte_diario' => function ($query) {
+                    //     $query->select('id_parte_diario','fecha_registro','fecha_creacion_registro','horometro_final','fk_equiment_id');
+                    // },
+                    'ubicacion' => function ($query) use ($proyecto) {
+                        $query->select('id_equipos_horometros_ubicaciones', 'fk_id_equipo', 'fk_id_tramo', 'fk_id_hito', 'fecha_registro')
+                            ->with([
+                                'tramo' => function ($query) use ($proyecto) {
+                                    $query->select('id', 'Id_Tramo', 'Descripcion', 'fk_id_project_Company')->where('fk_id_project_Company', $proyecto);
+                                },
+                                'hito' => function ($query) use ($proyecto) {
+                                    $query->select('id', 'Id_Hitos', 'Descripcion', 'fk_id_project_Company')->where('fk_id_project_Company', $proyecto);
+                                }
+                            ]);
+                    }
+                ])
+                ->select(
                     'id',
                     'equiment_id',
                     'descripcion',
@@ -251,11 +246,11 @@ class WbEquipoControlles extends BaseController implements Vervos
                     'fk_id_project_Company'
                 )->first();
 
-                if ($consulta == null) {
-                    return null;
-                }
+            if ($consulta == null) {
+                return null;
+            }
 
-                return $this->equipoToModel($consulta);
+            return $this->equipoToModel($consulta);
         } catch (\Throwable $th) {
             //return $this->handleAlert('findForId equipo: ' . $th->getMessage());
             \Log::error('findForId equipo: ' . $th->getMessage());

@@ -118,6 +118,54 @@ trait Resource
     }
     public function equipoToModel($modelo): array
     {
+        $horometroData = $this->getHorometroData($modelo);
+        $kilometrajeData = $this->getHKilometrajeData($modelo);
+        return [
+            'identificador' => $modelo->id,
+            'equipo' => $modelo->equiment_id,
+            'descripcion' => $modelo->descripcion,
+            'cubicaje' => $modelo->cubicaje,
+            'marca' => $modelo->marca,
+            'modelo' => $modelo->modelo,
+            'placa' => $modelo->placa,
+            'dueno' => $modelo->dueno,
+            'estado' => $modelo->estado,
+            'peso' => $modelo->vehiculos_pesos ? $modelo->vehiculos_pesos->peso : null,
+            'compania' => $modelo->fk_compania,
+            'companiaNombre' => $modelo->compania ? $modelo->compania->nombreCompañia : null,
+            'nombreTipoEquipo' => $modelo->tipo_equipo ? $modelo->tipo_equipo->nombre : null,
+            'es_kilometraje' => $modelo->tipo_equipo ? $modelo->tipo_equipo->kilometraje : 0,
+            'es_horometro' => $modelo->tipo_equipo ? $modelo->tipo_equipo->horometro : 0,
+            'tipoEquipo' => $modelo->fk_id_tipo_equipo,
+            'tipocontrato' => $modelo->tipocontrato,
+            'codigoExterno' => $modelo->codigo_externo,
+            'horometro' => $horometroData['horometro'],
+            'fechaHorometro' => $horometroData['fechaHorometro'],
+            'kilometraje' => $kilometrajeData['kilometraje'],
+            'fechaKilometraje' => $kilometrajeData['fechaKilometraje'],
+            'ubicacionTramo' => $modelo->ubicacion ?
+                ($modelo->ubicacion->tramo ?
+                    $modelo->ubicacion->tramo->Id_Tramo . ($modelo->ubicacion->tramo->Descripcion ?
+                        ' - ' . $modelo->ubicacion->tramo->Descripcion : '')
+                    : null)
+                : null,
+            'ubicacionHito' => $modelo->ubicacion ?
+                ($modelo->ubicacion->hito ?
+                    $modelo->ubicacion->hito->Id_Hitos . ($modelo->ubicacion->hito->Descripcion ?
+                        ' - ' . $modelo->ubicacion->hito->Descripcion : '')
+                    : null)
+                : null,
+            'fechaUbicacion' => $modelo->ubicacion ? $modelo->ubicacion->fecha_registro : null,
+            'proyecto' => $modelo->fk_id_project_Company,
+        ];
+    }
+
+
+    /**
+     * Funcion para extraer el ultimo horometro y la fecha de registro
+     */
+    protected function getHorometroData($modelo): array
+    {
         // Obtener fechas y horómetros de las relaciones
         $parte_diario_fecha = $modelo->parte_diario ? $modelo->parte_diario->fecha_registro : null;
         $parte_diario_horometro = $modelo->parte_diario ? $modelo->parte_diario->horometro_final : null;
@@ -128,8 +176,8 @@ trait Resource
 
         // Inicializar variables
         $horometro = $modelo->horometro_inicial; // Valor por defecto
-
         $fechaHorometro = null;
+
         // Determinar el horómetro y la fecha según la lógica
         if ($parte_diario_fecha && $horometro_fecha) {
             // Comparar fechas
@@ -170,45 +218,33 @@ trait Resource
         if ($fechaHorometro) {
             $fechaHorometro = Carbon::parse($fechaHorometro)->format('Y-m-d H:i:s');
         }
-        // } else {
-        //     $fechaHorometro = Carbon::now()->format('Y-m-d 00:00:00'); // Si no hay fecha, usar la fecha actual con hora 00:00:00
-        // }
 
         return [
-            'identificador' => $modelo->id,
-            'equipo' => $modelo->equiment_id,
-            'descripcion' => $modelo->descripcion,
-            'cubicaje' => $modelo->cubicaje,
-            'marca' => $modelo->marca,
-            'modelo' => $modelo->modelo,
-            'placa' => $modelo->placa,
-            'dueno' => $modelo->dueno,
-            'estado' => $modelo->estado,
-            'peso' => $modelo->vehiculos_pesos ? $modelo->vehiculos_pesos->peso : null,
-            'compania' => $modelo->fk_compania,
-            'companiaNombre' => $modelo->compania ? $modelo->compania->nombreCompañia : null,
-            'nombreTipoEquipo' => $modelo->tipo_equipo ? $modelo->tipo_equipo->nombre : null,
-            'tipoEquipo' => $modelo->fk_id_tipo_equipo,
-            'tipocontrato' => $modelo->tipocontrato,
-            'codigoExterno' => $modelo->codigo_externo,
             'horometro' => $horometro,
             'fechaHorometro' => $fechaHorometro,
-            'ubicacionTramo' => $modelo->ubicacion ?
-                ($modelo->ubicacion->tramo ?
-                    $modelo->ubicacion->tramo->Id_Tramo . ($modelo->ubicacion->tramo->Descripcion ?
-                        ' - ' . $modelo->ubicacion->tramo->Descripcion : '')
-                    : null)
-                : null,
-            'ubicacionHito' => $modelo->ubicacion ?
-                ($modelo->ubicacion->hito ?
-                    $modelo->ubicacion->hito->Id_Hitos . ($modelo->ubicacion->hito->Descripcion ?
-                        ' - ' . $modelo->ubicacion->hito->Descripcion : '')
-                    : null)
-                : null,
-            'fechaUbicacion' => $modelo->ubicacion ? $modelo->ubicacion->fecha_registro : null,
-            'proyecto' => $modelo->fk_id_project_Company,
         ];
     }
+
+    /*
+Funcion para extraer el ultimo kilometraje y la fecha del registro
+*/
+    protected function getHKilometrajeData($modelo): array
+    {
+        // Si no hay parte_diario, devuelve null en ambos campos
+        if (!$modelo->parte_diario_kilometraje) {
+            return [
+                'kilometraje' => null,
+                'fechaKilometraje' => null
+            ];
+        }
+        return [
+            'kilometraje' => $modelo->parte_diario_kilometraje->kilometraje_final,
+            'fechaKilometraje' => $modelo->parte_diario_kilometraje->fecha_registro = Carbon::parse($modelo->parte_diario_kilometraje->fecha_registro)->format('Y-m-d H:i:s')
+        ];
+    }
+
+
+
 
     public function tipoEquipoToArray($lista): Collection|\Illuminate\Support\Collection
     {
@@ -1909,7 +1945,7 @@ trait Resource
     public function WbDistribucionesParteDiarioToModel($modelo): array
     {
         $interrupciones_nombre = $modelo->interrupciones ? $modelo->interrupciones->nombre_interrupcion : null;
-        $nombre_centro_costo = $modelo->centro_costo ? $modelo->centro_costo->COCENAME : null;
+        $nombre_centro_costo = $modelo->centro_costo ? $modelo->centro_costo->Descripcion : null;
         $fk_id_interrupcion = $modelo->fk_id_interrupcion;
         $fk_id_centro_costo = $modelo->fk_id_centro_costo;
         if ($interrupciones_nombre) {

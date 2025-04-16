@@ -24,8 +24,10 @@ class InterrupcionesController extends BaseController implements Vervos
                 'fk_equipo_id' => 'required|string',
                 'observacion' => 'nullable',
                 'fk_turno' => 'required|string',
-                'horometro_inicial' => 'required|string',
-                'horometro_final' => 'required|string',
+                'horometro_inicial' => 'nullable',
+                'horometro_final' => 'nullable',
+                'kilometraje_inicial' => 'nullable',
+                'kilometraje_final' => 'nullable',
                 'matricula_operador' => 'required|string',
                 'hash' => 'required|string',
                 'estado' => 'required|string',
@@ -60,6 +62,8 @@ class InterrupcionesController extends BaseController implements Vervos
             $model->hash = $req->hash ? $req->hash : null;
             $model->fk_id_user_created = $req->usuario ? $req->usuario : null;
             $model->fk_id_user_updated = $req->usuario_actualizacion ? $req->usuario_actualizacion : null;
+            $model->kilometraje_inicial = $req->kilometraje_inicial ? $req->kilometraje_inicial : null;
+            $model->kilometraje_final = $req->kilometraje_final ? $req->kilometraje_final : null;
             $model->fk_id_project_Company = $req->proyecto ? $req->proyecto : null;
             $model->estado = 1;
             if (!$model->save()) {
@@ -162,8 +166,10 @@ class InterrupcionesController extends BaseController implements Vervos
                         'fk_equipo_id' => 'required|string',
                         'observacion' => 'nullable',
                         'fk_turno' => 'required|string',
-                        'horometro_inicial' => 'required|string',
-                        'horometro_final' => 'required|string',
+                        'horometro_inicial' => 'nullable',
+                        'horometro_final' => 'nullable',
+                        'kilometraje_inicial' => 'nullable',
+                        'kilometraje_final' => 'nullable',
                         'matricula_operador' => 'required|string',
                         'hash' => 'required|string',
                         'estado' => 'required|string',
@@ -202,6 +208,8 @@ class InterrupcionesController extends BaseController implements Vervos
                         $model_parte_diario->fk_id_seguridad_sitio_turno = $info['fk_turno'] ?? null;
                         $model_parte_diario->horometro_inicial = $info['horometro_inicial'] ?? null;
                         $model_parte_diario->horometro_final = $info['horometro_final'] ?? null;
+                        $model_parte_diario->kilometraje_inicial = $info['kilometraje_inicial'] ?? null;
+                        $model_parte_diario->kilometraje_final = $info['kilometraje_final'] ?? null;
                         $model_parte_diario->estado = 1;
                         $model_parte_diario->fk_id_project_Company = $info['proyecto'] ?? null;
                         $model_parte_diario->fk_matricula_operador = $info['matricula_operador'] ?? null;
