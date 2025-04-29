@@ -436,7 +436,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
         //$model->id_equipos_horometros_ubicaciones = $info['identificador'];
         $model->tipo = isset($info['tipo']) ? $info['tipo'] : null;
         $model->ticket = isset($info['numero_vale']) ? $info['numero_vale'] : null;
-        $model->fk_id_solicitud = isset($info['solicitud_id']) ? $info['solicitud_id'] : null;
+        $model->fk_id_solicitud = isset($info['solicitud_id']) ? trim($info['solicitud_id']) : null;
         $model->fk_id_planta_origen = isset($info['origen_planta_id']) ? $info['origen_planta_id'] : null;
 
         $model->fk_id_tramo_origen = isset($info['origen_tramo_id']) ? $info['origen_tramo_id'] : null;

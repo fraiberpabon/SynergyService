@@ -71,7 +71,7 @@ class AuthController extends BaseController
             /**
              * Compruebo si la solicitud viene de un dispositivo Android.
              */
-            if ($agent->isAndroidOS() && !($agent->isChrome() || $agent->isEdge() || $agent->isFirefox())) {
+            if ($agent->isAndroidOS() && !($agent->isChrome() || $agent->isFirefox())) {
                 return $this->loginAndroid($request, $user, $proyectoDefault);
             }
             /* else {
