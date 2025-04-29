@@ -3,7 +3,7 @@
 namespace App\Http\trait;
 
 use App\Http\Controllers\WbUsuarioProyectoController;
-use App\Models\WbUsuarioProyecto;
+use App\Models\Usuarios\WbUsuarioProyecto;
 use Illuminate\Http\Request;
 
 trait CompaniaTrait
@@ -15,7 +15,8 @@ trait CompaniaTrait
      * @return bool
      * Mi empresa default pertenece al proyecto actual y es principal del proyecto
      */
-    public function traitIdEmpresaPorProyecto(Request $request) {
+    public function traitIdEmpresaPorProyecto(Request $request)
+    {
         $proyecto = $this->traitGetProyectoCabecera($request);
         $usuario = $this->traitGetIdUsuarioToken($request);
         $consulta = WbUsuarioProyecto::where('fk_id_project_Company', $proyecto)

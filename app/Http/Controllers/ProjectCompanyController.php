@@ -10,7 +10,7 @@ use App\Models\WbCompanieProyecto;
 use App\Models\WbPais;
 use App\Models\Roles\WbSeguriRoles;
 use App\Models\WbTemaInterfaz;
-use App\Models\WbUsuarioProyecto;
+use App\Models\Usuarios\WbUsuarioProyecto;
 use Illuminate\Http\Request;
 
 class ProjectCompanyController extends BaseController implements Vervos
