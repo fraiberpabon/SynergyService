@@ -521,9 +521,6 @@ class InterrupcionesController extends BaseController implements Vervos
                 'parte_diario' => collect(),
                 'distribuciones' => collect()
             ];
-
-
-
             $partesDiarios = $request->input('partes_diarios');
             // Si es un string, decodificarlo
             if (is_string($partesDiarios)) {
@@ -618,5 +615,72 @@ class InterrupcionesController extends BaseController implements Vervos
             \Log::error('Error general en anulación: ' . $e->getMessage());
             return $this->handleAlert($e->getMessage());
         }
+    }
+
+
+
+    public function editarParteDiario(Request $request)
+    {
+        $idParteDiario = $request->idParteDiario;
+        $usuarioActualizacion = $this->traitGetIdUsuarioToken($request);
+        $fechaActualizacion = $this->traitGetDateNow($request);
+        $validacion = $request->validate([
+            'idParteDiario' => 'required|string',
+            'fechaRegistro' => 'required|date',
+            'fkEquipo' => 'required|string',
+            'observacion' => 'nullable',
+            'horoIni' => 'nullable',
+            'horoFin' => 'nullable',
+            'operador' => 'required|string',
+            'kiloIni' => 'nullable',
+            'kiloFin' => 'nullable'
+        ]);
+
+        $parteDiario = WbParteDiario::where('id_parte_diario', $idParteDiario)->first();
+        if (!$parteDiario) {
+            return $this->handleAlert('No se encontró el parte diario', false);
+        } else {
+            $parteDiario->fecha_registro = $validacion['fechaRegistro'];
+            $parteDiario->fecha_creacion_registro = $fechaActualizacion;
+            $parteDiario->fk_equiment_id = $validacion['fkEquipo'];
+            $parteDiario->observacion = $validacion['observacion'];
+            $parteDiario->horometro_inicial = $validacion['horoIni'];
+            $parteDiario->horometro_final = $validacion['horoFin'];
+            $parteDiario->fk_matricula_operador = $validacion['operador'];
+            $parteDiario->fk_id_user_updated = $usuarioActualizacion;
+            $parteDiario->updated_at = $fechaActualizacion;
+            $parteDiario->kilometraje_inicial = $validacion['kiloIni'];
+            $parteDiario->kilometraje_final = $validacion['kiloFin'];
+            $parteDiario->save();
+        }
+        $validacionDistribuciones = $request->validate([
+            'distribuciones' => 'required|array',
+            'distribuciones.*.id_distribuciones' => 'required|integer',
+            'distribuciones.*.fkIdCentroCosto' => 'nullable',
+            'distribuciones.*.descripcionTrabajo' => 'nullable|string',
+            'distribuciones.*.hrTrabajo' => 'required|numeric',
+            'distribuciones.*.fkInterrupcion' => 'nullable'
+        ]);
+
+        // Procesar cada distribución individualmente
+        foreach ($validacionDistribuciones['distribuciones'] as $distribucionData) {
+            $distribucion = WbDistribucionesParteDiario::findOrFail($distribucionData['id_distribuciones']);
+            if ($distribucion->fk_id_parte_diario != $idParteDiario) {
+                continue;
+            }
+            // Actualizar la distribución
+            $distribucion->fk_id_centro_costo = $distribucionData['fkIdCentroCosto'];
+            $distribucion->descripcion_trabajo = $distribucionData['descripcionTrabajo'];
+            $distribucion->hr_trabajo = $distribucionData['hrTrabajo'];
+            $distribucion->fk_id_interrupcion = $distribucionData['fkInterrupcion'];
+            $distribucion->fk_id_user_updated = $usuarioActualizacion;
+            $distribucion->updated_at = $fechaActualizacion;
+            $distribucion->save();
+        }
+
+        return $this->handleResponse($request, [
+            'parteDiario' => $parteDiario,
+            'distribuciones' => WbDistribucionesParteDiario::where('fk_id_parte_diario', $idParteDiario)->get()
+        ], __('messages.registro_exitoso'));
     }
 }

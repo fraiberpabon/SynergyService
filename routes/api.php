@@ -211,6 +211,14 @@ Route::middleware('desencript')->group(function () {
             Route::post('/crear', 'postCentroCosto');
             Route::put('/actualizar', 'updateCentroCosto');
         });
+
+
+        Route::prefix('parte_diario')->controller(InterrupcionesController::class)->group(function () {
+            Route::get('/getParteDiarioWeb', 'GetParteDiarioWeb');
+            Route::put('/anularParteDiario/{id_parte_diario}', 'AnularParteDiario');
+            Route::put('/AnularParteDiarioMobile', 'AnularParteDiarioMobile');
+            Route::put('/editar', 'editarParteDiario');
+        });
         /*
          * End endpoint para la pagina web
          */
@@ -272,11 +280,12 @@ Route::prefix('')->group(function () {
         Route::get('/confirmarNum', [UsuarioController::class, 'enviarCodigo']);
         Route::get('/confirmarCod', [UsuarioController::class, 'confirmarNumero']);
     });
-    Route::prefix('parte_diario')->controller(InterrupcionesController::class)->group(function () {
-        Route::get('/getParteDiarioWeb', 'GetParteDiarioWeb');
-        Route::put('/anularParteDiario/{id_parte_diario}', 'AnularParteDiario');
-        Route::put('/AnularParteDiarioMobile', 'AnularParteDiarioMobile');
-    });
+    // Route::prefix('parte_diario')->controller(InterrupcionesController::class)->group(function () {
+    //     Route::get('/getParteDiarioWeb', 'GetParteDiarioWeb');
+    //     Route::put('/anularParteDiario/{id_parte_diario}', 'AnularParteDiario');
+    //     Route::put('/AnularParteDiarioMobile', 'AnularParteDiarioMobile');
+    //     Route::put('/editar', 'editarParteDiario');
+    // });
 
 
     Route::prefix('equipos')->group(function () {
@@ -284,15 +293,7 @@ Route::prefix('')->group(function () {
         Route::get('/estado', [WbEquipoEstadoController::class, 'getActivosForProject']);
     });
 
-    // Route::prefix('cost-center')->controller(CostCenterController::class)->group(function () {
-    //     Route::get('/getCentroCostoMobile', 'getCostCenterMobile');
-    //     Route::put('/anularCentroCosto', 'AnularCentroCosto');
-    //     Route::post('/crear', 'postCentroCosto');
-    //     Route::put('/actualizar', 'updateCentroCosto');
-    // });
-    //    Route::prefix('parte_diario')->controller(InterrupcionesController::class)->group(function () {
-    //        Route::get('/getParteDiarioWeb', 'GetParteDiarioWeb');
-    //    });
+
 
     Route::get('tables', function () {});
     // Route::prefix('parte-diario')->controller(InterrupcionesController::class)->group(function () {
