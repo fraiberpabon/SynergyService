@@ -1646,6 +1646,14 @@ class WbSolicitudesController extends BaseController implements Vervos
                     ->orWhereNull('toneladaReal');
             }) */
             ->whereRaw("CONVERT(DATE, fechaProgramacion, 103) >=  CONVERT(DATE, ?, 103)", [$fecha])
+            ->whereHas('liberaciones', function ($sub) {
+                $sub->whereRaw('ISNUMERIC(liberaciones.firmaLaboratorio)=1')
+                ->whereRaw('ISNUMERIC(liberaciones.firmaAmbiental)=1')
+                ->whereRaw('ISNUMERIC(liberaciones.firmaCalidad)=1')
+                ->whereRaw('ISNUMERIC(liberaciones.firmaProduccion)=1')
+                ->whereRaw('ISNUMERIC(liberaciones.firmaSST)=1')
+                ->whereRaw('ISNUMERIC(liberaciones.firmaTopografia)=1');
+            })
             ->with([
                 'usuario',
                 'plantas',
@@ -1653,7 +1661,8 @@ class WbSolicitudesController extends BaseController implements Vervos
                 'cost_code',
                 'transporte' => function ($sub) {
                     $sub->where('estado', 1)->where('tipo_solicitud', 'C')->where('user_created', '!=', 0);
-                }
+                },
+                'liberaciones'
             ])
             ->select(
                 'id_solicitud as identificador',
