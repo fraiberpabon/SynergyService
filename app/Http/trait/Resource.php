@@ -1925,6 +1925,8 @@ Funcion para extraer el ultimo kilometraje y la fecha del registro
             'turno' => $modelo->turno ? $modelo->turno->nombre_turno : null,
             'horometro_inicial' => $modelo->horometro_inicial,
             'horometro_final' => $modelo->horometro_final,
+            'kilometraje_inicial' => $modelo->horometro_inicial,
+            'kilometraje_final' => $modelo->horometro_final,
             'operador' => $modelo->operador ? $modelo->operador->nombreCompleto : null,
             'proyecto' => $modelo->fk_id_project_Company,
             'total_horas' => $modelo->distribuciones->sum('hr_trabajo'),

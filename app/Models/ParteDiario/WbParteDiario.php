@@ -11,21 +11,33 @@ use App\Models\Usuarios\usuarios_M;
 use App\Models\WbCompanieProyecto;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-class WbParteDiario extends Model
+class WbParteDiario extends Model implements Auditable
 {
     use HasFactory;
-
+    use \OwenIt\Auditing\Auditable;
     protected $connection = 'sqlsrv3';
     protected $table = 'Sy_Parte_diario';
     protected $primaryKey = 'id_parte_diario';
     public $incrementing = true;
     public $timestamps = true;
     protected $dateFormat = 'd-m-Y H:i:s.v'; //activar solo en servidor 3
-
+    public $module = 'wbParteDiario';
 
     public function usuario_creador()
     {
         return $this->hasOne(usuarios_M::class, 'id_usuarios', 'fk_id_user_created');
+    }
+
+    public function getTable()
+    {
+        return $this->table;
+    }
+
+    public function generateTags(): array
+    {
+        return [
+            $this->module
+        ];
     }
 
 
@@ -46,8 +58,41 @@ class WbParteDiario extends Model
 
     public function distribuciones()
     {
-        return $this->hasMany(WbDistribucionesParteDiario::class, 'fk_id_parte_diario', 'id_parte_diario');
+        return $this->hasMany(WbDistribucionesParteDiario::class, 'fk_id_parte_diario', 'id_parte_diario')
+            ->where('estado', 1);
     }
+
+
+     public function distribucionesGroupByFkIdInterrupcion()
+    {
+        return $this->hasMany(WbDistribucionesParteDiario::class, 'fk_id_parte_diario', 'id_parte_diario')
+        ->where('estado', 1)
+        ->whereNotNull('fk_id_interrupcion')
+        ->select(
+                'fk_id_parte_diario',
+                'fk_id_interrupcion',
+                DB::raw('SUM(hr_trabajo) as hr_trabajo')
+            )
+          ->groupBy(['fk_id_parte_diario', 'fk_id_interrupcion']);
+
+    }
+
+
+     public function distribucionesGroupByFkCentroCosto()
+    {
+        return $this->hasMany(WbDistribucionesParteDiario::class, 'fk_id_parte_diario', 'id_parte_diario')
+        ->where('estado', 1)
+        ->whereNotNull('fk_id_centro_costo')
+        ->select(
+                'fk_id_parte_diario',
+                'fk_id_centro_costo',
+                'descripcion_trabajo',
+                DB::raw('SUM(hr_trabajo) as hr_trabajo')
+            )
+          ->groupBy(['fk_id_parte_diario', 'descripcion_trabajo', 'fk_id_centro_costo']);
+    }
+
+
 
     public function compania()
     {
@@ -63,6 +108,8 @@ class WbParteDiario extends Model
 
 
 
+
+
     public function tipo_equipo()
     {
         return $this->hasOneThrough(
@@ -74,5 +121,5 @@ class WbParteDiario extends Model
             'fk_id_tipo_equipo' // Clave foránea en el modelo intermedio (WbEquipo)
         );
     }
-
 }
+

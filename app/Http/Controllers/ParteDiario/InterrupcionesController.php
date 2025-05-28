@@ -431,36 +431,55 @@ class InterrupcionesController extends BaseController implements Vervos
     Obtener la lista de parte diario con sus respectivas
      * distribuciones
      */
+
     public function GetParteDiarioWeb(Request $request)
-    {
-        try {
+{
+    try {
             $proyecto = $this->traitGetProyectoCabecera($request);
-            $ids = WbParteDiario::where('fk_id_project_Company', $proyecto)
-                ->where('estado', 1)
-                ->get('id_parte_diario');
-            $resultados = collect();
-            $ids->chunk(2000)->each(function ($chunk) use (&$resultados) {
-                $consulta = WbParteDiario::wherein('id_parte_diario', $chunk)
-                    ->with([
-                        'usuario_creador',
-                        'equipos',
-                        'turno',
-                        'operador',
-                        'distribuciones',
-                        'compania',
-                        'tipo_equipo'
-                    ])->get();
-                $resultados = $resultados->merge($consulta);
-            });
-            //$resultados = $consulta->get();
-            $limitePaginas = 0;
-            $sorted = $resultados->sortByDesc('id_parte_diario');
-            return $this->handleResponse($request, $this->WbParteDiarioToArray($sorted->values()), __('messages.consultado'), $limitePaginas);
-        } catch (Exception $e) {
-            \Log::error('error al obtener parte diario ' . $e->getMessage());
-            return $this->handleAlert(__('messages.error_servicio'));
-        }
+            $resultado = WbParteDiario:: where('fk_id_project_Company', $proyecto)
+            ->where('estado', 1)
+            ->orderBy('id_parte_diario', 'desc')
+            ->select('id_parte_diario',
+            'fecha_registro',
+            'fk_equiment_id',
+            'observacion',
+            'fk_id_seguridad_sitio_turno',
+            'horometro_inicial',
+            'horometro_final',
+            'kilometraje_inicial',
+            'kilometraje_final',
+            'fk_matricula_operador',
+            'fk_id_user_created')
+            ->with([
+                'usuario_creador' => function($query) {
+                    $query->select('Nombre', 'Apellido', 'id_usuarios');
+                },
+                'equipos'=>function($query){
+                    $query->select('equiment_id','descripcion','horometro_inicial','id','fk_id_tipo_equipo','fk_compania');
+                },
+                'turno'=>function($query){
+                    $query->select('id_turnos','nombre_turno','horas_turno');
+                },
+                'operador'=>function($query){
+                    $query->select('id','dni','nombreCompleto');
+                },
+                'distribuciones'=>function($query){
+                    $query->with('centro_costo','interrupciones')->select('id_distribuciones','fk_id_parte_diario','fk_id_centro_costo','descripcion_trabajo','hr_trabajo','fk_id_interrupcion','fk_id_user_created','fk_id_user_updated');
+                },
+                'compania'=>function($query){
+                    $query->select('id_compañia','nombreCompañia');
+                },
+                'tipo_equipo'=>function($query){
+                    $query->select('id_tipo_equipo','nombre');
+                }
+            ])->get();
+        return $this->handleResponse($request, $this->WbParteDiarioToArray($resultado), __('messages.consultado'), 0);
+    } catch (Exception $e) {
+        Log::error('Error al obtener parte diario: ' . $e->getMessage());
+        return $this->handleAlert(__('messages.error_servicio'));
     }
+}
+
 
     /**
      * Anular parte diario con sus respectivas distribuciones
@@ -510,7 +529,7 @@ class InterrupcionesController extends BaseController implements Vervos
     /**
      * Funcion que recibe un array de id_parte_diarios con su respectivo hash
      * al encontrar dicho registro se procede anular el parte diario con sus respectivas distribuciones,
-     * ir devolviendo uno a uno la respuesta si se anulo correctamente con esto procedemos 
+     * ir devolviendo uno a uno la respuesta si se anulo correctamente con esto procedemos
      * eliminar del telefono el parte diario que se encuentra anulado en el servidor
      */
 
