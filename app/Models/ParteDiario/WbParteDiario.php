@@ -11,6 +11,7 @@ use App\Models\Usuarios\usuarios_M;
 use App\Models\WbCompanieProyecto;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable;
 class WbParteDiario extends Model implements Auditable
 {
     use HasFactory;
