@@ -116,7 +116,7 @@ trait Resource
             return $this->equipoToModel($data);
         });
     }
-    public function equipoToModel($modelo): array
+   public function equipoToModel($modelo): array
     {
         $horometroData = $this->getHorometroData($modelo);
         $kilometrajeData = $this->getHKilometrajeData($modelo);
@@ -139,9 +139,9 @@ trait Resource
             'tipoEquipo' => $modelo->fk_id_tipo_equipo,
             'tipocontrato' => $modelo->tipocontrato,
             'codigoExterno' => $modelo->codigo_externo,
-            'horometro' => $horometroData['horometro'],
+            'horometro' => isset($horometroData['horometro']) ? intval($horometroData['horometro']) : 0,
             'fechaHorometro' => $horometroData['fechaHorometro'],
-            'kilometraje' => $kilometrajeData['kilometraje'],
+            'kilometraje' => isset($kilometrajeData['kilometraje']) ? intval($kilometrajeData['kilometraje']) :0,
             'fechaKilometraje' => $kilometrajeData['fechaKilometraje'],
             'ubicacionTramo' => $modelo->ubicacion ?
                 ($modelo->ubicacion->tramo ?
