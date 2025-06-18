@@ -130,7 +130,7 @@ trait Resource
             'placa' => $modelo->placa,
             'dueno' => $modelo->dueno,
             'estado' => $modelo->estado,
-            'peso' => $modelo->vehiculos_pesos ? $modelo->vehiculos_pesos->peso : null,
+            'peso' => $modelo->peso ? $modelo->peso : ($modelo->vehiculos_pesos ? $modelo->vehiculos_pesos->peso : null),
             'compania' => $modelo->fk_compania,
             'companiaNombre' => $modelo->compania ? $modelo->compania->nombreCompañia : null,
             'nombreTipoEquipo' => $modelo->tipo_equipo ? $modelo->tipo_equipo->nombre : null,

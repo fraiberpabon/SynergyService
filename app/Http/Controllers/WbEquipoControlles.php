@@ -181,7 +181,8 @@ class WbEquipoControlles extends BaseController implements Vervos
                     'horometro_inicial',
                     'fk_compania',
                     'fk_id_tipo_equipo',
-                    'fk_id_project_Company'
+                    'fk_id_project_Company',
+                    'peso'
                 );
 
             $consulta = $this->filtrarPorProyecto($request, $consulta)->orderBy('equiment_id', 'DESC')->get();
@@ -324,5 +325,79 @@ class WbEquipoControlles extends BaseController implements Vervos
             )->get();
 
         return $this->handleResponse($req, $this->equiposToArray($query), __('messages.consultado'));
+    }
+
+
+    private function postActPesoAction($info)
+    {
+        $validacion = Validator::make($info, [
+            'identificador' => 'required|numeric',
+            'equipo' => 'required|string',
+            'peso' => 'required|string',
+            'proyecto' => 'required|numeric',
+            'hash' => 'required|string',
+        ]);
+
+        if ($validacion->fails()) {
+            return false;
+        }
+
+        $find = WbEquipo::where('id', $info['equipo'])
+        ->where('fk_id_project_Company', $info['proyecto'])
+        ->first();
+
+        if ($find == null) {
+            return false;
+        }
+
+        $find->peso = isset($info['peso']) ? $info['peso'] : null;
+
+        if (!$find->save()) {
+            return false;
+        }
+
+        return true;
+    }
+
+
+    public function postPesoArray(Request $req)
+    {
+        try {
+            $validate = Validator::make($req->all(), [
+                'datos' => 'required',
+            ]);
+
+            if ($validate->fails()) {
+                return $this->handleAlert($validate->errors());
+            }
+
+            $respuesta = collect();
+
+            $listaGuardar = json_decode($req->datos, true);
+
+            if (is_array($listaGuardar) && sizeof($listaGuardar) > 0) {
+                $guardados = 0;
+                foreach ($listaGuardar as $key => $info) {
+                    $action = $this->postActPesoAction($info);
+                    if ($action) {
+                        $guardados++;
+                        $itemRespuesta = collect();
+                        $itemRespuesta->put('hash', $info['hash']);
+                        $respuesta->push($itemRespuesta);
+                    }
+                }
+
+                if ($guardados == 0) {
+                    return $this->handleAlert("empty");
+                }
+
+                return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));
+            } else {
+                return $this->handleAlert("empty");
+            }
+        } catch (\Throwable $th) {
+            \Log::error('peso-equipo-array-insert ' . $th->getMessage());
+            return $this->handleAlert(__('messages.error_servicio'));
+        }
     }
 }
