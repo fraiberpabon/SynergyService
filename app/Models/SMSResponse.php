@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class SMSResponse extends Model
 {
     use HasFactory;
-    use HasFactory;
     protected $connection = 'mysql';
     protected $table = 'wb_sms_logs';
     protected $primaryKey = 'id';

@@ -40,7 +40,8 @@ class WbConfiguracionesController extends BaseController implements Vervos
             'transporte_max_peso',
             'transporte_min_peso',
             'transporte_usar_equipo_peso',
-            'max_km'
+            'max_km',
+            'permitir_peso_manual',
         );
 
         $query = $this->filtrarPorProyecto($req, $query)->first();
