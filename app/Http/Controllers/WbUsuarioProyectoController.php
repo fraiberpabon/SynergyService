@@ -7,7 +7,7 @@ use App\Http\interfaces\Vervos;
 use App\Models\Compania;
 use App\Models\Usuarios\usuarios_M;
 use App\Models\Roles\WbSeguriRoles;
-use App\Models\WbUsuarioProyecto;
+use App\Models\Usuarios\WbUsuarioProyecto;
 use Exception;
 use Illuminate\Http\Request;
 

@@ -163,7 +163,8 @@ class UsuarioController extends BaseController implements Vervos
 
             return $this->handleResponse($req, ['nombre' => $nombreUsuarioGenerado], 'Usuario registrado con exito.');
         } catch (\Exception $exc) {
-            return $this->handleAlert($exc->getMessage());
+            \Log::error($exc->getMessage());
+            return $this->handleAlert(__('messages.error_interno'));
         }
     }
 

@@ -21,6 +21,8 @@ use App\Http\Controllers\WbTipoFormatoController;
 use App\Http\Controllers\WbEquipoEstadoController;
 use App\Http\Controllers\ParteDiario\InterrupcionesController;
 use App\Http\Controllers\BasculaMovil\Transporte\WbBasculaMovilTransporteController;
+use App\Http\Controllers\Turnos\SyTurnosController;
+use App\Http\Controllers\CostCenter\CostCenterController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
@@ -104,16 +106,21 @@ Route::middleware('desencript')->group(function () {
             Route::get('/background', [WbEquipoControlles::class, 'equiposActivos']);
         });
 
-         // conductores
-         Route::prefix('conductores')->controller(WbConductoresController::class)->group(function () {
+        // conductores
+        Route::prefix('conductores')->controller(WbConductoresController::class)->group(function () {
             Route::get('/backgound', 'get');
-         });
+        });
 
         Route::prefix('parte-diario')->controller(InterrupcionesController::class)->group(function () {
             Route::post('/insertar', 'post');
             Route::post('/insertarD', 'postInterrupciones');
             Route::post('/insertar-paquete', 'postArray');
             Route::post('/insertar-paquete-distribuciones', 'postArrayDistribuciones');
+            Route::put('/AnularParteDiarioMobile', 'AnularParteDiarioMobile');
+        });
+
+        Route::prefix('turnos')->controller(SyTurnosController::class)->group(function () {
+            Route::get('/getTurnos', 'getTurnos');
         });
     });
 
@@ -131,6 +138,7 @@ Route::middleware('desencript')->group(function () {
             Route::prefix('equipos')->group(function () {
                 Route::get('/', [WbEquipoControlles::class, 'equiposActivos']);
                 Route::get('/estado', [WbEquipoEstadoController::class, 'getActivosForProject']);
+                Route::post('/insertar-peso-paquete', [WbEquipoControlles::class, 'postPesoArray']);
             });
             Route::prefix('equipos-liquidacion')->controller(WbEquiposLiquidacionController::class)->group(function () {
                 Route::get('/last-date-liquidation', 'getFechaUltimoCierre');
@@ -183,6 +191,13 @@ Route::middleware('desencript')->group(function () {
                 Route::get('/app', 'get');
             });
         });
+
+        Route::prefix('parte_diario')->controller(InterrupcionesController::class)->group(function () {
+            Route::get('/getParteDiarioWeb', 'GetParteDiarioWeb');
+            Route::put('/anularParteDiario/{id_parte_diario}', 'AnularParteDiario');
+            Route::put('/AnularParteDiarioMobile', 'AnularParteDiarioMobile');
+        });
+
         /*
          * End endpoint para WebuApp
          */
@@ -191,7 +206,20 @@ Route::middleware('desencript')->group(function () {
         /*
          * Start endpoint para la pagina web
          */
+        Route::prefix('cost-center')->controller(CostCenterController::class)->group(function () {
+            Route::get('/getCentroCostoMobile', 'getCostCenterMobile');
+            Route::put('/anularCentroCosto', 'AnularCentroCosto');
+            Route::post('/crear', 'postCentroCosto');
+            Route::put('/actualizar', 'updateCentroCosto');
+        });
 
+
+        Route::prefix('parte_diario')->controller(InterrupcionesController::class)->group(function () {
+            Route::get('/getParteDiarioWeb', 'GetParteDiarioWeb');
+            Route::put('/anularParteDiario/{id_parte_diario}', 'AnularParteDiario');
+            Route::put('/AnularParteDiarioMobile', 'AnularParteDiarioMobile');
+            Route::put('/editar', 'editarParteDiario');
+        });
         /*
          * End endpoint para la pagina web
          */
@@ -253,15 +281,26 @@ Route::prefix('')->group(function () {
         Route::get('/confirmarNum', [UsuarioController::class, 'enviarCodigo']);
         Route::get('/confirmarCod', [UsuarioController::class, 'confirmarNumero']);
     });
+    // Route::prefix('parte_diario')->controller(InterrupcionesController::class)->group(function () {
+    //     Route::get('/getParteDiarioWeb', 'GetParteDiarioWeb');
+    //     Route::put('/anularParteDiario/{id_parte_diario}', 'AnularParteDiario');
+    //     Route::put('/AnularParteDiarioMobile', 'AnularParteDiarioMobile');
+    //     Route::put('/editar', 'editarParteDiario');
+    // });
 
 
-
-    Route::get('tables', function () {
+    Route::prefix('equipos')->group(function () {
+        Route::get('/', [WbEquipoControlles::class, 'equiposActivos']);
+        Route::get('/estado', [WbEquipoEstadoController::class, 'getActivosForProject']);
     });
-    Route::prefix('parte-diario')->controller(InterrupcionesController::class)->group(function () {
-        Route::post('/insertar', 'post');
-        Route::post('/insertarD', 'postInterrupciones');
-    });
+
+
+
+    Route::get('tables', function () {});
+    // Route::prefix('parte-diario')->controller(InterrupcionesController::class)->group(function () {
+    //     Route::post('/insertar', 'post');
+    //     Route::post('/insertarD', 'postInterrupciones');
+    // });
 
 
     Route::get('encrypt/{tipoPassword}', [encrypt::class, 'index']);

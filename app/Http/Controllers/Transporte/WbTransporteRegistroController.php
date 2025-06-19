@@ -186,8 +186,8 @@ class WbTransporteRegistroController extends BaseController implements Vervos
 
             return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));
         } catch (\Throwable $th) {
-            \Log::error('transport-background ' . $th->getMessage());
-            return $this->handleAlert($th->getMessage());
+            \Log::error('transport-single-insert-v1 ' . $th->getMessage());
+            return $this->handleAlert(__('messages.error_servicio'));
         }
     }
 
@@ -342,24 +342,26 @@ class WbTransporteRegistroController extends BaseController implements Vervos
 
             return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));
         } catch (\Throwable $th) {
-            \Log::error('transport-background ' . $th->getMessage());
-            return $this->handleAlert($th->getMessage());
+            \Log::error('transport-single-insert-v2 ' . $th->getMessage());
+            return $this->handleAlert(__('messages.error_servicio'));
         }
     }
 
     public function postV3(Request $req)
     {
         try {
+            \Log::info('transport-single-insert-v3 iniciando -> ' . $req->hash . ' solicitud ' . $req->solicitud_id);
             $solicitud = null;
             $respuesta = collect();
             $respuesta->put('hash', $req->hash);
 
             $action = $this->postAction($req->all(), 'Automática individual');
             if (!$action) {
+                \Log::info('transport-single-insert-v3 error insertar -> ' . $req->hash  . ' solicitud ' . $req->solicitud_id);
                 return $this->handleAlert(__('messages.no_se_pudo_realizar_el_registro'), false);
             }
 
-            $solicitud = (new WbSolicitudesController())->findForIdV3($req->solicitud_id, $req->tipo_solicitud);
+            $solicitud = $this->getSolicitudInfoTransport($req->solicitud_id, $req->tipo_solicitud);
 
             if ($solicitud != null) {
                 $respuesta->put('solicitud', $solicitud['identificador']);
@@ -370,15 +372,16 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                 $respuesta->put('cant_viajes_salida', $solicitud['cant_viajes_salida']);
                 $respuesta->put('estado', $solicitud['estado']);
             }
-
+            \Log::info('transport-single-insert-v3 registrado -> ' . $req->hash . ' solicitud ' . $req->solicitud_id);
             return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));
         } catch (\Throwable $th) {
-            \Log::error('transport-background ' . $th->getMessage());
-            return $this->handleAlert($th->getMessage());
+            \Log::error('transport-single-insert-v3 ' . $req->hash . ' solicitud ' . $req->solicitud_id . ' error '. $th->getMessage());
+            return $this->handleAlert(__('messages.error_servicio'));
         }
     }
 
-    private function postAction($info, $typeSyncMsg = "") {
+    private function postAction($info, $typeSyncMsg = "")
+    {
         $validacion = Validator::make($info, [
             'identificador' => 'required|numeric',
             'numero_vale' => 'required|string',
@@ -433,7 +436,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
         //$model->id_equipos_horometros_ubicaciones = $info['identificador'];
         $model->tipo = isset($info['tipo']) ? $info['tipo'] : null;
         $model->ticket = isset($info['numero_vale']) ? $info['numero_vale'] : null;
-        $model->fk_id_solicitud = isset($info['solicitud_id']) ? $info['solicitud_id'] : null;
+        $model->fk_id_solicitud = isset($info['solicitud_id']) ? trim($info['solicitud_id']) : null;
         $model->fk_id_planta_origen = isset($info['origen_planta_id']) ? $info['origen_planta_id'] : null;
 
         $model->fk_id_tramo_origen = isset($info['origen_tramo_id']) ? $info['origen_tramo_id'] : null;
@@ -478,8 +481,6 @@ class WbTransporteRegistroController extends BaseController implements Vervos
         $model->turno = isset($info['turno']) ? $info['turno'] : null;
         $model->temperatura = isset($info['temperatura']) ? $info['temperatura'] : null;
 
-        $model->temperatura = isset($info['fk_formula_cdp']) ? $info['fk_formula_cdp'] : null;
-
         $model->tipo_sync = $typeSyncMsg != "" ? $typeSyncMsg : null;
 
         if (!$model->save()) {
@@ -492,7 +493,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
             }
         }
 
-        if(!empty($info['destino_planta_id'])){
+        if (!empty($info['destino_planta_id'])) {
             RecibirPlantaAutomatico::dispatch($model);
         }
 
@@ -543,8 +544,72 @@ class WbTransporteRegistroController extends BaseController implements Vervos
                 return $this->handleAlert("empty");
             }
         } catch (\Throwable $th) {
-            Log::info($th->getMessage());
-            return $this->handleAlert($th->getMessage());
+            \Log::error('transport-array-insert ' . $th->getMessage());
+            return $this->handleAlert(__('messages.error_servicio'));
+        }
+    }
+
+    public function getSolicitudInfoTransport($idSolicitud, $tipo)
+    {
+        try {
+            $query = WbTransporteRegistro::where('estado', 1)
+                ->where('tipo_solicitud', $tipo)
+                ->where('user_created', '!=', 0)
+                ->where('fk_id_solicitud', $idSolicitud)
+                ->with('solicitudes')->get();
+
+            if ($query->count() == 0) {
+                return null;
+            }
+
+
+            $respuesta = collect();
+            $respuesta->put('identificador', $idSolicitud);
+            $solicitudes = $query->first()->solicitudes;
+            if ($solicitudes) {
+                $estado = $solicitudes->fk_id_estados ?
+                    (
+                        $solicitudes->fk_id_estados == 12 ? '0' :
+                        ($solicitudes->fk_id_estados == 15 ? '2' : '1')
+                    ) : (
+                        $solicitudes->estado ?
+                        (
+                            $solicitudes->estado == 'PENDIENTE' ? '0' :
+                            ($solicitudes->estado == 'ENVIADO' ? '2' :
+                                ($solicitudes->estado == 'ANULADO' ? '3' : '1'))
+                        ) : null
+                    );
+
+
+                $respuesta->put('estado', $estado);
+            }
+
+
+            $vLlegada = $vSalida = $cLlegada = $cSalida = 0;
+            $vLlegada = $query->where('tipo', 1)->count();
+            $vSalida = $query->where('tipo', 2)->count();
+
+            $colSuma = $tipo == 'M' ? 'cubicaje' : 'cantidad';
+
+
+            $cLlegada = $query->where('tipo', 1)->sum($colSuma);
+            $cSalida = $query->where('tipo', 2)->sum($colSuma);
+
+            if ($tipo == 'A') {
+                $cLlegada /= 1000;
+                $cSalida /= 1000;
+            }
+
+            $respuesta->put('total_despachada', max($cLlegada, $cSalida));
+            $respuesta->put('cant_recibida', $cLlegada);
+            $respuesta->put('cant_viajes_llegada', $vLlegada);
+            $respuesta->put('cant_despachada', $cSalida);
+            $respuesta->put('cant_viajes_salida', $vSalida);
+
+            return $respuesta;
+        } catch (Exception $e) {
+            \Log::error('getTransportInfoSolicitud: ' . $e->getMessage());
+            return null;
         }
     }
 
@@ -716,7 +781,8 @@ class WbTransporteRegistroController extends BaseController implements Vervos
 
     private function actualizarSolicitudAsfalto(WbTransporteRegistro $item)
     {
-        if ($item->tipo == 1) return;
+        if ($item->tipo == 1)
+            return;
 
         $solicitud = WbSolitudAsfalto::where('id_solicitudAsf', $item->fk_id_solicitud)
             ->where('fk_id_project_Company', $item->fk_id_project_Company)
@@ -747,9 +813,9 @@ class WbTransporteRegistroController extends BaseController implements Vervos
         $cantidad = $solicitud->transporte->filter(fn($tr) => $tr->cantidad != null)
             ->sum(fn($tr) => $tr->cantidad ?? 0);
 
-        $redondear = ceil($cantidad ?? 0);
+        $redondear = ($cantidad ?? 0);
 
-        $total = $redondear > 0 ? ($redondear / 1000) : 0;
+        $total = $redondear > 0 ? ceil($redondear / 1000) : 0;
 
         // Convertir el valor de la cantidad fuera del condicional
         $convertCantidad = floatval($solicitud->cantidadToneladas);
@@ -790,7 +856,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
             $modelo->formula = $tranport->formulaAsf ? $tranport->formulaAsf->asfalt_formula : null;
             $modelo->cantidad = $solicitud->cantidadToneladas;
             $modelo->firma = '--';
-            $modelo->observacion = 'Enviado';
+            $modelo->observacion =  $item->observacion ?? '';
             $modelo->fecha = $fecha;
             $modelo->fk_id_usuario = $item->user_created;
             $modelo->cantiEnviada = $tranport->cantidad / 1000;
@@ -824,7 +890,8 @@ class WbTransporteRegistroController extends BaseController implements Vervos
 
     private function actualizarSolicitudConcreto(WbTransporteRegistro $item)
     {
-        if ($item->tipo == 1) return;
+        if ($item->tipo == 1)
+            return;
 
         $solicitud = solicitudConcreto::where('id_solicitud', $item->fk_id_solicitud)
             ->where('fk_id_project_Company', $item->fk_id_project_Company)

@@ -49,6 +49,8 @@ class WbEquipo extends Model implements Auditable
         return $this->hasOne(Compania::class, 'id_compañia', 'fk_compania');
     }
 
+
+
     // Relacion con la tabla sync_relacion_vehiculosPesos
     public function vehiculos_pesos()
     {
@@ -81,30 +83,49 @@ class WbEquipo extends Model implements Auditable
     // }
 
 
-//     public function parte_diario()
-// {
-//     return $this->hasOne(WbParteDiario::class, 'fk_equiment_id', 'id')->ofMany([
-//         'fecha_registro' => 'max', // Primero, ordena por la fecha más reciente
-//         'horometro_final' => 'max', // En caso de empate, ordena por el mayor horometro_final
-//     ])->select('horometro_final','fecha_registro');
-// }
 
 
-public function parte_diario()
-{
-    return $this->hasOne(WbParteDiario::class, 'fk_equiment_id', 'id')->ofMany([
-        'fecha_registro' => 'max', // Primero, ordena por la fecha más reciente
-        'horometro_final' => 'max', // En caso de empate, ordena por el mayor horometro_final
-    ])->select([
-        'Sy_Parte_diario.id_parte_diario', // Especifica la tabla para la columna id_parte_diario
-        'Sy_Parte_diario.fecha_registro', // Especifica la tabla para la columna fecha_registro
-        'Sy_Parte_diario.fecha_creacion_registro', // Especifica la tabla para la columna fecha_creacion_registro
-        'Sy_Parte_diario.horometro_final', // Especifica la tabla para la columna horometro_final
-        'Sy_Parte_diario.fk_equiment_id', // Especifica la tabla para la columna fk_equiment_id
-    ]);
+    public function parte_diario()
+    {
+        return $this->hasOne(WbParteDiario::class, 'fk_equiment_id', 'id')
+            ->where('estado', 1)
+            ->whereNotNull('horometro_final')
+            ->ofMany([
+                'fecha_registro' => 'max',
+                'horometro_final' => 'max',
+            ], function ($query) {
+                $query->where('estado', 1)
+                    ->whereNotNull('horometro_final');
+            })
+            ->select([
+                'Sy_Parte_diario.id_parte_diario', // Especifica la tabla para la columna id_parte_diario
+                'Sy_Parte_diario.fecha_registro', // Especifica la tabla para la columna fecha_registro
+                'Sy_Parte_diario.fecha_creacion_registro', // Especifica la tabla para la columna fecha_creacion_registro
+                'Sy_Parte_diario.horometro_final', // Especifica la tabla para la columna horometro_final
+                'Sy_Parte_diario.fk_equiment_id', // Especifica la tabla para la columna fk_equiment_id
+            ]);
+    }
+
+
+
+    public function parte_diario_kilometraje()
+    {
+        return $this->hasOne(WbParteDiario::class, 'fk_equiment_id', 'id')
+            ->where('estado', 1)
+            ->whereNotNull('kilometraje_final')
+            ->ofMany([
+                'fecha_registro' => 'max',
+                'kilometraje_final' => 'max',
+            ], function ($query) {
+                $query->where('estado', 1)
+                    ->whereNotNull('kilometraje_final');
+            })
+            ->select([
+                'Sy_Parte_diario.id_parte_diario',
+                'Sy_Parte_diario.fecha_registro',
+                'Sy_Parte_diario.fecha_creacion_registro',
+                'Sy_Parte_diario.fk_equiment_id',
+                'Sy_Parte_diario.kilometraje_final',
+            ]);
+    }
 }
-
-
-
-}
-

@@ -67,7 +67,8 @@ class BasculaMovilTicketController extends BaseController
             }
 
         } catch (\Exception $e) {
-            return $this->handleError("Error al procesar ticket", $e->getMessage());
+            \Log::error('bascula index ' . $e->getMessage());
+            return $this->handleError(__('messages.error_servicio'));
         }
     }
 

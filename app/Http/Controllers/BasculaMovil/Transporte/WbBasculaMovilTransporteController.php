@@ -38,7 +38,7 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
                 'fk_material_id' => 'nullable',
                 'fk_formula_id' => 'nullable',
                 'fk_equipo_id' => 'nullable|numeric',
-                'conductor_dni' => 'nullable|numeric',
+                'conductor_dni' => 'nullable|string',
                 'peso1' => 'nullable',
                 'peso2' => 'nullable',
                 'peso_neto' => 'nullable',
@@ -155,8 +155,8 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
 
             return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));
         } catch (\Throwable $th) {
-            \Log::error('bascula-movil-insert ' . $th->getMessage());
-            return $this->handleAlert($th->getMessage());
+            \Log::error('bascula-movil-single-insert ' . $th->getMessage());
+            return $this->handleAlert(__('messages.error_servicio'));
         }
     }
 
@@ -196,7 +196,7 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
                         'fk_material_id' => 'nullable',
                         'fk_formula_id' => 'nullable',
                         'fk_equipo_id' => 'nullable|numeric',
-                        'conductor_dni' => 'nullable|numeric',
+                        'conductor_dni' => 'nullable|string',
                         'peso1' => 'nullable',
                         'peso2' => 'nullable',
                         'peso_neto' => 'nullable',
@@ -214,6 +214,7 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
                     ]);
 
                     if ($validacion->fails()) {
+                         \Log::error('bascula-movil-array-insert ' . $validacion->errors());
                         continue;
                     }
 
@@ -275,6 +276,7 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
                     $model->material_externo = isset($info['material_ext']) ? $info['material_ext'] : null;
 
                     if (!$model->save()) {
+                        \Log::error('bascula-movil-array-insert ' . $model->getErrors());
                         continue;
                     }
 
@@ -286,15 +288,16 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
                 }
 
                 if ($guardados == 0) {
-                    return $this->handleAlert("empty");
+                    return $this->handleAlert("empty item");
                 }
 
                 return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));
             } else {
-                return $this->handleAlert("empty");
+                return $this->handleAlert("empty array");
             }
         } catch (\Throwable $th) {
-            return $this->handleAlert($th->getMessage());
+            \Log::error('bascula-movil-array-insert ' . $th->getMessage());
+            return $this->handleAlert(__('messages.error_servicio'));
         }
     }
 
@@ -329,23 +332,29 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
 
     public function GetBasculas(Request $request)
     {
-    $consulta = WbBasculaMovilTransporte::with([
-        'origenPlanta',
-        'origenTramo',
-        'origenHito',
-        'destinoPlanta',
-        'destinoTramo',
-        'destinoHito',
-        'cdcOrigen',
-        'cdcDestino',
-        'material',
-        'formula',
-        'usuario_creador',
-        'usuario_actualizador',
-        'equipo',
-        'conductores'
-    ])->get();
-    //var_dump($consulta);
-    return $this->handleResponse($request, $this->BasculasToArray($consulta), 'Consultado.');
+        try{
+            $consulta = WbBasculaMovilTransporte::with([
+                'origenPlanta',
+                'origenTramo',
+                'origenHito',
+                'destinoPlanta',
+                'destinoTramo',
+                'destinoHito',
+                'cdcOrigen',
+                'cdcDestino',
+                'material',
+                'formula',
+                'usuario_creador',
+                'usuario_actualizador',
+                'equipo',
+                'conductores'
+            ])->get();
+            //var_dump($consulta);
+            return $this->handleResponse($request, $this->BasculasToArray($consulta), 'Consultado.');
+        }catch (\Exception $e){
+            \Log::error('bascula-movil-getBascula ' . $e->getMessage());
+            return $this->handleAlert(__('messages.error_servicio'));
+        }
+
     }
 }

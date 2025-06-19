@@ -6,10 +6,12 @@ use App\Http\interfaces\Vervos;
 use App\Models\WbLiberacionesFormato;
 use Illuminate\Http\Request;
 
+use Log;
+
 class WbLiberacionesFormatoController extends BaseController implements Vervos
 {
 
-    private $formatosSyngergy = ['1010', '1009', '1008'];
+    private $formatosSyngergy = ['1011', '1010', '1009', '1008'];
     public function post(Request $req)
     {
     }

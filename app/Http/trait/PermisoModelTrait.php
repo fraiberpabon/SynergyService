@@ -5,7 +5,7 @@ namespace App\Http\trait;
 use App\Models\Usuarios\usuarios_M;
 use App\Models\Wb_Seguri_Permiso;
 use App\Models\Roles\WbSeguriRolesPermiso;
-use App\Models\WbUsuarioProyecto;
+use App\Models\Usuarios\WbUsuarioProyecto;
 use http\Env\Request;
 
 trait PermisoModelTrait

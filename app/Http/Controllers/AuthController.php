@@ -71,14 +71,16 @@ class AuthController extends BaseController
             /**
              * Compruebo si la solicitud viene de un dispositivo Android.
              */
-            if ($agent->isAndroidOS() && !($agent->isChrome() || $agent->isEdge() || $agent->isFirefox())) {
+            if ($agent->isAndroidOS() && !($agent->isChrome() || $agent->isFirefox())) {
                 return $this->loginAndroid($request, $user, $proyectoDefault);
             }
             /* else {
                 return $this->loginWeb($request, $ip, $user, $proyectoDefault);
             } */
         } catch (\Throwable $th) {
-            return $this->handleAlert($th->getMessage());
+            Log::error($th->getMessage());
+            return $this->handleAlert(__('messages.error_servicio'));
+            //return $this->handleAlert($th->getMessage());
         }
     }
 
