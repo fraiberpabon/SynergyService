@@ -10,9 +10,11 @@ use App\Http\interfaces\Vervos;
 use App\Models\Compania;
 use App\Models\SyncRelacionVehiculoPesos;
 use App\Models\Equipos\WbEquipo;
+use App\Models\Usuarios\usuarios_M;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 
 /**
  * Aqui se encuentra la clase WbEquipoControlles que contiene toda la
@@ -334,6 +336,7 @@ class WbEquipoControlles extends BaseController implements Vervos
             'identificador' => 'required|numeric',
             'equipo' => 'required|string',
             'peso' => 'required|string',
+            'usuario_id' => 'required|string',
             'proyecto' => 'required|numeric',
             'hash' => 'required|string',
         ]);
@@ -343,16 +346,49 @@ class WbEquipoControlles extends BaseController implements Vervos
         }
 
         $find = WbEquipo::where('id', $info['equipo'])
-        ->where('fk_id_project_Company', $info['proyecto'])
-        ->first();
+            ->where('fk_id_project_Company', $info['proyecto'])
+            ->first();
 
         if ($find == null) {
             return false;
         }
 
         $find->peso = isset($info['peso']) ? $info['peso'] : null;
+        $find->peso_user = isset($info['usuario_id']) ? $info['usuario_id'] : null;
 
         if (!$find->save()) {
+            return false;
+        }
+
+        $sync = SyncRelacionVehiculoPesos::where('vehiculo', $find->equiment_id)->first();
+
+        if ($sync == null) {
+            $sync = new SyncRelacionVehiculoPesos();
+            $sync->vehiculo = $find->equiment_id;
+            $sync->peso = isset($info['peso']) ? $info['peso'] : null;
+            if ($info['usuario_id']) {
+                $usuario = usuarios_M::where('id_usuarios', $info['usuario_id'])->first();
+                if ($usuario) {
+                    $sync->userr = $usuario->usuario;
+                }
+            }
+            $fecha = Carbon::now();
+            $formateada = $fecha->format('d/m/Y g:i');
+            $sync->fecha = $formateada;
+        } else {
+            $sync->peso = isset($info['peso']) ? $info['peso'] : null;
+            if ($info['usuario_id']) {
+                $usuario = usuarios_M::where('id_usuarios', $info['usuario_id'])->first();
+                if ($usuario) {
+                    $sync->userr = $usuario->usuario;
+                }
+            }
+            $fecha = Carbon::now();
+            $formateada = $fecha->format('d/m/Y g:i');
+            $sync->fecha = $formateada;
+        }
+
+        if (!$sync->save()) {
             return false;
         }
 
