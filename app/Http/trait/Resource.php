@@ -157,6 +157,7 @@ trait Resource
                 : null,
             'fechaUbicacion' => $modelo->ubicacion ? $modelo->ubicacion->fecha_registro : null,
             'proyecto' => $modelo->fk_id_project_Company,
+            'volco' => $modelo->tipo_equipo ? $modelo->tipo_equipo->is_volco : 0,
         ];
     }
 

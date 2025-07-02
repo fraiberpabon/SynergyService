@@ -20,8 +20,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('Wb_equipos', function (Blueprint $table) {
-            $table->integer('peso_user')->nullable()->comment('Identificador del usuario que toma el peso del equipo desde la bascula movil');
+        Schema::table('Wb_bascula_movil_transporte', function (Blueprint $table) {
+            $table->integer('fk_id_volco')->nullable()->comment('Identificador del volco asociado al equipo desde la bascula movil');
         });
     }
 
@@ -32,8 +32,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('Wb_equipos', function (Blueprint $table) {
-            $table->dropColumn('peso_user');
+        Schema::table('Wb_bascula_movil_transporte', function (Blueprint $table) {
+            $table->dropColumn('fk_id_volco');
         });
     }
 };

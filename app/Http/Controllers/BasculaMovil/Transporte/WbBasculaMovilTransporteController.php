@@ -53,6 +53,8 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
                 'tipo_formula' => 'nullable|string',
                 'equipo_ext' => 'nullable|string',
                 'material_ext' => 'nullable|string',
+                'fk_volco_id' => 'nullable|numeric', // Nuevo campo para el ID del volco
+                'volco_peso' => 'nullable', // Nuevo campo para el peso del volco
             ]);
 
             if ($validator->fails()) {
@@ -90,7 +92,7 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
                 $model->conductor = $req->conductor_dni ? $req->conductor_dni : null;
                 $model->observacion = $req->observacion ? $req->observacion : null;
 
-                $model->peso1 = $req->peso1 ? $req->peso1 : null;
+                $model->peso1 = $req->peso1 ? $req->peso1 + ($req->volco_peso ? $req->volco_peso : 0) : null;
                 $model->peso2 = $req->peso2 ? $req->peso2 : null;
                 $model->peso_neto = $req->peso_neto ? $req->peso_neto : null;
 
@@ -113,6 +115,8 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
                 $model->equipo_externo = $req->equipo_ext ?? null;
 
                 $model->material_externo = $req->material_ext ?? null;
+
+                $model->fk_id_volco = $req->fk_volco_id ?? null;
 
                 if (!$model->save()) {
                     return $this->handleAlert(__('messages.no_se_pudo_realizar_el_registro'), false);
@@ -211,6 +215,8 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
                         'tipo_formula' => 'nullable|string',
                         'equipo_ext' => 'nullable|string',
                         'material_ext' => 'nullable|string',
+                        'fk_volco_id' => 'nullable|numeric', // Nuevo campo para el ID del volco
+                        'volco_peso' => 'nullable', // Nuevo campo para el peso del volco
                     ]);
 
                     if ($validacion->fails()) {
@@ -252,7 +258,7 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
                     $model->conductor = isset($info['conductor_dni']) ? $info['conductor_dni'] : null;
                     $model->observacion = isset($info['observacion']) ? $info['observacion'] : null;
 
-                    $model->peso1 = isset($info['peso1']) ? $info['peso1'] : null;
+                    $model->peso1 = isset($info['peso1']) ? $info['peso1'] + (isset($info['volco_peso']) ? $info['volco_peso'] : 0) : null;
                     $model->peso2 = isset($info['peso2']) ? $info['peso2'] : null;
                     $model->peso_neto = isset($info['peso_neto']) ? $info['peso_neto'] : null;
 
@@ -274,6 +280,8 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
 
                     $model->equipo_externo = isset($info['equipo_ext']) ? $info['equipo_ext'] : null;
                     $model->material_externo = isset($info['material_ext']) ? $info['material_ext'] : null;
+
+                    $model->fk_id_volco = isset($info['fk_volco_id']) ? $info['fk_volco_id'] : null;
 
                     if (!$model->save()) {
                         \Log::error('bascula-movil-array-insert ' . $model->getErrors());
