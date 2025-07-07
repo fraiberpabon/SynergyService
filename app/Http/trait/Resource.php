@@ -1801,11 +1801,19 @@ Funcion para extraer el ultimo kilometraje y la fecha del registro
         });
     }
 
-    public function WbConductorestoModel($modelo): array
+      public function WbConductorestoModel($modelo): array
     {
+
+        $nombre_completo = $modelo->nombreCompleto;
+        $codigo = $modelo->codigo;
+        if ($codigo !== null && $codigo !== '') {
+             $nombre_codigo = $nombre_completo . ' ' .$codigo;
+        } else {
+            $nombre_codigo = $nombre_completo;
+        }
         return [
             'dni' => $modelo->dni,
-            'nombre' => $modelo->nombreCompleto,
+            'nombre' => $nombre_codigo,
             'proyecto' => $modelo->fk_id_project_Company,
         ];
     }
