@@ -820,7 +820,7 @@ class WbTransporteRegistroController extends BaseController implements Vervos
         // Convertir el valor de la cantidad fuera del condicional
         $convertCantidad = floatval($solicitud->cantidadToneladas);
 
-        $cantidadNecesaria = $convertCantidad + ($convertCantidad * 0.15);
+        $cantidadNecesaria = $convertCantidad;// + ($convertCantidad * 0.15);
 
         Log::error('cantidad dedondeada ' . $total . ' cantidad necesaria ' . $cantidadNecesaria);
         if ($cantidadNecesaria <= $total) {
