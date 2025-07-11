@@ -21,7 +21,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('Wb_equipos', function (Blueprint $table) {
-            $table->string('peso', 10)->nullable()->default(0)->comment('Peso del equipo tomado desde la bascula movil');
+            $table->string('peso', 10)->nullable()->comment('Peso del equipo tomado desde la bascula movil');
         });
     }
 

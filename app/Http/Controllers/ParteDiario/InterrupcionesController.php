@@ -206,10 +206,10 @@ class InterrupcionesController extends BaseController implements Vervos
                         $model_parte_diario->fk_equiment_id = $info['fk_equipo_id'] ?? null;
                         $model_parte_diario->observacion = $info['observacion'] ?? null;
                         $model_parte_diario->fk_id_seguridad_sitio_turno = $info['fk_turno'] ?? null;
-                        $model_parte_diario->horometro_inicial = $info['horometro_inicial'] ?? null;
-                        $model_parte_diario->horometro_final = $info['horometro_final'] ?? null;
-                        $model_parte_diario->kilometraje_inicial = $info['kilometraje_inicial'] ?? null;
-                        $model_parte_diario->kilometraje_final = $info['kilometraje_final'] ?? null;
+                        $model_parte_diario->horometro_inicial = isset($info['horometro_inicial']) ? $info['horometro_inicial'] : null;
+                        $model_parte_diario->horometro_final = isset($info['horometro_final']) ? $info['horometro_final'] : null;
+                        $model_parte_diario->kilometraje_inicial = isset($info['kilometraje_inicial']) ? $info['kilometraje_inicial'] : null;
+                        $model_parte_diario->kilometraje_final = isset($info['kilometraje_final']) ? $info['kilometraje_final'] : null;
                         $model_parte_diario->estado = 1;
                         $model_parte_diario->fk_id_project_Company = $info['proyecto'] ?? null;
                         $model_parte_diario->fk_matricula_operador = $info['matricula_operador'] ?? null;
