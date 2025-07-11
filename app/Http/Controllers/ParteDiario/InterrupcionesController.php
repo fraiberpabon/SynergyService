@@ -15,7 +15,7 @@ use Exception;
 class InterrupcionesController extends BaseController implements Vervos
 {
 
-    public function post(Request $req)
+      public function post(Request $req)
     {
         try {
             $validator = Validator::make($req->all(), [
@@ -56,14 +56,23 @@ class InterrupcionesController extends BaseController implements Vervos
             $model->fk_equiment_id = $req->fk_equipo_id;
             $model->observacion = $req->observacion ? $req->observacion : null;
             $model->fk_id_seguridad_sitio_turno = $req->fk_turno ? $req->fk_turno : null;
-            $model->horometro_inicial = $req->horometro_inicial ? $req->horometro_inicial : null;
-            $model->horometro_final = $req->horometro_final ? $req->horometro_final : null;
+            if (isset($req->horometro_inicial) && is_numeric($req->horometro_inicial) && $req->horometro_inicial !== '') {
+                $model->horometro_inicial = $req->horometro_inicial;
+            }
+            if (isset($req->horometro_final) && is_numeric($req->horometro_final) && $req->horometro_final !== '') {
+                $model->horometro_final = $req->horometro_final;
+            }
+            if (isset($req->kilometraje_inicial) && is_numeric($req->kilometraje_inicial) && $req->kilometraje_inicial !== '') {
+                $model->kilometraje_inicial = $req->kilometraje_inicial;
+            }
+            if (isset($req->kilometraje_final) && is_numeric($req->kilometraje_final) && $req->kilometraje_final !== '') {
+                $model->kilometraje_final = $req->kilometraje_final;
+            }
             $model->fk_matricula_operador = $req->matricula_operador ? $req->matricula_operador : null;
             $model->hash = $req->hash ? $req->hash : null;
             $model->fk_id_user_created = $req->usuario ? $req->usuario : null;
             $model->fk_id_user_updated = $req->usuario_actualizacion ? $req->usuario_actualizacion : null;
-            $model->kilometraje_inicial = $req->kilometraje_inicial ? $req->kilometraje_inicial : null;
-            $model->kilometraje_final = $req->kilometraje_final ? $req->kilometraje_final : null;
+
             $model->fk_id_project_Company = $req->proyecto ? $req->proyecto : null;
             $model->estado = 1;
             if (!$model->save()) {
@@ -76,7 +85,7 @@ class InterrupcionesController extends BaseController implements Vervos
             return $this->handleResponse($req, $respuesta, 'Parte diario registrado');
             //   }
         } catch (\Throwable $th) {
-            \Log::error('Sy parte diario' . $th->getMessage());
+            Log::error('Sy parte diario' . $th->getMessage());
             return $this->handleAlert(__('messages.error_servicio'));
         }
     }
@@ -138,7 +147,7 @@ class InterrupcionesController extends BaseController implements Vervos
         }
     }
 
-    public function postArray(Request $req)
+  public function postArray(Request $req)
     {
         $usuario = $this->traitGetIdUsuarioToken($req);
         $general = $req->all();
@@ -206,10 +215,18 @@ class InterrupcionesController extends BaseController implements Vervos
                         $model_parte_diario->fk_equiment_id = $info['fk_equipo_id'] ?? null;
                         $model_parte_diario->observacion = $info['observacion'] ?? null;
                         $model_parte_diario->fk_id_seguridad_sitio_turno = $info['fk_turno'] ?? null;
-                        $model_parte_diario->horometro_inicial = isset($info['horometro_inicial']) ? $info['horometro_inicial'] : null;
-                        $model_parte_diario->horometro_final = isset($info['horometro_final']) ? $info['horometro_final'] : null;
-                        $model_parte_diario->kilometraje_inicial = isset($info['kilometraje_inicial']) ? $info['kilometraje_inicial'] : null;
-                        $model_parte_diario->kilometraje_final = isset($info['kilometraje_final']) ? $info['kilometraje_final'] : null;
+                        if (isset($info['horometro_inicial']) && is_numeric($info['horometro_inicial'])) {
+                            $model_parte_diario->horometro_inicial = $info['horometro_inicial'];
+                        }
+                        if (isset($info['horometro_final']) && is_numeric($info['horometro_final'])) {
+                            $model_parte_diario->horometro_final = $info['horometro_final'];
+                        }
+                        if (isset($info['kilometraje_inicial']) && is_numeric($info['kilometraje_inicial'])) {
+                            $model_parte_diario->kilometraje_inicial = $info['kilometraje_inicial'];
+                        }
+                        if (isset($info['kilometraje_final']) && is_numeric($info['kilometraje_final'])) {
+                            $model_parte_diario->kilometraje_final = $info['kilometraje_final'];
+                        }
                         $model_parte_diario->estado = 1;
                         $model_parte_diario->fk_id_project_Company = $info['proyecto'] ?? null;
                         $model_parte_diario->fk_matricula_operador = $info['matricula_operador'] ?? null;
@@ -231,7 +248,7 @@ class InterrupcionesController extends BaseController implements Vervos
                             $itemRespuesta->put('estado', '0');
                             $itemRespuesta->put('hash', $info['hash']);
                             $respuesta->push($itemRespuesta);
-                            \Log::error('error al insertar parte diario' . $e->getMessage());
+                            Log::error('error al insertar parte diario' . $e->getMessage());
                             continue;
                         }
 
@@ -254,7 +271,7 @@ class InterrupcionesController extends BaseController implements Vervos
                 return $this->handleAlert("empty");
             }
         } catch (\Throwable $th) {
-            \Log::error($th->getMessage());
+            Log::error($th->getMessage());
             return $this->handleAlert(__('messages.error_servicio'));
         }
     }
