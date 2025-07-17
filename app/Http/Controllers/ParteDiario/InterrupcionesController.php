@@ -11,8 +11,9 @@ use App\Models\ParteDiario\WbParteDiario;
 use App\Models\ParteDiario\WbDistribucionesParteDiario;
 use Illuminate\Support\Facades\Validator;
 use Exception;
+use Carbon\Carbon;
 use PhpParser\Node\Stmt\Else_;
-
+use Illuminate\Support\Facades\Log;
 class InterrupcionesController extends BaseController implements Vervos
 {
 
@@ -155,7 +156,7 @@ class InterrupcionesController extends BaseController implements Vervos
         }
     }
 
-   public function postArray(Request $req)
+    public function postArray(Request $req)
     {
         $usuario = $this->traitGetIdUsuarioToken($req);
         $general = $req->all();
@@ -183,10 +184,10 @@ class InterrupcionesController extends BaseController implements Vervos
                         'fk_equipo_id' => 'required|string',
                         'observacion' => 'nullable',
                         'fk_turno' => 'required|string',
-                        'horometro_inicial' => 'nullable|numeric',
-                        'horometro_final' => 'nullable|numeric',
-                        'kilometraje_inicial' => 'nullable|numeric',
-                        'kilometraje_final' => 'nullable|numeric',
+                        'horometro_inicial' => 'nullable',
+                        'horometro_final' => 'nullable',
+                        'kilometraje_inicial' => 'nullable',
+                        'kilometraje_final' => 'nullable',
                         'matricula_operador' => 'required|string',
                         'hash' => 'required|string',
                         'estado' => 'required|string',
@@ -239,25 +240,18 @@ class InterrupcionesController extends BaseController implements Vervos
                         $model_parte_diario->fk_equiment_id = $info['fk_equipo_id'] ?? null;
                         $model_parte_diario->observacion = $info['observacion'] ?? null;
                         $model_parte_diario->fk_id_seguridad_sitio_turno = $info['fk_turno'] ?? null;
-
-                        $model_parte_diario->horometro_inicial = isset($info['horometro_inicial']) && !empty($info['horometro_inicial']) && $info['horometro_inicial'] > 0 ? $info['horometro_inicial'] : null;
-                        $model_parte_diario->horometro_final = isset($info['horometro_final']) && !empty($info['horometro_final']) && $info['horometro_final'] > 0 ? $info['horometro_final'] : null;
-                        $model_parte_diario->kilometraje_inicial = isset($info['kilometraje_inicial']) && !empty($info['kilometraje_inicial']) && $info['kilometraje_inicial'] > 0 ? $info['kilometraje_inicial'] : null;
-                        $model_parte_diario->kilometraje_final = isset($info['kilometraje_final']) && !empty($info['kilometraje_final']) && $info['kilometraje_final'] > 0 ? $info['kilometraje_final'] : null;
-
-                        /* if (isset($info['horometro_inicial']) && is_numeric($info['horometro_inicial'])) {
+                        if (isset($info['horometro_inicial']) && is_numeric($info['horometro_inicial'])) {
                             $model_parte_diario->horometro_inicial = $info['horometro_inicial'];
-                        } */
-                        /* if (isset($info['horometro_final']) && is_numeric($info['horometro_final'])) {
+                        }
+                        if (isset($info['horometro_final']) && is_numeric($info['horometro_final'])) {
                             $model_parte_diario->horometro_final = $info['horometro_final'];
-                        } */
-                        /* if (isset($info['kilometraje_inicial']) && is_numeric($info['kilometraje_inicial'])) {
+                        }
+                        if (isset($info['kilometraje_inicial']) && is_numeric($info['kilometraje_inicial'])) {
                             $model_parte_diario->kilometraje_inicial = $info['kilometraje_inicial'];
                         }
                         if (isset($info['kilometraje_final']) && is_numeric($info['kilometraje_final'])) {
                             $model_parte_diario->kilometraje_final = $info['kilometraje_final'];
-                        } */
-
+                        }
                         $model_parte_diario->estado = 1;
                         $model_parte_diario->fk_id_project_Company = $info['proyecto'] ?? null;
                         $model_parte_diario->fk_matricula_operador = $info['matricula_operador'] ?? null;
