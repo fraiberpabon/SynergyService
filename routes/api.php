@@ -116,7 +116,7 @@ Route::middleware('desencript')->group(function () {
             Route::post('/insertarD', 'postInterrupciones');
             Route::post('/insertar-paquete', 'postArray');
             Route::post('/insertar-paquete-distribuciones', 'postArrayDistribuciones');
-            Route::put('/AnularParteDiarioMobile', 'AnularParteDiarioMobile');
+            Route::post('/AnularParteDiarioMobile', 'AnularParteDiarioMobile');
         });
 
         Route::prefix('turnos')->controller(SyTurnosController::class)->group(function () {
@@ -195,7 +195,7 @@ Route::middleware('desencript')->group(function () {
         Route::prefix('parte_diario')->controller(InterrupcionesController::class)->group(function () {
             Route::get('/getParteDiarioWeb', 'GetParteDiarioWeb');
             Route::put('/anularParteDiario/{id_parte_diario}', 'AnularParteDiario');
-            Route::put('/AnularParteDiarioMobile', 'AnularParteDiarioMobile');
+            Route::post('/AnularParteDiarioMobile', 'AnularParteDiarioMobile');
         });
 
         /*
@@ -217,7 +217,7 @@ Route::middleware('desencript')->group(function () {
         Route::prefix('parte_diario')->controller(InterrupcionesController::class)->group(function () {
             Route::get('/getParteDiarioWeb', 'GetParteDiarioWeb');
             Route::put('/anularParteDiario/{id_parte_diario}', 'AnularParteDiario');
-            Route::put('/AnularParteDiarioMobile', 'AnularParteDiarioMobile');
+            Route::post('/AnularParteDiarioMobile', 'AnularParteDiarioMobile');
             Route::put('/editar', 'editarParteDiario');
         });
         /*

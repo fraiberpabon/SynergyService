@@ -1805,12 +1805,12 @@ Funcion para extraer el ultimo kilometraje y la fecha del registro
       public function WbConductorestoModel($modelo): array
     {
 
-        $nombre_completo = $modelo->nombreCompleto;
+        $nombre_completo = trim($modelo->nombreCompleto);
         $codigo = $modelo->codigo;
-        if ($codigo !== null && $codigo !== '') {
-             $nombre_codigo = $nombre_completo . ' ' .$codigo;
+        if ($codigo !== null && trim($codigo) !== '') {
+            $nombre_codigo = $nombre_completo . ' ' . trim($codigo);
         } else {
-            $nombre_codigo = $nombre_completo;
+            $nombre_codigo = trim($nombre_completo);
         }
         return [
             'dni' => $modelo->dni,

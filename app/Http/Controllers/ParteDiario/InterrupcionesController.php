@@ -11,11 +11,12 @@ use App\Models\ParteDiario\WbParteDiario;
 use App\Models\ParteDiario\WbDistribucionesParteDiario;
 use Illuminate\Support\Facades\Validator;
 use Exception;
+use PhpParser\Node\Stmt\Else_;
 
 class InterrupcionesController extends BaseController implements Vervos
 {
 
-      public function post(Request $req)
+    public function post(Request $req)
     {
         try {
             $validator = Validator::make($req->all(), [
@@ -52,7 +53,7 @@ class InterrupcionesController extends BaseController implements Vervos
             }
             $model = new WbParteDiario();
             $model->fecha_registro = $req->fecha_registro ? $req->fecha_registro : null;
-            $model->fecha_creacion_registro = $req->fecha_creacion  ? $req->fecha_creacion : null;
+            $model->fecha_creacion_registro = $req->fecha_creacion ? $req->fecha_creacion : null;
             $model->fk_equiment_id = $req->fk_equipo_id;
             $model->observacion = $req->observacion ? $req->observacion : null;
             $model->fk_id_seguridad_sitio_turno = $req->fk_turno ? $req->fk_turno : null;
@@ -97,7 +98,7 @@ class InterrupcionesController extends BaseController implements Vervos
             $respuesta = collect();
             $data = json_decode($req->interrupciones, true);
             if (is_array($data)) {
-                foreach ($data  as $interrupcion) {
+                foreach ($data as $interrupcion) {
                     $ultimoIdParteDiario = null;
                     $model = new WbDistribucionesParteDiario();
 
@@ -147,7 +148,7 @@ class InterrupcionesController extends BaseController implements Vervos
         }
     }
 
-  public function postArray(Request $req)
+   public function postArray(Request $req)
     {
         $usuario = $this->traitGetIdUsuarioToken($req);
         $general = $req->all();
@@ -190,26 +191,42 @@ class InterrupcionesController extends BaseController implements Vervos
                     if ($validator->fails()) {
                         return $this->handleAlert($validator->errors());
                     }
-
                     $find = WbParteDiario::select('id_parte_diario')->where('hash', $info['hash'])->first();
-                    if ($find != null) {
-                        $guardados++;
-                        $itemRespuesta = collect();
-                        $itemRespuesta->put('id_servidor', $find->id_parte_diario);
-                        $itemRespuesta->put('hash', $info['hash']);
-                        $itemRespuesta->put('estado', '1');
-                        $respuesta->push($itemRespuesta);
-                        continue;
-                    }
-
+                    \Log::info($find);
                     $model_parte_diario = new WbParteDiario();
                     if ($info['estado'] == 2) {
-                        $itemRespuesta = collect();
-                        $itemRespuesta->put('estado', '2');
-                        $itemRespuesta->put('hash', $info['hash']);
-                        $respuesta->push($itemRespuesta);
-                        continue;
+                        if ($find != null) {
+                            $fechaFormateada = Carbon::now()->format('d-m-Y H:i:s.v');
+                            $find->estado = 0;
+                            $find->fk_usuario_anulacion = $usuario;
+                            $find->motivo_anulacion = $info['motivo_anulacion'] ?? null;
+                            $find->fecha_anulacion = $fechaFormateada;
+                            if ($find->save()) {
+                                $guardados++;
+                                $itemRespuesta = collect();
+                                $itemRespuesta->put('estado', '3');
+                                $itemRespuesta->put('hash', $info['hash']);
+                                $respuesta->push($itemRespuesta);
+                                continue;
+                            }
+                        } else {
+                            $guardados++;
+                            $itemRespuesta = collect();
+                            $itemRespuesta->put('estado', '3');
+                            $itemRespuesta->put('hash', $info['hash']);
+                            $respuesta->push($itemRespuesta);
+                            continue;
+                        }
                     } else {
+                        if ($find != null) {
+                            $guardados++;
+                            $itemRespuesta = collect();
+                            $itemRespuesta->put('id_servidor', $find->id_parte_diario);
+                            $itemRespuesta->put('hash', $info['hash']);
+                            $itemRespuesta->put('estado', '1');
+                            $respuesta->push($itemRespuesta);
+                            continue;
+                        }
                         $model_parte_diario->fecha_registro = $info['fecha_registro'] ?? null;
                         $model_parte_diario->fecha_creacion_registro = $info['fecha_creacion'] ?? null;
                         $model_parte_diario->fk_equiment_id = $info['fk_equipo_id'] ?? null;
@@ -264,7 +281,8 @@ class InterrupcionesController extends BaseController implements Vervos
                         $respuesta->push($itemRespuesta);
                     }
                 }
-                if ($guardados == 0) return $this->handleAlert("empty");
+                if ($guardados == 0)
+                    return $this->handleAlert("empty");
 
                 return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));
             } else {
@@ -384,7 +402,8 @@ class InterrupcionesController extends BaseController implements Vervos
                     $respuesta->push($itemRespuesta);
                 }
 
-                if ($guardados == 0) return $this->handleAlert("empty");
+                if ($guardados == 0)
+                    return $this->handleAlert("empty");
                 return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));
             } else {
                 return $this->handleAlert("empty");
@@ -450,52 +469,54 @@ class InterrupcionesController extends BaseController implements Vervos
      */
 
     public function GetParteDiarioWeb(Request $request)
-{
-    try {
+    {
+        try {
             $proyecto = $this->traitGetProyectoCabecera($request);
-            $resultado = WbParteDiario:: where('fk_id_project_Company', $proyecto)
-            ->where('estado', 1)
-            ->orderBy('id_parte_diario', 'desc')
-            ->select('id_parte_diario',
-            'fecha_registro',
-            'fk_equiment_id',
-            'observacion',
-            'fk_id_seguridad_sitio_turno',
-            'horometro_inicial',
-            'horometro_final',
-            'kilometraje_inicial',
-            'kilometraje_final',
-            'fk_matricula_operador',
-            'fk_id_user_created')
-            ->with([
-                'usuario_creador' => function($query) {
-                    $query->select('Nombre', 'Apellido', 'id_usuarios');
-                },
-                'equipos'=>function($query){
-                    $query->select('equiment_id','descripcion','horometro_inicial','id','fk_id_tipo_equipo','fk_compania');
-                },
-                'turno'=>function($query){
-                    $query->select('id_turnos','nombre_turno','horas_turno');
-                },
-                'operador'=>function($query){
-                    $query->select('id','dni','nombreCompleto');
-                },
-                'distribuciones'=>function($query){
-                    $query->with('centro_costo','interrupciones')->select('id_distribuciones','fk_id_parte_diario','fk_id_centro_costo','descripcion_trabajo','hr_trabajo','fk_id_interrupcion','fk_id_user_created','fk_id_user_updated');
-                },
-                'compania'=>function($query){
-                    $query->select('id_compañia','nombreCompañia');
-                },
-                'tipo_equipo'=>function($query){
-                    $query->select('id_tipo_equipo','nombre');
-                }
-            ])->get();
-        return $this->handleResponse($request, $this->WbParteDiarioToArray($resultado), __('messages.consultado'), 0);
-    } catch (Exception $e) {
-        Log::error('Error al obtener parte diario: ' . $e->getMessage());
-        return $this->handleAlert(__('messages.error_servicio'));
+            $resultado = WbParteDiario::where('fk_id_project_Company', $proyecto)
+                ->where('estado', 1)
+                ->orderBy('id_parte_diario', 'desc')
+                ->select(
+                    'id_parte_diario',
+                    'fecha_registro',
+                    'fk_equiment_id',
+                    'observacion',
+                    'fk_id_seguridad_sitio_turno',
+                    'horometro_inicial',
+                    'horometro_final',
+                    'kilometraje_inicial',
+                    'kilometraje_final',
+                    'fk_matricula_operador',
+                    'fk_id_user_created'
+                )
+                ->with([
+                    'usuario_creador' => function ($query) {
+                        $query->select('Nombre', 'Apellido', 'id_usuarios');
+                    },
+                    'equipos' => function ($query) {
+                        $query->select('equiment_id', 'descripcion', 'horometro_inicial', 'id', 'fk_id_tipo_equipo', 'fk_compania');
+                    },
+                    'turno' => function ($query) {
+                        $query->select('id_turnos', 'nombre_turno', 'horas_turno');
+                    },
+                    'operador' => function ($query) {
+                        $query->select('id', 'dni', 'nombreCompleto');
+                    },
+                    'distribuciones' => function ($query) {
+                        $query->with('centro_costo', 'interrupciones')->select('id_distribuciones', 'fk_id_parte_diario', 'fk_id_centro_costo', 'descripcion_trabajo', 'hr_trabajo', 'fk_id_interrupcion', 'fk_id_user_created', 'fk_id_user_updated');
+                    },
+                    'compania' => function ($query) {
+                        $query->select('id_compañia', 'nombreCompañia');
+                    },
+                    'tipo_equipo' => function ($query) {
+                        $query->select('id_tipo_equipo', 'nombre');
+                    }
+                ])->get();
+            return $this->handleResponse($request, $this->WbParteDiarioToArray($resultado), __('messages.consultado'), 0);
+        } catch (Exception $e) {
+            Log::error('Error al obtener parte diario: ' . $e->getMessage());
+            return $this->handleAlert(__('messages.error_servicio'));
+        }
     }
-}
 
 
     /**
