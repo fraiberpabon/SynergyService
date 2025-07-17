@@ -25,10 +25,10 @@ class InterrupcionesController extends BaseController implements Vervos
                 'fk_equipo_id' => 'required|string',
                 'observacion' => 'nullable',
                 'fk_turno' => 'required|string',
-                'horometro_inicial' => 'nullable',
-                'horometro_final' => 'nullable',
-                'kilometraje_inicial' => 'nullable',
-                'kilometraje_final' => 'nullable',
+                'horometro_inicial' => 'nullable|numeric',
+                'horometro_final' => 'nullable|numeric',
+                'kilometraje_inicial' => 'nullable|numeric',
+                'kilometraje_final' => 'nullable|numeric',
                 'matricula_operador' => 'required|string',
                 'hash' => 'required|string',
                 'estado' => 'required|string',
@@ -57,18 +57,25 @@ class InterrupcionesController extends BaseController implements Vervos
             $model->fk_equiment_id = $req->fk_equipo_id;
             $model->observacion = $req->observacion ? $req->observacion : null;
             $model->fk_id_seguridad_sitio_turno = $req->fk_turno ? $req->fk_turno : null;
-            if (isset($req->horometro_inicial) && is_numeric($req->horometro_inicial) && $req->horometro_inicial !== '') {
+
+            $model->horometro_inicial =  isset($req->horometro_inicial) && !empty($req->horometro_inicial) && $req->horometro_inicial > 0 ? $req->horometro_inicial : null;
+            $model->horometro_final = isset($req->horometro_final) && !empty($req->horometro_final) && $req->horometro_final > 0 ? $req->horometro_final : null;
+            $model->kilometraje_inicial = isset($req->kilometraje_inicial) && !empty($req->kilometraje_inicial) && $req->kilometraje_inicial > 0 ? $req->kilometraje_inicial : null;
+            $model->kilometraje_final = isset($req->kilometraje_final) && !empty($req->kilometraje_final) && $req->kilometraje_final > 0 ? $req->kilometraje_final : null;
+
+            /* if (isset($req->horometro_inicial) && !empty($req->horometro_inicial) && $req->horometro_inicial > 0) {
                 $model->horometro_inicial = $req->horometro_inicial;
             }
-            if (isset($req->horometro_final) && is_numeric($req->horometro_final) && $req->horometro_final !== '') {
+            if (isset($req->horometro_final) && !empty($req->horometro_final) && $req->horometro_final > 0) {
                 $model->horometro_final = $req->horometro_final;
             }
-            if (isset($req->kilometraje_inicial) && is_numeric($req->kilometraje_inicial) && $req->kilometraje_inicial !== '') {
+            if (isset($req->kilometraje_inicial) && !empty($req->kilometraje_inicial) && $req->kilometraje_inicial > 0) {
                 $model->kilometraje_inicial = $req->kilometraje_inicial;
             }
-            if (isset($req->kilometraje_final) && is_numeric($req->kilometraje_final) && $req->kilometraje_final !== '') {
+            if (isset($req->kilometraje_final) && !empty($req->kilometraje_final) && $req->kilometraje_final > 0) {
                 $model->kilometraje_final = $req->kilometraje_final;
-            }
+            } */
+
             $model->fk_matricula_operador = $req->matricula_operador ? $req->matricula_operador : null;
             $model->hash = $req->hash ? $req->hash : null;
             $model->fk_id_user_created = $req->usuario ? $req->usuario : null;
@@ -176,10 +183,10 @@ class InterrupcionesController extends BaseController implements Vervos
                         'fk_equipo_id' => 'required|string',
                         'observacion' => 'nullable',
                         'fk_turno' => 'required|string',
-                        'horometro_inicial' => 'nullable',
-                        'horometro_final' => 'nullable',
-                        'kilometraje_inicial' => 'nullable',
-                        'kilometraje_final' => 'nullable',
+                        'horometro_inicial' => 'nullable|numeric',
+                        'horometro_final' => 'nullable|numeric',
+                        'kilometraje_inicial' => 'nullable|numeric',
+                        'kilometraje_final' => 'nullable|numeric',
                         'matricula_operador' => 'required|string',
                         'hash' => 'required|string',
                         'estado' => 'required|string',
@@ -232,18 +239,25 @@ class InterrupcionesController extends BaseController implements Vervos
                         $model_parte_diario->fk_equiment_id = $info['fk_equipo_id'] ?? null;
                         $model_parte_diario->observacion = $info['observacion'] ?? null;
                         $model_parte_diario->fk_id_seguridad_sitio_turno = $info['fk_turno'] ?? null;
-                        if (isset($info['horometro_inicial']) && is_numeric($info['horometro_inicial'])) {
+
+                        $model_parte_diario->horometro_inicial = isset($info['horometro_inicial']) && !empty($info['horometro_inicial']) && $info['horometro_inicial'] > 0 ? $info['horometro_inicial'] : null;
+                        $model_parte_diario->horometro_final = isset($info['horometro_final']) && !empty($info['horometro_final']) && $info['horometro_final'] > 0 ? $info['horometro_final'] : null;
+                        $model_parte_diario->kilometraje_inicial = isset($info['kilometraje_inicial']) && !empty($info['kilometraje_inicial']) && $info['kilometraje_inicial'] > 0 ? $info['kilometraje_inicial'] : null;
+                        $model_parte_diario->kilometraje_final = isset($info['kilometraje_final']) && !empty($info['kilometraje_final']) && $info['kilometraje_final'] > 0 ? $info['kilometraje_final'] : null;
+
+                        /* if (isset($info['horometro_inicial']) && is_numeric($info['horometro_inicial'])) {
                             $model_parte_diario->horometro_inicial = $info['horometro_inicial'];
-                        }
-                        if (isset($info['horometro_final']) && is_numeric($info['horometro_final'])) {
+                        } */
+                        /* if (isset($info['horometro_final']) && is_numeric($info['horometro_final'])) {
                             $model_parte_diario->horometro_final = $info['horometro_final'];
-                        }
-                        if (isset($info['kilometraje_inicial']) && is_numeric($info['kilometraje_inicial'])) {
+                        } */
+                        /* if (isset($info['kilometraje_inicial']) && is_numeric($info['kilometraje_inicial'])) {
                             $model_parte_diario->kilometraje_inicial = $info['kilometraje_inicial'];
                         }
                         if (isset($info['kilometraje_final']) && is_numeric($info['kilometraje_final'])) {
                             $model_parte_diario->kilometraje_final = $info['kilometraje_final'];
-                        }
+                        } */
+
                         $model_parte_diario->estado = 1;
                         $model_parte_diario->fk_id_project_Company = $info['proyecto'] ?? null;
                         $model_parte_diario->fk_matricula_operador = $info['matricula_operador'] ?? null;
