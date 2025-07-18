@@ -1894,7 +1894,9 @@ Funcion para extraer el ultimo kilometraje y la fecha del registro
         return [
             'identificador' => $modelo->id_turnos,
             'turno' => $modelo->nombre_turno,
-            'horas' => $modelo->horas_turno,
+            'horas' => is_numeric($modelo->horas_turno) && floor($modelo->horas_turno) != $modelo->horas_turno
+                ? $modelo->horas_turno
+                : intval($modelo->horas_turno),
             'hora_inicio' => $modelo->hora_inicio_turno,
             'hora_final' => $modelo->hora_final_turno,
             'estado' => $modelo->estado,
