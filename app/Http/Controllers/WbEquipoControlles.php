@@ -139,7 +139,7 @@ class WbEquipoControlles extends BaseController implements Vervos
             $consulta = WbEquipo::where('estado', '!=', 'I')
                 ->with([
                     'tipo_equipo' => function ($query) {
-                        $query->select('id_tipo_equipo', 'nombre', 'horometro', 'kilometraje', 'is_volco');
+                          $query->select('id_tipo_equipo', 'nombre', 'horometro', 'kilometraje', 'is_volco','requiere_parte_diario','requiere_preoperacional');
                     },
                     'vehiculos_pesos' => function ($query) {
                         $query->select('vehiculo', 'peso');
@@ -184,7 +184,8 @@ class WbEquipoControlles extends BaseController implements Vervos
                     'fk_compania',
                     'fk_id_tipo_equipo',
                     'fk_id_project_Company',
-                    'peso'
+                    'peso',
+                    'fk_id_area'
                 );
 
             $consulta = $this->filtrarPorProyecto($request, $consulta)->orderBy('equiment_id', 'DESC')->get();

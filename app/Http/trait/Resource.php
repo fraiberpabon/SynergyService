@@ -158,6 +158,10 @@ trait Resource
             'fechaUbicacion' => $modelo->ubicacion ? $modelo->ubicacion->fecha_registro : null,
             'proyecto' => $modelo->fk_id_project_Company,
             'volco' => $modelo->tipo_equipo ? $modelo->tipo_equipo->is_volco : 0,
+            'area'=>$modelo->fk_id_area,
+            'nombreArea'=>$modelo->area ? $modelo->area->Area :null,
+            'requierePreoperacional' => $modelo->tipo_equipo ? $modelo->tipo_equipo->requiere_preoperacional : 0,
+            'requiereParteDiario' => $modelo->tipo_equipo ? $modelo->tipo_equipo->requiere_parte_diario : 0,
         ];
     }
 

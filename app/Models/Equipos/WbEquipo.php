@@ -8,6 +8,7 @@ use App\Models\ParteDiario\WbParteDiario;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
+use App\Models\Area;
 use Illuminate\Support\Arr;
 
 class WbEquipo extends Model implements Auditable
@@ -127,5 +128,13 @@ class WbEquipo extends Model implements Auditable
                 'Sy_Parte_diario.fk_equiment_id',
                 'Sy_Parte_diario.kilometraje_final',
             ]);
+    }
+
+
+    //Relacion con area
+
+     public function area()
+    {
+        return $this->hasOne(Area::class, 'id_area', 'fk_id_area');
     }
 }
