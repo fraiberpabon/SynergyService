@@ -116,7 +116,7 @@ trait Resource
             return $this->equipoToModel($data);
         });
     }
-   public function equipoToModel($modelo): array
+    public function equipoToModel($modelo): array
     {
         $horometroData = $this->getHorometroData($modelo);
         $kilometrajeData = $this->getHKilometrajeData($modelo);
@@ -141,7 +141,7 @@ trait Resource
             'codigoExterno' => $modelo->codigo_externo,
             'horometro' => isset($horometroData['horometro']) ? intval($horometroData['horometro']) : 0,
             'fechaHorometro' => $horometroData['fechaHorometro'],
-            'kilometraje' => isset($kilometrajeData['kilometraje']) ? intval($kilometrajeData['kilometraje']) :0,
+            'kilometraje' => isset($kilometrajeData['kilometraje']) ? intval($kilometrajeData['kilometraje']) : 0,
             'fechaKilometraje' => $kilometrajeData['fechaKilometraje'],
             'ubicacionTramo' => $modelo->ubicacion ?
                 ($modelo->ubicacion->tramo ?
@@ -158,8 +158,8 @@ trait Resource
             'fechaUbicacion' => $modelo->ubicacion ? $modelo->ubicacion->fecha_registro : null,
             'proyecto' => $modelo->fk_id_project_Company,
             'volco' => $modelo->tipo_equipo ? $modelo->tipo_equipo->is_volco : 0,
-            'area'=>$modelo->fk_id_area,
-            'nombreArea'=>$modelo->area ? $modelo->area->Area :null,
+            'area' => $modelo->fk_id_area,
+            'nombreArea' => $modelo->area ? $modelo->area->Area : null,
             'requierePreoperacional' => $modelo->tipo_equipo ? $modelo->tipo_equipo->requiere_preoperacional : 0,
             'requiereParteDiario' => $modelo->tipo_equipo ? $modelo->tipo_equipo->requiere_parte_diario : 0,
         ];
@@ -1719,7 +1719,7 @@ Funcion para extraer el ultimo kilometraje y la fecha del registro
             'cant_viajes_llegada' => $modelo->cant_viajes_llegada,
             'cant_despachada' => $modelo->cant_despachada,
             'cant_viajes_salida' => $modelo->cant_viajes_salida,
-            'estado' => $modelo->estado ? ($modelo->estado == 'PENDIENTE' ?  '0' : '2') : null
+            'estado' => $modelo->estado ? ($modelo->estado == 'PENDIENTE' ? '0' : '2') : null
         ];
     }
 
@@ -1752,7 +1752,7 @@ Funcion para extraer el ultimo kilometraje y la fecha del registro
             'cant_viajes_llegada' => $modelo->cant_viajes_llegada,
             'cant_despachada' => $modelo->cant_despachada,
             'cant_viajes_salida' => $modelo->cant_viajes_salida,
-            'estado' => $modelo->estado ? ($modelo->estado == 'PENDIENTE' ?  '0' : ($modelo->estado == 'ENVIADO' ? '2' : ($modelo->estado == 'ANULADO' ? '3' : '1'))) : null
+            'estado' => $modelo->estado ? ($modelo->estado == 'PENDIENTE' ? '0' : ($modelo->estado == 'ENVIADO' ? '2' : ($modelo->estado == 'ANULADO' ? '3' : '1'))) : null
         ];
     }
 
@@ -1789,7 +1789,7 @@ Funcion para extraer el ultimo kilometraje y la fecha del registro
             'material' => $modelo->material ? $modelo->material->Nombre : null,
             'plantaOrigen' => $modelo->origenPlanta ? $modelo->origenPlanta->NombrePlanta : null,
             'tramoOrigen' => $modelo->origenTramo ? $modelo->origenTramo->Descripcion : null,
-            'plantaDestino' =>  $modelo->destinoPlanta ? $modelo->destinoPlanta->NombrePlanta : null,
+            'plantaDestino' => $modelo->destinoPlanta ? $modelo->destinoPlanta->NombrePlanta : null,
             'conductor' => $modelo->conductores ? $modelo->conductores->nombreCompleto : null,
             'cedulaConductor' => $modelo->conductor,
             'observacion' => $modelo->observacion,
@@ -1806,7 +1806,7 @@ Funcion para extraer el ultimo kilometraje y la fecha del registro
         });
     }
 
-      public function WbConductorestoModel($modelo): array
+    public function WbConductorestoModel($modelo): array
     {
 
         $nombre_completo = trim($modelo->nombreCompleto);
@@ -1878,6 +1878,7 @@ Funcion para extraer el ultimo kilometraje y la fecha del registro
             'estado' => $modelo->estado,
             'fk_centro_costo_id' => $modelo->fk_id_centro_de_costos,
             'es_obligatorio' => $modelo->es_obligatorio,
+            'requiere_motivo' => $modelo->requiere_motivo,
             'proyecto' => $modelo->fk_id_project_Company
         ];
     }
@@ -2025,6 +2026,26 @@ Funcion para extraer el ultimo kilometraje y la fecha del registro
             'proyecto' => $modelo->fk_id_project_Company,
             'fk_compania' => $modelo->fk_compania,
             'compania' => $modelo->compania ? $modelo->compania->nombreCompañia : null,
+        ];
+    }
+
+    /**
+     * Motivos interrupcion
+     */
+     public function WbMotivoInterrupcionToArray($lista): Collection|\Illuminate\Support\Collection
+    {
+        return $lista->map(function ($data) {
+            return $this->WbMotivoInterrupcionToModel($data);
+        });
+    }
+
+    public function WbMotivoInterrupcionToModel($modelo): array
+    {
+        return [
+            'id' => $modelo->id,
+            'nombre' => $modelo->nombre_motivo,
+            'fk_interrupcion' => $modelo->fk_id_interrupcion,
+            'proyecto' => $modelo->fk_id_project_Company
         ];
     }
 }

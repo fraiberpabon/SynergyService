@@ -5,6 +5,7 @@ use App\Http\Controllers\CompaniaController;
 use App\Http\Controllers\CostCodeController;
 use App\Http\Controllers\encrypt;
 use App\Http\Controllers\EquiposLiquidacion\WbEquiposLiquidacionController;
+use App\Http\Controllers\MotivosInterrupcion\MotivosInterrupcionController;
 use App\Http\Controllers\ProjectCompanyController;
 use App\Http\Controllers\Transporte\WbConductoresController;
 use App\Http\Controllers\Transporte\WbTransporteRegistroController;
@@ -190,6 +191,10 @@ Route::middleware('desencript')->group(function () {
             Route::prefix('formatos')->controller(WbLiberacionesFormatoController::class)->group(function () {
                 Route::get('/app', 'get');
             });
+
+            Route::prefix('motivo_interrupcion')->controller(MotivosInterrupcionController::class)->group(function () {
+                Route::get('/getMobile', 'getMobile');
+            });
         });
 
         Route::prefix('parte_diario')->controller(InterrupcionesController::class)->group(function () {
@@ -197,6 +202,8 @@ Route::middleware('desencript')->group(function () {
             Route::put('/anularParteDiario/{id_parte_diario}', 'AnularParteDiario');
             Route::post('/AnularParteDiarioMobile', 'AnularParteDiarioMobile');
         });
+
+
 
         /*
          * End endpoint para WebuApp
@@ -281,6 +288,12 @@ Route::prefix('')->group(function () {
         Route::get('/confirmarNum', [UsuarioController::class, 'enviarCodigo']);
         Route::get('/confirmarCod', [UsuarioController::class, 'confirmarNumero']);
     });
+
+    // Route::prefix('MotivoInterrupcion')->group(function () {
+    //     Route::get('/getMobile', [MotivosInterrupcionController::class, 'getMobile']);
+    // });
+
+
     // Route::prefix('parte_diario')->controller(InterrupcionesController::class)->group(function () {
     //     Route::get('/getParteDiarioWeb', 'GetParteDiarioWeb');
     //     Route::put('/anularParteDiario/{id_parte_diario}', 'AnularParteDiario');
@@ -296,7 +309,7 @@ Route::prefix('')->group(function () {
 
 
 
-    Route::get('tables', function () {});
+    Route::get('tables', function () { });
     // Route::prefix('parte-diario')->controller(InterrupcionesController::class)->group(function () {
     //     Route::post('/insertar', 'post');
     //     Route::post('/insertarD', 'postInterrupciones');

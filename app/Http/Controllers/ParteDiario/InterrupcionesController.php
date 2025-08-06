@@ -103,6 +103,7 @@ class InterrupcionesController extends BaseController implements Vervos
     public function postInterrupciones(Request $req, $id_parte_diario)
     {
         try {
+            Log::info($req);
             $respuesta = collect();
             $data = json_decode($req->interrupciones, true);
             if (is_array($data)) {
@@ -120,6 +121,7 @@ class InterrupcionesController extends BaseController implements Vervos
                     $model->fk_id_user_created = $interrupcion['usuario'] ?? null;
                     $model->hash = $interrupcion['hash'] ?? null;
                     $model->fk_id_user_updated = $interrupcion['usuario_actualizacion'] ?? null;
+                    $model->fk_interrupcion_motivo =$interrupcion['fk_motivo_interrupcion']??null;
                     $model->fecha_creacion_registro = isset($interrupcion['fecha_creacion_registro'])
                         ? date('Y-m-d H:i:s.v', strtotime($interrupcion['fecha_creacion_registro']))
                         : null;
@@ -158,6 +160,7 @@ class InterrupcionesController extends BaseController implements Vervos
 
     public function postArray(Request $req)
     {
+        Log::info($req);
         $usuario = $this->traitGetIdUsuarioToken($req);
         $general = $req->all();
         try {
@@ -373,6 +376,7 @@ class InterrupcionesController extends BaseController implements Vervos
                     $model->motivo_anulacion = $info['motivo_anulacion'] ?? null;
                     $model->fecha_anulacion = $info['fecha_anulacion'] ?? null;
                     $model->fk_usuario_anulacion = $info['usuario'] ?? null;
+                    $model->fk_interrupcion_motivo =$info['fk_motivo_interrupcion']??null;
 
 
                     try {
