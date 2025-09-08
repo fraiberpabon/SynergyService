@@ -103,7 +103,7 @@ class InterrupcionesController extends BaseController implements Vervos
     public function postInterrupciones(Request $req, $id_parte_diario)
     {
         try {
-            Log::info($req);
+            //Log::info($req);
             $respuesta = collect();
             $data = json_decode($req->interrupciones, true);
             if (is_array($data)) {
@@ -160,7 +160,7 @@ class InterrupcionesController extends BaseController implements Vervos
 
     public function postArray(Request $req)
     {
-        Log::info($req);
+        //Log::info($req);
         $usuario = $this->traitGetIdUsuarioToken($req);
         $general = $req->all();
         try {
@@ -203,7 +203,7 @@ class InterrupcionesController extends BaseController implements Vervos
                         return $this->handleAlert($validator->errors());
                     }
                     $find = WbParteDiario::select('id_parte_diario')->where('hash', $info['hash'])->first();
-                    \Log::info($find);
+                    //\Log::info($find);
                     $model_parte_diario = new WbParteDiario();
                     if ($info['estado'] == 2) {
                         if ($find != null) {
