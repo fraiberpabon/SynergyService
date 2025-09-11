@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use Closure;
 use Illuminate\Http\Request;
 use Laravel\Sanctum\PersonalAccessToken;
+use Illuminate\Support\Facades\Log;
 
 class TokenIsValido
 {
@@ -31,12 +32,14 @@ class TokenIsValido
         $miProyectoId = $request->headers->get($this->PROYECTO_HEADER, null);
         //se esta accediendo de otra pagina o no se coloco el token en la cabecera con el nombre $TOKEN
         if($token == null) {
+            Log::debug('Token no recibido en la cabecera');
             return response(['message'=> 'Token no recibido', 'cod' => 'nt'], 401)
                 ->header('Content-Type', 'text/plain');
         }
         $tokenPersonal = $this->getTokenById($token);
         //el token no se encontro en la base de datos
         if(!$tokenPersonal) {
+            Log::debug('Token no encontrado en la base de datos');
             return response(['message'=> 'Usuario no valido2', 'cod' => 'nt'], 401)
                 ->header('Content-Type', 'text/plain');
         }
@@ -55,6 +58,8 @@ class TokenIsValido
         if($fecha > $fecha2) {
             //el token a muerto
             personal_access_tokens::where('id', $tokenPersonal->id)->forcedelete();
+
+            Log::debug('Token expirado');
             return response(['message'=> 'Usuario no valido', 'cod' => 'nt'], 401)
               ->header('Content-Type', 'text/plain');
         }
@@ -62,6 +67,7 @@ class TokenIsValido
         $user = usuarios_M::where('id_usuarios', $tokenPersonal->tokenable_id)->first();
         $miProyecto = $this->traitGetMiUsuarioProyectoPorId($request);
         if($miProyecto == null) {
+            Log::debug('Usuario no tiene acceso al proyecto');
             return response(['message'=> 'Usuario no valido', 'cod' => 'nt'], 401)
                 ->header('Content-Type', 'text/plain');
         }

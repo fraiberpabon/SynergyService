@@ -4,6 +4,7 @@ namespace App\Http\trait;
 
 use App\Models\Usuarios\WbUsuarioProyecto;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Storage;
 
 trait UsuarioTrait
@@ -23,13 +24,16 @@ trait UsuarioTrait
             'Global_Project_Company.id_Project_Company as identificador',
             'Global_Project_Company.Nombre as nombre',
             'nombreCompañia as nombre_compania',
-            'Area.id_area as idArea',
-            'Area.Area as nombreArea',
+            DB::raw('CASE WHEN sub_area.id_area IS NOT NULL  THEN sub_area.id_area ELSE Area.id_area END as idArea'),
+            DB::raw('CASE WHEN sub_area.Area IS NOT NULL  THEN sub_area.Area ELSE Area.Area END as nombreArea'),
+            //'Area.id_area as idArea',
+            //'Area.Area as nombreArea',
             'compañia.logo'
         )
             ->leftJoin('Global_Project_Company', 'Global_Project_Company.id_Project_Company', 'Wb_Usuario_Proyecto.fk_id_project_Company')
             ->leftJoin('compañia', 'compañia.id_compañia', 'Wb_Usuario_Proyecto.fk_compañia')
             ->leftJoin('Area', 'Area.id_area', 'Wb_Usuario_Proyecto.fk_area')
+            ->leftJoin('Area as sub_area', 'Area.id_area', 'Wb_Usuario_Proyecto.fk_id_sub_area')
             ->where('Wb_Usuario_Proyecto.fk_usuario', $user->id_usuarios)
             ->where('Global_Project_Company.Estado', 'A')
             ->where('Wb_Usuario_Proyecto.eliminado', '0')
