@@ -81,11 +81,11 @@ class SmsController extends Controller
             '¡' => '',
             '&' => 'y' // Reemplazar & por "y"
         ];
-    
+
         // Limpieza del mensaje
         $mensaje = strtr($mensaje, $reemplazos);
         $nota = strtr($nota, $reemplazos);
-    
+
         // Construcción del SOAP request
         $soapRequest = '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
             <soap:Body>
@@ -98,7 +98,7 @@ class SmsController extends Controller
                 </EnviarMensaje>
             </soap:Body>
         </soap:Envelope>';
-    
+
         try {
             // Enviar la solicitud SOAP
             $response = $this->client->post($this->soapUrl, [
@@ -108,32 +108,32 @@ class SmsController extends Controller
                 ],
                 'body' => $soapRequest,
             ]);
-    
+
             $xmlResponse = $response->getBody()->getContents();
             $xmlResponse = html_entity_decode($xmlResponse, ENT_QUOTES, 'ISO-8859-1');
-    
+
             $start = strpos($xmlResponse, '<respuesta xsi:type="xsd:string">') + 33;
             $end = strpos($xmlResponse, '</respuesta>');
             $length = $end - $start;
-    
+
             $respuesta = substr($xmlResponse, $start, $length);
             $responseData = json_decode($respuesta, true);
-    
+
             // Validación de la respuesta JSON
             if (json_last_error() !== JSON_ERROR_NONE) {
                 throw new \Exception('Invalid JSON response');
             }
-    
-            Log::info(json_encode($responseData));
-    
+
+            //Log::info(json_encode($responseData));
+
             return $responseData; // Retorna el array decodificado
         } catch (RequestException $e) {
             Log::error($e->getMessage());
-    
+
             return ['envio' => false, 'mensaje' => $e->getMessage()];
         }
     }
-    
+
 
     /**
      * Esta función genera un token valido para comenzar hacer el
@@ -199,7 +199,7 @@ class SmsController extends Controller
             ->get();
 
         // Agregamos logs para verificar qué números de celular estamos obteniendo
-        Log::info('Números de celular obtenidos:', $numeros->toArray());
+        //Log::info('Números de celular obtenidos:', $numeros->toArray());
         foreach ($numeros as $celular_usuario) {
             $this->Enviar_Sms_Por_IdUsuarios($mensaje, $nota, $celular_usuario->id_usuarios);
         }
@@ -359,7 +359,7 @@ class SmsController extends Controller
 
         $this->handleResponseSoap($response, $usuario->id_usuarios, $celular_usuario, $nota, $mensaje);
         $responseData = is_array($response) ? $response : $response->json();
-        Log::info($usuario->id_usuarios);
+        //Log::info($usuario->id_usuarios);
         if ($responseData['envio'] === true) {
             return response()->json([
                 'success' => true,
@@ -367,7 +367,7 @@ class SmsController extends Controller
                 'message' => 'Mensaje de confirmación enviado con éxito',
             ], 200);
         } else {
-            Log::info('Mensaje response: '.json_encode($responseData));
+            //Log::info('Mensaje response: '.json_encode($responseData));
 
             return response()->json([
                 'success' => false,
@@ -394,7 +394,7 @@ class SmsController extends Controller
                 // Extraer el response
                 $responseData = $response->json();
             }
-            Log::info('Mensaje response: '.json_encode($responseData));
+            //Log::info('Mensaje response: '.json_encode($responseData));
 
             // Obtener el código de estado de la respuesta
             $statusCode = isset($responseData['status']) ? $responseData['status'] : null;

@@ -49,7 +49,7 @@ class WbInformeCampoController extends BaseController implements Vervos
         // Comprobar si la validación falla y devolver los errores
         if ($validator->fails()) {
             return $this->handleAlert($validator->errors());
-            Log::error('informes de campo error validador' . $validator->errors());
+            //Log::error('informes de campo error validador' . $validator->errors());
         }
         $hallazgos = json_decode($req->hallazgos);
         //Log::error('informes de campo 1'.json_encode($hallazgos));

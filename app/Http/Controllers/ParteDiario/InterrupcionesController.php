@@ -140,7 +140,7 @@ class InterrupcionesController extends BaseController implements Vervos
                         $itemRespuesta->put('estado', '0');
                         $respuesta->push($itemRespuesta);
                         continue;
-                        \Log::error('Sy parte diario' . $e->getMessage());
+                        //\Log::error('Sy parte diario' . $e->getMessage());
                     }
 
 

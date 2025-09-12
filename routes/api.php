@@ -275,6 +275,28 @@ Route::middleware('desencript')->group(function () {
  * Start rutas huerfanas
  */
 Route::prefix('')->group(function () {
+    /* Route::get('eliminar-log', function () {
+        try {
+            $logPath = storage_path('logs/laravel.log');
+
+            if (file_exists($logPath)) {
+                if (unlink($logPath)) {
+                    // También puedes recrear el archivo vacío si es necesario
+                    //file_put_contents($logPath, '');
+                    return response()->json(['message' => 'Log eliminado y recreado']);
+                } else {
+                    return response()->json(['error' => 'Error al eliminar el archivo'], 500);
+                }
+            } else {
+                // Crear el archivo si no existe
+                file_put_contents($logPath, '');
+                return response()->json(['message' => 'Archivo creado (no existía)']);
+            }
+        } catch (\Throwable $th) {
+            return response()->json($th);
+        }
+    }); */
+
     Route::get('validar', function () {
         $res = [
             'success' => true,
@@ -309,7 +331,7 @@ Route::prefix('')->group(function () {
 
 
 
-    Route::get('tables', function () { });
+    Route::get('tables', function () {});
     // Route::prefix('parte-diario')->controller(InterrupcionesController::class)->group(function () {
     //     Route::post('/insertar', 'post');
     //     Route::post('/insertarD', 'postInterrupciones');

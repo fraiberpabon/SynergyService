@@ -25,7 +25,7 @@ class WbBasculaMovilTransporteController extends BaseController implements Vervo
 
             $action = $this->postAction($req->all());
             if (!$action) {
-                Log::info('bascula-movil-single-insert error insertar -> ' . $req->hash);
+                //Log::info('bascula-movil-single-insert error insertar -> ' . $req->hash);
                 return $this->handleAlert(__('messages.no_se_pudo_realizar_el_registro'), false);
             }
 
