@@ -33,7 +33,7 @@ trait UsuarioTrait
             ->leftJoin('Global_Project_Company', 'Global_Project_Company.id_Project_Company', 'Wb_Usuario_Proyecto.fk_id_project_Company')
             ->leftJoin('compañia', 'compañia.id_compañia', 'Wb_Usuario_Proyecto.fk_compañia')
             ->leftJoin('Area', 'Area.id_area', 'Wb_Usuario_Proyecto.fk_area')
-            ->leftJoin('Area as sub_area', 'Area.id_area', 'Wb_Usuario_Proyecto.fk_id_sub_area')
+            ->leftJoin('Area as sub_area', 'sub_area.id_area', 'Wb_Usuario_Proyecto.fk_id_sub_area')
             ->where('Wb_Usuario_Proyecto.fk_usuario', $user->id_usuarios)
             ->where('Global_Project_Company.Estado', 'A')
             ->where('Wb_Usuario_Proyecto.eliminado', '0')
