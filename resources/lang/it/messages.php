@@ -453,4 +453,5 @@ return [
     'activo' => 'Risorsa',
     'inactivo' => 'Oziare',
     'centro_costo_existe' => 'Il centro di costo esiste già',
+    'anulado_por_nuevo_parte_diario' => 'Annullato a causa di nuovo registro di report giornaliero'
 ];

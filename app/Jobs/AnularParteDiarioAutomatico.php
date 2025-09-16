@@ -58,7 +58,7 @@ class AnularParteDiarioAutomatico implements ShouldQueue
             $parteDiario->estado = 0; // Anulado
             $parteDiario->fk_id_user_updated = $this->user;
             $parteDiario->fk_usuario_anulacion = $this->user;
-            $parteDiario->motivo_anulacion = 'Anulada por nuevo registro de parte diario';
+            $parteDiario->motivo_anulacion = __('messages.anulado_por_nuevo_parte_diario');
             $parteDiario->fecha_anulacion = $fechaAnulacion;
             $parteDiario->save();
         } catch (\Throwable $th) {

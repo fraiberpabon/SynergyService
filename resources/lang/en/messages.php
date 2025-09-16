@@ -455,5 +455,5 @@ return [
     'activo' => 'Active',
     'inactivo' => 'Inactive',
     'centro_costo_existe' => 'The cost center already exists',
-
+    'anulado_por_nuevo_parte_diario' => 'Canceled due to new daily report record'
 ];

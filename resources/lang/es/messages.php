@@ -474,5 +474,5 @@ return [
     'centro_costo_existe' => 'El centro de costo ya existe',
     'activo' => 'Activo',
     'inactivo' => 'Inactivo',
-
+    'anulado_por_nuevo_parte_diario' => 'Anulado por nuevo registro de parte diario'
 ];
