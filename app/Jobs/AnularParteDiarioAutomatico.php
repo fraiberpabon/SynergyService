@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\ParteDiario\WbParteDiario;
+use App\Models\Turnos\SyTurnos;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -42,12 +43,19 @@ class AnularParteDiarioAutomatico implements ShouldQueue
     public function handle()
     {
         try {
+            $turno = SyTurnos::where('id_turnos', $this->turno)->first();
+
+            if (!$turno) return;
+
             $parteDiario = WbParteDiario::where('fk_equiment_id', $this->idEquipo)
                 ->where('fecha_registro', $this->fecha)
-                ->where('fk_id_seguridad_sitio_turno', $this->turno)
                 ->where('fk_matricula_operador', null)
                 ->where('fk_id_user_created', 0)
                 ->where('estado', 1)
+                ->whereHas('turno', function ($sub) use ($turno) {
+                    $sub->where('tipo_turno', $turno->tipo_turno)
+                    ->where('estado', 1);
+                })
                 ->first();
 
             if (!$parteDiario) return;
