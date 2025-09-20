@@ -1689,7 +1689,7 @@ Funcion para extraer el ultimo kilometraje y la fecha del registro
             'cant_viajes_salida' => $modelo->cant_viajes_salida,
             'tramo_origen' => $modelo->fk_id_tramo_origen ?? null,
             'hito_origen' => $modelo->fk_id_hito_origen ?? null,
-            'estado' => $modelo->fk_id_estados ? ($modelo->fk_id_estados == 12 ? '0' : ($modelo->fk_id_estados == 15 ? '2' : '1')) : null,
+            'estado' => $modelo->fk_id_estados ? ($modelo->fk_id_estados == 12 ? '0' : ($modelo->fk_id_estados == 15 ? '2' : ($modelo->fk_id_estados == 14 ? '0' : '1'))) : null,
         ];
     }
 

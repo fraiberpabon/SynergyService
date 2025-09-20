@@ -5,6 +5,7 @@ namespace App\Http\Controllers\ParteDiario;
 use App\Http\Controllers\BaseController;
 use Illuminate\Http\Request;
 use App\Http\interfaces\Vervos;
+use App\Jobs\AnularParteDiarioAutomatico;
 use App\Models\ParteDiario\Interrupciones;
 use App\Models\ParteDiario\WbInterrupciones;
 use App\Models\ParteDiario\WbParteDiario;
@@ -14,6 +15,7 @@ use Exception;
 use Carbon\Carbon;
 use PhpParser\Node\Stmt\Else_;
 use Illuminate\Support\Facades\Log;
+
 class InterrupcionesController extends BaseController implements Vervos
 {
 
@@ -88,6 +90,14 @@ class InterrupcionesController extends BaseController implements Vervos
                 $respuesta->put('estado', '0');
                 return $this->handleAlert(__('messages.no_se_pudo_realizar_el_registro'), false);
             }
+            // dispatch para anular parte diario automatico
+            AnularParteDiarioAutomatico::dispatch(
+                $model->fk_equiment_id,
+                $model->fk_id_user_created,
+                $model->fk_id_seguridad_sitio_turno,
+                $model->fecha_registro
+            );
+
             $respuesta->put('estado', '1');
             $respuesta->put('id_servidor', $model->id_parte_diario);
             $respuesta->put('distribuciones', $this->postInterrupciones($req, $model->id_parte_diario));
@@ -121,7 +131,7 @@ class InterrupcionesController extends BaseController implements Vervos
                     $model->fk_id_user_created = $interrupcion['usuario'] ?? null;
                     $model->hash = $interrupcion['hash'] ?? null;
                     $model->fk_id_user_updated = $interrupcion['usuario_actualizacion'] ?? null;
-                    $model->fk_interrupcion_motivo =$interrupcion['fk_motivo_interrupcion']??null;
+                    $model->fk_interrupcion_motivo = $interrupcion['fk_motivo_interrupcion'] ?? null;
                     $model->fecha_creacion_registro = isset($interrupcion['fecha_creacion_registro'])
                         ? date('Y-m-d H:i:s.v', strtotime($interrupcion['fecha_creacion_registro']))
                         : null;
@@ -140,7 +150,7 @@ class InterrupcionesController extends BaseController implements Vervos
                         $itemRespuesta->put('estado', '0');
                         $respuesta->push($itemRespuesta);
                         continue;
-                        \Log::error('Sy parte diario' . $e->getMessage());
+                        //\Log::error('Sy parte diario' . $e->getMessage());
                     }
 
 
@@ -279,7 +289,13 @@ class InterrupcionesController extends BaseController implements Vervos
                             Log::error('error al insertar parte diario' . $e->getMessage());
                             continue;
                         }
-
+                        // dispatch para anular parte diario automatico
+                        AnularParteDiarioAutomatico::dispatch(
+                            $model_parte_diario->fk_equiment_id,
+                            $model_parte_diario->fk_id_user_created,
+                            $model_parte_diario->fk_id_seguridad_sitio_turno,
+                            $model_parte_diario->fecha_registro
+                        );
 
                         $id_parte_diario = $model_parte_diario->id_parte_diario;
                         $idParteDiarioArray[] = $id_parte_diario; // Almacenar el id_parte_diario generado
@@ -376,7 +392,7 @@ class InterrupcionesController extends BaseController implements Vervos
                     $model->motivo_anulacion = $info['motivo_anulacion'] ?? null;
                     $model->fecha_anulacion = $info['fecha_anulacion'] ?? null;
                     $model->fk_usuario_anulacion = $info['usuario'] ?? null;
-                    $model->fk_interrupcion_motivo =$info['fk_motivo_interrupcion']??null;
+                    $model->fk_interrupcion_motivo = $info['fk_motivo_interrupcion'] ?? null;
 
 
                     try {
