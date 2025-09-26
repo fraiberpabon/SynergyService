@@ -37,7 +37,9 @@ class SyTurnosController extends BaseController implements Vervos
     public function getTurnos(Request $request){
         try {
             $proyecto = $this->traitGetProyectoCabecera($request);
-            $turnos = SyTurnos::where('fk_id_project_Company', $proyecto)->where('estado', 1)->get();
+            $turnos = SyTurnos::where('fk_id_project_Company', $proyecto)
+            ->where('es_flexible',0)
+            ->where('estado', 1)->get();
 
             if (count($turnos) == 0) {
                 return $this->handleAlert(__('messages.no_tiene_turnos_registrados'), false);
