@@ -47,7 +47,11 @@ class InterrupcionesController extends BaseController implements Vervos
             $respuesta = collect();
             $respuesta->put('hash', $req->hash);
             $respuesta->put('id_parte_diario', $id_parte_diario);
-            $find = WbParteDiario::select('id_parte_diario')->where('hash', $req->hash)->first();
+            $find = WbParteDiario::select('id_parte_diario')
+            ->where('fecha_registro',$req->fecha_registro)
+            ->where('fk_equiment_id',$req->fk_equipo_id)
+            ->where('fk_id_project_Company',$req->proyecto)
+            ->where('hash', $req->hash)->first();
             if ($find != null) {
                 $respuesta->put('id_servidor', $find->id_parte_diario);
                 $respuesta->put('estado', '1');
@@ -212,7 +216,11 @@ class InterrupcionesController extends BaseController implements Vervos
                     if ($validator->fails()) {
                         return $this->handleAlert($validator->errors());
                     }
-                    $find = WbParteDiario::select('id_parte_diario')->where('hash', $info['hash'])->first();
+                     $find = WbParteDiario::select('id_parte_diario')
+                    ->where('fecha_registro',$info['fecha_registro'])
+                    ->where('fk_equiment_id',$info['fk_equipo_id'])
+                    ->where('fk_id_project_Company',$info['proyecto'])
+                    ->where('hash', $info['hash'])->first();
                     //\Log::info($find);
                     $model_parte_diario = new WbParteDiario();
                     if ($info['estado'] == 2) {
