@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use App\Models\Area;
 use Illuminate\Support\Arr;
+use App\Models\HorometrosTaller\Wb_Indicadores_equipos;
 
 class WbEquipo extends Model implements Auditable
 {
@@ -88,22 +89,19 @@ class WbEquipo extends Model implements Auditable
 
     public function parte_diario()
     {
+        // Optimizamos eliminando redundancias y haciendo la consulta más directa
         return $this->hasOne(WbParteDiario::class, 'fk_equiment_id', 'id')
             ->where('estado', 1)
             ->whereNotNull('horometro_final')
-            ->ofMany([
-                'fecha_registro' => 'max',
-                'horometro_final' => 'max',
-            ], function ($query) {
-                $query->where('estado', 1)
-                    ->whereNotNull('horometro_final');
-            })
+            ->orderByDesc('fecha_registro')
+            ->orderByDesc('horometro_final')
+            ->limit(1)
             ->select([
-                'Sy_Parte_diario.id_parte_diario', // Especifica la tabla para la columna id_parte_diario
-                'Sy_Parte_diario.fecha_registro', // Especifica la tabla para la columna fecha_registro
-                'Sy_Parte_diario.fecha_creacion_registro', // Especifica la tabla para la columna fecha_creacion_registro
-                'Sy_Parte_diario.horometro_final', // Especifica la tabla para la columna horometro_final
-                'Sy_Parte_diario.fk_equiment_id', // Especifica la tabla para la columna fk_equiment_id
+                'id_parte_diario',
+                'fecha_registro',
+                'fecha_creacion_registro',
+                'horometro_final',
+                'fk_equiment_id'
             ]);
     }
 
@@ -111,23 +109,62 @@ class WbEquipo extends Model implements Auditable
 
     public function parte_diario_kilometraje()
     {
+        // Optimizado: sin redundancias, select explícito, solo un where (más claro para índices), orden descendente y limit 1
         return $this->hasOne(WbParteDiario::class, 'fk_equiment_id', 'id')
             ->where('estado', 1)
             ->whereNotNull('kilometraje_final')
-            ->ofMany([
-                'fecha_registro' => 'max',
-                'kilometraje_final' => 'max',
-            ], function ($query) {
+            ->orderByDesc('fecha_registro')
+            ->orderByDesc('kilometraje_final')
+            ->limit(1)
+            ->select([
+                'id_parte_diario',
+                'fecha_registro',
+                'fecha_creacion_registro',
+                'fk_equiment_id',
+                'kilometraje_final',
+            ]);
+    }
+
+
+
+
+     /**
+     * Obtiene  el ultimo horometro de Wb_Indicadores_equipos
+     */
+    public function cambio_horometro()
+    {
+        return $this->hasOne(Wb_Indicadores_equipos::class, 'fk_equipment_id', 'id')
+            ->ofMany(['fecha_cambio' => 'max', 'nuevo_horometro' => 'max'], function ($query) {
                 $query->where('estado', 1)
-                    ->whereNotNull('kilometraje_final');
+                    ->whereNotNull('nuevo_horometro');
             })
             ->select([
-                'Sy_Parte_diario.id_parte_diario',
-                'Sy_Parte_diario.fecha_registro',
-                'Sy_Parte_diario.fecha_creacion_registro',
-                'Sy_Parte_diario.fk_equiment_id',
-                'Sy_Parte_diario.kilometraje_final',
-            ]);
+                'Wb_Indicadores_equipos.fk_equipment_id',
+                'Wb_Indicadores_equipos.anterior_horometro',
+                'Wb_Indicadores_equipos.nuevo_horometro',
+                'Wb_Indicadores_equipos.fecha_cambio',
+            ])
+        ;
+    }
+
+    /**
+     * Obtiene  el ultimo kilometraje  de Wb_Indicadores_equipos
+     */
+    public function cambio_kilometraje()
+    {
+        return $this->hasOne(Wb_Indicadores_equipos::class, 'fk_equipment_id', 'id')
+            ->ofMany(['fecha_cambio' => 'max', 'nuevo_kilometraje' => 'max'], function ($query) {
+                $query->where('estado', 1)
+                    ->whereNotNull('nuevo_kilometraje');
+            })
+              ->select([
+                'Wb_Indicadores_equipos.fk_equipment_id',
+                'Wb_Indicadores_equipos.anterior_kilometraje',
+                'Wb_Indicadores_equipos.nuevo_kilometraje',
+                'Wb_Indicadores_equipos.fecha_cambio',
+            ])
+        ;
+
     }
 
 

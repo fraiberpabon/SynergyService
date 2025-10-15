@@ -137,9 +137,10 @@ class WbEquipoControlles extends BaseController implements Vervos
         try {
             $proyecto = $this->traitGetProyectoCabecera($request);
             $consulta = WbEquipo::where('estado', '!=', 'I')
+            ->where('fk_id_project_Company', $proyecto)
                 ->with([
                     'tipo_equipo' => function ($query) {
-                          $query->select('id_tipo_equipo', 'nombre', 'horometro', 'kilometraje', 'is_volco','requiere_parte_diario','requiere_preoperacional');
+                        $query->select('id_tipo_equipo', 'nombre', 'horometro', 'kilometraje', 'is_volco', 'requiere_parte_diario', 'requiere_preoperacional');
                     },
                     'vehiculos_pesos' => function ($query) {
                         $query->select('vehiculo', 'peso');
@@ -165,7 +166,9 @@ class WbEquipoControlles extends BaseController implements Vervos
                                     $query->select('id', 'Id_Hitos', 'Descripcion', 'fk_id_project_Company')->where('fk_id_project_Company', $proyecto);
                                 }
                             ]);
-                    }
+                    },
+                    'cambio_kilometraje',
+                    'cambio_horometro'
                 ])
                 ->select(
                     'id',
@@ -188,7 +191,7 @@ class WbEquipoControlles extends BaseController implements Vervos
                     'fk_id_area'
                 );
 
-            $consulta = $this->filtrarPorProyecto($request, $consulta)->orderBy('equiment_id', 'DESC')->get();
+            $consulta = $consulta->get();
             //return $this->handleResponse($request, $consulta->orderBy('equiment_id', 'DESC')->get(), 'consultado');
             return $this->handleResponse($request, $this->equiposToArray($consulta), 'consultado');
         } catch (\Throwable $th) {
