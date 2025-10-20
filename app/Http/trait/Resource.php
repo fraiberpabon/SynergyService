@@ -110,23 +110,7 @@ trait Resource
         ];
     }
 
-    private function determinarTipoMedicion($modelo): string
-    {
-        if (!$modelo->tipo_equipo) {
-            return 'horometro';
-        }
-
-        $horometro = $modelo->tipo_equipo->horometro ?? 0;
-        $kilometraje = $modelo->tipo_equipo->kilometraje ?? 0;
-
-        if ($horometro == 1 && $kilometraje == 1) {
-            return 'ambos';
-        } elseif ($kilometraje == 1) {
-            return 'kilometraje';
-        }
-
-        return 'horometro';
-    }
+  
 
 
      // OPTIMIZACIÓN CRÍTICA: Añadir índices en la base de datos
@@ -155,67 +139,7 @@ trait Resource
      }
 
 
-     private function procesarHorometro($modelo, $fechaCambio)
-     {
-         $resultado = ['ultimo' => null, 'fecha_ultimo' => null, 'anterior' => null, 'fecha_anterior' => null];
- 
-         if (!$modelo->cambio_horometro) {
-             $resultado['ultimo'] = $modelo->parte_diario->horometro_final ?? null;
-             $resultado['fecha_ultimo'] = $modelo->parte_diario->fecha_registro ?? null;
-             return $resultado;
-         }
- 
-         $fechaParteDiario = $modelo->parte_diario->fecha_registro ?? null;
- 
-         if ($fechaCambio && $fechaParteDiario && $fechaCambio < $fechaParteDiario) {
-             $resultado['ultimo'] = $modelo->parte_diario->horometro_final;
-             $resultado['fecha_ultimo'] = $fechaParteDiario;
- 
-             $horometroAnterior = $this->consultarHorometroAntesDeFecha($modelo->id, $fechaCambio);
-             if ($horometroAnterior) {
-                 $resultado['anterior'] = $horometroAnterior->horometro_final;
-                 $resultado['fecha_anterior'] = $horometroAnterior->fecha_registro;
-             }
-         } else {
-             $resultado['ultimo'] = $modelo->cambio_horometro->nuevo_horometro ?? null;
-             $resultado['fecha_ultimo'] = $fechaCambio;
-             $resultado['anterior'] = $modelo->parte_diario->horometro_final ?? null;
-             $resultado['fecha_anterior'] = $fechaParteDiario;
-         }
- 
-         return $resultado;
-     }
- 
-     private function procesarKilometraje($modelo, $fechaCambio)
-     {
-         $resultado = ['ultimo' => null, 'fecha_ultimo' => null, 'anterior' => null, 'fecha_anterior' => null];
- 
-         if (!$modelo->cambio_kilometraje) {
-             $resultado['ultimo'] = $modelo->parte_diario_kilometraje->kilometraje_final ?? null;
-             $resultado['fecha_ultimo'] = $modelo->parte_diario_kilometraje->fecha_registro ?? null;
-             return $resultado;
-         }
- 
-         $fechaParteDiario = $modelo->parte_diario_kilometraje->fecha_registro ?? null;
- 
-         if ($fechaCambio && $fechaParteDiario && $fechaCambio < $fechaParteDiario) {
-             $resultado['ultimo'] = $modelo->parte_diario_kilometraje->kilometraje_final;
-             $resultado['fecha_ultimo'] = $fechaParteDiario;
- 
-             $kilometrajeAnterior = $this->consultarKilometrajeAntesDeFecha($modelo->id, $fechaCambio);
-             if ($kilometrajeAnterior) {
-                 $resultado['anterior'] = $kilometrajeAnterior->kilometraje_final;
-                 $resultado['fecha_anterior'] = $kilometrajeAnterior->fecha_registro;
-             }
-         } else {
-             $resultado['ultimo'] = $modelo->cambio_kilometraje->nuevo_kilometraje ?? null;
-             $resultado['fecha_ultimo'] = $fechaCambio;
-             $resultado['anterior'] = $modelo->parte_diario_kilometraje->kilometraje_final ?? null;
-             $resultado['fecha_anterior'] = $fechaParteDiario;
-         }
- 
-         return $resultado;
-     }
+  
 
     public function equiposToArray($lista): Collection|\Illuminate\Support\Collection
     {
@@ -223,31 +147,46 @@ trait Resource
             return $this->equipoToModel($data);
         });
     }
+
+
+
     public function equipoToModel($modelo): array
     {
-        $horometroData = $this->getHorometroData($modelo);
-        $kilometrajeData = $this->getHKilometrajeData($modelo);
-
         $tipo_medicion = $this->determinarTipoMedicion($modelo);
-
-        // Inicializar datos
-        $datosKilometraje = ['ultimo' => null, 'fecha_ultimo' => null, 'anterior' => null, 'fecha_anterior' => null];
-        $datosHorometro = ['ultimo' => null, 'fecha_ultimo' => null, 'anterior' => null, 'fecha_anterior' => null];
+          // Inicializar datos
+          $datosKilometraje = [
+            "ultimo" => null,
+            "fecha_ultimo" => null,
+            "anterior" => null,
+            "fecha_anterior" => null,
+        ];
+        $datosHorometro = [
+            "ultimo" => null,
+            "fecha_ultimo" => null,
+            "anterior" => null,
+            "fecha_anterior" => null,
+        ];
         $fc_kilometraje = null;
         $fc_horometro = null;
-        if ($tipo_medicion === 'kilometraje') {
+
+        if ($tipo_medicion === "kilometraje") {
             $fc_kilometraje = $modelo->cambio_kilometraje->fecha_cambio ?? null;
-            $datosKilometraje = $this->procesarKilometraje($modelo, $fc_kilometraje);
-        } elseif ($tipo_medicion === 'horometro') {
+            $datosKilometraje = $this->procesarKilometraje(
+                $modelo,
+                $fc_kilometraje,
+            );
+        } elseif ($tipo_medicion === "horometro") {
             $fc_horometro = $modelo->cambio_horometro->fecha_cambio ?? null;
             $datosHorometro = $this->procesarHorometro($modelo, $fc_horometro);
-        } elseif ($tipo_medicion === 'ambos') {
+        } elseif ($tipo_medicion === "ambos") {
             $fc_kilometraje = $modelo->cambio_kilometraje->fecha_cambio ?? null;
             $fc_horometro = $modelo->cambio_horometro->fecha_cambio ?? null;
-            $datosKilometraje = $this->procesarKilometraje($modelo, $fc_kilometraje);
+            $datosKilometraje = $this->procesarKilometraje(
+                $modelo,
+                $fc_kilometraje,
+            );
             $datosHorometro = $this->procesarHorometro($modelo, $fc_horometro);
         }
-
         return [
             'identificador' => $modelo->id,
             'equipo' => $modelo->equiment_id,
@@ -267,10 +206,6 @@ trait Resource
             'tipoEquipo' => $modelo->fk_id_tipo_equipo,
             'tipocontrato' => $modelo->tipocontrato,
             'codigoExterno' => $modelo->codigo_externo,
-            'horometro' => isset($horometroData['horometro']) ? intval($horometroData['horometro']) : 0,
-            'fechaHorometro' => $horometroData['fechaHorometro'],
-            'kilometraje' => isset($kilometrajeData['kilometraje']) ? intval($kilometrajeData['kilometraje']) : 0,
-            'fechaKilometraje' => $kilometrajeData['fechaKilometraje'],
             'ubicacionTramo' => $modelo->ubicacion ?
                 ($modelo->ubicacion->tramo ?
                     $modelo->ubicacion->tramo->Id_Tramo . ($modelo->ubicacion->tramo->Descripcion ?
@@ -290,102 +225,139 @@ trait Resource
             'nombreArea' => $modelo->area ? $modelo->area->Area : null,
             'requierePreoperacional' => $modelo->tipo_equipo ? $modelo->tipo_equipo->requiere_preoperacional : 0,
             'requiereParteDiario' => $modelo->tipo_equipo ? $modelo->tipo_equipo->requiere_parte_diario : 0,
-            'tipo_equipo' => $tipo_medicion,
-            'ultimo_horometro' => $datosHorometro['ultimo'],
-            'fecha_ultimo_horometro' => $datosHorometro['fecha_ultimo'],
-            'anterior_horometro' => $datosHorometro['anterior'],
-            'fecha_anterior_horometro' => $datosHorometro['fecha_anterior'],
-            'ultimo_kilometraje' => $datosKilometraje['ultimo'],
-            'fecha_ultimo_kilometraje' => $datosKilometraje['fecha_ultimo'],
-            'anterior_kilometraje' => $datosKilometraje['anterior'],
-            'fecha_anterior_kilometraje' => $datosKilometraje['fecha_anterior'],
-            'fecha_cambio_kilometraje' => $fc_kilometraje,
-            'fecha_cambio_horometro' => $fc_horometro,
+            "tipo_equipo" => $tipo_medicion,
+            "ultimo_horometro" => $datosHorometro["ultimo"],
+            "fecha_ultimo_horometro" => $datosHorometro["fecha_ultimo"],
+            "anterior_horometro" => $datosHorometro["anterior"],
+            "fecha_anterior_horometro" => $datosHorometro["fecha_anterior"],
+            "ultimo_kilometraje" => $datosKilometraje["ultimo"],
+            "fecha_ultimo_kilometraje" => $datosKilometraje["fecha_ultimo"],
+            "anterior_kilometraje" => $datosKilometraje["anterior"],
+            "fecha_anterior_kilometraje" => $datosKilometraje["fecha_anterior"],
+            "fecha_cambio_kilometraje" => $fc_kilometraje,
+            "fecha_cambio_horometro" => $fc_horometro,
         ];
     }
 
 
-    /**
-     * Funcion para extraer el ultimo horometro y la fecha de registro
-     */
-    protected function getHorometroData($modelo): array
+
+    private function procesarHorometro($modelo, $fechaCambio)
     {
-        // Obtener fechas y horómetros de las relaciones
-        $parte_diario_fecha = $modelo->parte_diario ? $modelo->parte_diario->fecha_registro : null;
-        $parte_diario_horometro = $modelo->parte_diario ? $modelo->parte_diario->horometro_final : null;
+        $resultado = [
+            "ultimo" => null,
+            "fecha_ultimo" => null,
+            "anterior" => null,
+            "fecha_anterior" => null,
+        ];
 
-        $horometro_fecha = $modelo->horometros ? Carbon::parse($modelo->horometros->fecha_registro)->format('Y-m-d') : null;
-        $horometro_fechasf = $modelo->horometros ? $modelo->horometros->fecha_registro : null;
-        $horometro_valor = $modelo->horometros ? $modelo->horometros->horometro : null;
+        if (!$modelo->cambio_horometro) {
+            $resultado["ultimo"] =
+                $modelo->parte_diario->horometro_final ?? null;
+            $resultado["fecha_ultimo"] =
+                $modelo->parte_diario->fecha_registro ?? null;
+            return $resultado;
+        }
 
-        // Inicializar variables
-        $horometro = $modelo->horometro_inicial; // Valor por defecto
-        $fechaHorometro = null;
+        $fechaParteDiario = $modelo->parte_diario->fecha_registro ?? null;
 
-        // Determinar el horómetro y la fecha según la lógica
-        if ($parte_diario_fecha && $horometro_fecha) {
-            // Comparar fechas
-            if ($parte_diario_fecha > $horometro_fecha) {
-                $fechaHorometro = $parte_diario_fecha;
-                $horometro = $parte_diario_horometro;
-            } elseif ($parte_diario_fecha < $horometro_fecha) {
-                $fechaHorometro = $horometro_fechasf;
-                $horometro = $horometro_valor;
-            } else {
-                // Si las fechas son iguales, comparar horómetros
-                if ($parte_diario_horometro > $horometro_valor) {
-                    $fechaHorometro = $parte_diario_fecha;
-                    $horometro = $parte_diario_horometro;
-                } else {
-                    $fechaHorometro = $horometro_fechasf;
-                    $horometro = $horometro_valor;
-                }
+        if (
+            $fechaCambio &&
+            $fechaParteDiario &&
+            $fechaCambio < $fechaParteDiario
+        ) {
+            $resultado["ultimo"] = $modelo->parte_diario->horometro_final;
+            $resultado["fecha_ultimo"] = $fechaParteDiario;
+
+            $horometroAnterior = $modelo
+                ->horometro_anterior($fechaCambio)
+                ->first();
+            if ($horometroAnterior) {
+                $resultado["anterior"] = $horometroAnterior->horometro_final;
+                $resultado["fecha_anterior"] =
+                    $horometroAnterior->fecha_registro;
             }
-        } elseif ($parte_diario_fecha) {
-            // Solo existe parte diario
-            $fechaHorometro = $parte_diario_fecha;
-            $horometro = $parte_diario_horometro;
-        } elseif ($horometro_fechasf) {
-            // Solo existe horómetro
-            $fechaHorometro = $horometro_fechasf;
-            $horometro = $horometro_valor;
         } else {
-            // No hay parte diario ni horómetro, usar valores por defecto
-            if (isset($horometro) && !empty($horometro)) {
-                $fechaHorometro = $modelo->updated_at
-                    ? Carbon::parse($modelo->updated_at)->format('Y-m-d H:i:s')
-                    : ($modelo->created_at ? Carbon::parse($modelo->created_at)->format('Y-m-d H:i:s') : null);
-            }
+            $resultado["ultimo"] =
+                $modelo->cambio_horometro->nuevo_horometro ?? null;
+            $resultado["fecha_ultimo"] = $fechaCambio;
+            $resultado["anterior"] =
+                $modelo->parte_diario->horometro_final ?? null;
+            $resultado["fecha_anterior"] = $fechaParteDiario;
         }
 
-        // Asegurar que la fecha tenga el formato YYYY-MM-DD HH:MM:SS
-        if ($fechaHorometro) {
-            $fechaHorometro = Carbon::parse($fechaHorometro)->format('Y-m-d H:i:s');
-        }
-
-        return [
-            'horometro' => $horometro,
-            'fechaHorometro' => $fechaHorometro,
-        ];
+        return $resultado;
     }
 
-    /*
-Funcion para extraer el ultimo kilometraje y la fecha del registro
-*/
-    protected function getHKilometrajeData($modelo): array
+    private function procesarKilometraje($modelo, $fechaCambio)
     {
-        // Si no hay parte_diario, devuelve null en ambos campos
-        if (!$modelo->parte_diario_kilometraje) {
-            return [
-                'kilometraje' => null,
-                'fechaKilometraje' => null
-            ];
-        }
-        return [
-            'kilometraje' => $modelo->parte_diario_kilometraje->kilometraje_final,
-            'fechaKilometraje' => $modelo->parte_diario_kilometraje->fecha_registro = Carbon::parse($modelo->parte_diario_kilometraje->fecha_registro)->format('Y-m-d H:i:s')
+        $resultado = [
+            "ultimo" => null,
+            "fecha_ultimo" => null,
+            "anterior" => null,
+            "fecha_anterior" => null,
         ];
+
+        if (!$modelo->cambio_kilometraje) {
+            $resultado["ultimo"] =
+                $modelo->parte_diario_kilometraje->kilometraje_final ?? null;
+            $resultado["fecha_ultimo"] =
+                $modelo->parte_diario_kilometraje->fecha_registro ?? null;
+            return $resultado;
+        }
+
+        $fechaParteDiario =
+            $modelo->parte_diario_kilometraje->fecha_registro ?? null;
+
+        if (
+            $fechaCambio &&
+            $fechaParteDiario &&
+            $fechaCambio < $fechaParteDiario
+        ) {
+            $resultado["ultimo"] =
+                $modelo->parte_diario_kilometraje->kilometraje_final;
+            $resultado["fecha_ultimo"] = $fechaParteDiario;
+
+            $kilometrajeAnterior = $modelo
+                ->kilometraje_anterior($fechaCambio)
+                ->first();
+            if ($kilometrajeAnterior) {
+                $resultado["anterior"] =
+                    $kilometrajeAnterior->kilometraje_final;
+                $resultado["fecha_anterior"] =
+                    $kilometrajeAnterior->fecha_registro;
+            }
+        } else {
+            $resultado["ultimo"] =
+                $modelo->cambio_kilometraje->nuevo_kilometraje ?? null;
+            $resultado["fecha_ultimo"] = $fechaCambio;
+            $resultado["anterior"] =
+                $modelo->parte_diario_kilometraje->kilometraje_final ?? null;
+            $resultado["fecha_anterior"] = $fechaParteDiario;
+        }
+
+        return $resultado;
     }
+
+    private function determinarTipoMedicion($modelo): string
+    {
+        if (!$modelo->tipo_equipo) {
+            return "horometro";
+        }
+
+        $horometro = $modelo->tipo_equipo->horometro ?? 0;
+        $kilometraje = $modelo->tipo_equipo->kilometraje ?? 0;
+
+        if ($horometro == 1 && $kilometraje == 1) {
+            return "ambos";
+        } elseif ($kilometraje == 1) {
+            return "kilometraje";
+        }
+
+        return "horometro";
+    }
+
+
+ 
 
 
 

@@ -42,6 +42,7 @@ class WbConfiguracionesController extends BaseController implements Vervos
             'transporte_usar_equipo_peso',
             'max_km',
             'permitir_peso_manual',
+            'dias_parte_diario_mobile'
         );
 
         $query = $this->filtrarPorProyecto($req, $query)->first();

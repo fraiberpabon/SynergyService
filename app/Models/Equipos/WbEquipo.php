@@ -89,62 +89,117 @@ class WbEquipo extends Model implements Auditable
 
     public function parte_diario()
     {
-        // Optimizamos eliminando redundancias y haciendo la consulta más directa
-        return $this->hasOne(WbParteDiario::class, 'fk_equiment_id', 'id')
-            ->where('estado', 1)
-            ->whereNotNull('horometro_final')
-            ->orderByDesc('fecha_registro')
-            ->orderByDesc('horometro_final')
-            ->limit(1)
-            ->select([
-                'id_parte_diario',
-                'fecha_registro',
-                'fecha_creacion_registro',
-                'horometro_final',
-                'fk_equiment_id'
-            ]);
+        // Optimizado para usar el método 'ofMany' de Laravel, ideal para relaciones "has one of many".
+        // Esto es más eficiente, especialmente en cargas ansiosas (eager loading).
+        return $this->hasOne(
+            WbParteDiario::class,
+            "fk_equiment_id",
+            "id",
+        )->ofMany(
+            [
+                "fecha_registro" => "max",
+                "horometro_final" => "max",
+            ],
+            function ($query) {
+                $query->where("estado", 1)->whereNotNull("horometro_final");
+            },
+        );
+    }
+
+
+    public function horometro_anterior($fecha_limite = null)
+    {
+        // Optimizado para usar el método 'ofMany' de Laravel, ideal para relaciones "has one of many".
+        // Esto es más eficiente, especialmente en cargas ansiosas (eager loading).
+        return $this->hasOne(
+            WbParteDiario::class,
+            "fk_equiment_id",
+            "id",
+        )->ofMany(
+            [
+                "fecha_registro" => "max",
+                "horometro_final" => "max",
+            ],
+            function ($query) use ($fecha_limite) {
+                $query->where("estado", 1)->whereNotNull("horometro_final");
+
+                if ($fecha_limite) {
+                    $query->where("fecha_registro", "<", $fecha_limite);
+                }
+            },
+        );
     }
 
 
 
     public function parte_diario_kilometraje()
     {
-        // Optimizado: sin redundancias, select explícito, solo un where (más claro para índices), orden descendente y limit 1
-        return $this->hasOne(WbParteDiario::class, 'fk_equiment_id', 'id')
-            ->where('estado', 1)
-            ->whereNotNull('kilometraje_final')
-            ->orderByDesc('fecha_registro')
-            ->orderByDesc('kilometraje_final')
-            ->limit(1)
-            ->select([
-                'id_parte_diario',
-                'fecha_registro',
-                'fecha_creacion_registro',
-                'fk_equiment_id',
-                'kilometraje_final',
-            ]);
+        // Optimizado para usar el método 'ofMany' de Laravel, que es más eficiente
+        // para relaciones "has one of many", especialmente en cargas ansiosas (eager loading).
+        return $this->hasOne(
+            WbParteDiario::class,
+            "fk_equiment_id",
+            "id",
+        )->ofMany(
+            [
+                "fecha_registro" => "max",
+                "kilometraje_final" => "max",
+            ],
+            function ($query) {
+                $query->where("estado", 1)->whereNotNull("kilometraje_final");
+            },
+        );
+    }
+
+
+    public function kilometraje_anterior($fecha_limite = null)
+    {
+        // Optimizado para usar el método 'ofMany' de Laravel, ideal para relaciones "has one of many".
+        // Esto es más eficiente, especialmente en cargas ansiosas (eager loading).
+        return $this->hasOne(
+            WbParteDiario::class,
+            "fk_equiment_id",
+            "id",
+        )->ofMany(
+            [
+                "fecha_registro" => "max",
+                "kilometraje_final" => "max",
+            ],
+            function ($query) use ($fecha_limite) {
+                $query->where("estado", 1)->whereNotNull("kilometraje_final");
+
+                if ($fecha_limite) {
+                    $query->where("fecha_registro", "<", $fecha_limite);
+                }
+            },
+        );
     }
 
 
 
 
-     /**
+    /**
      * Obtiene  el ultimo horometro de Wb_Indicadores_equipos
      */
     public function cambio_horometro()
     {
-        return $this->hasOne(Wb_Indicadores_equipos::class, 'fk_equipment_id', 'id')
-            ->ofMany(['fecha_cambio' => 'max', 'nuevo_horometro' => 'max'], function ($query) {
-                $query->where('estado', 1)
-                    ->whereNotNull('nuevo_horometro');
-            })
+        return $this->hasOne(
+            Wb_Indicadores_equipos::class,
+            "fk_equipment_id",
+            "id",
+        )
+            ->ofMany(
+                ["fecha_cambio" => "max", "nuevo_horometro" => "max"],
+                function ($query) {
+                    $query->where("estado", 1)->whereNotNull("nuevo_horometro");
+                },
+            )
             ->select([
-                'Wb_Indicadores_equipos.fk_equipment_id',
-                'Wb_Indicadores_equipos.anterior_horometro',
-                'Wb_Indicadores_equipos.nuevo_horometro',
-                'Wb_Indicadores_equipos.fecha_cambio',
-            ])
-        ;
+                "Wb_Indicadores_equipos.fk_equipment_id",
+                "Wb_Indicadores_equipos.anterior_horometro",
+                "Wb_Indicadores_equipos.nuevo_horometro",
+                "Wb_Indicadores_equipos.fecha_cambio",
+            ]);
     }
 
     /**
@@ -152,25 +207,22 @@ class WbEquipo extends Model implements Auditable
      */
     public function cambio_kilometraje()
     {
-        return $this->hasOne(Wb_Indicadores_equipos::class, 'fk_equipment_id', 'id')
-            ->ofMany(['fecha_cambio' => 'max', 'nuevo_kilometraje' => 'max'], function ($query) {
-                $query->where('estado', 1)
-                    ->whereNotNull('nuevo_kilometraje');
-            })
-              ->select([
-                'Wb_Indicadores_equipos.fk_equipment_id',
-                'Wb_Indicadores_equipos.anterior_kilometraje',
-                'Wb_Indicadores_equipos.nuevo_kilometraje',
-                'Wb_Indicadores_equipos.fecha_cambio',
-            ])
-        ;
-
+        return $this->hasOne(
+            Wb_Indicadores_equipos::class,
+            "fk_equipment_id",
+            "id",
+        )->ofMany(
+            ["fecha_cambio" => "max", "nuevo_kilometraje" => "max"],
+            function ($query) {
+                $query->where("estado", 1)->whereNotNull("nuevo_kilometraje");
+            },
+        );
     }
 
 
     //Relacion con area
 
-     public function area()
+    public function area()
     {
         return $this->hasOne(Area::class, 'id_area', 'fk_id_area');
     }
