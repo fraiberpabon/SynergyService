@@ -223,8 +223,8 @@ trait Resource
             'volco' => $modelo->tipo_equipo ? $modelo->tipo_equipo->is_volco : 0,
             'area' => $modelo->fk_id_area,
             'nombreArea' => $modelo->area ? $modelo->area->Area : null,
-            'requierePreoperacional' => $modelo->tipo_equipo ? $modelo->tipo_equipo->requiere_preoperacional : 0,
-            'requiereParteDiario' => $modelo->tipo_equipo ? $modelo->tipo_equipo->requiere_parte_diario : 0,
+            'requierePreoperacional' => $modelo->tipo_equipo ? $modelo->tipo_equipo->requiere_preoperacional : null,
+            'requiereParteDiario' => $modelo->tipo_equipo ? $modelo->tipo_equipo->requiere_parte_diario : null,
             "tipo_equipo" => $tipo_medicion,
             "ultimo_horometro" => $datosHorometro["ultimo"],
             "fecha_ultimo_horometro" => $datosHorometro["fecha_ultimo"],
@@ -2016,6 +2016,9 @@ trait Resource
             'hora_inicio' => $modelo->hora_inicio_turno,
             'hora_final' => $modelo->hora_final_turno,
             'estado' => $modelo->estado,
+            'tipo_turno' => $modelo->tipo_turno,
+            'dias'=> $modelo->dias,
+            'es_flexible' => $modelo->es_flexible,
             'proyecto' => $modelo->fk_id_project_Company
         ];
     }
