@@ -227,21 +227,21 @@ trait Resource
             'requiereParteDiario' => $modelo->tipo_equipo ? $modelo->tipo_equipo->requiere_parte_diario : null,
             "tipo_equipo" => $tipo_medicion,
             "ultimo_horometro" => $datosHorometro["ultimo"],
-            "fecha_ultimo_horometro" => $datosHorometro["fecha_ultimo"],
+            "fecha_ultimo_horometro" => $datosHorometro["fecha_ultimo"] ? date('Y-m-d H:i:s', strtotime($datosHorometro["fecha_ultimo"])) : null,
             "anterior_horometro" => $datosHorometro["anterior"],
-            "fecha_anterior_horometro" => $datosHorometro["fecha_anterior"],
+            "fecha_anterior_horometro" => $datosHorometro["fecha_anterior"] ? date('Y-m-d H:i:s', strtotime($datosHorometro["fecha_anterior"])) : null,
             "ultimo_kilometraje" => $datosKilometraje["ultimo"],
-            "fecha_ultimo_kilometraje" => $datosKilometraje["fecha_ultimo"],
+            "fecha_ultimo_kilometraje" => $datosKilometraje["fecha_ultimo"] ? date('Y-m-d H:i:s', strtotime($datosKilometraje["fecha_ultimo"])) : null,
             "anterior_kilometraje" => $datosKilometraje["anterior"],
-            "fecha_anterior_kilometraje" => $datosKilometraje["fecha_anterior"],
-            "fecha_cambio_kilometraje" => $fc_kilometraje,
-            "fecha_cambio_horometro" => $fc_horometro,
+            "fecha_anterior_kilometraje" => $datosKilometraje["fecha_anterior"] ? date('Y-m-d H:i:s', strtotime($datosKilometraje["fecha_anterior"])) : null,
+            "fecha_cambio_kilometraje" => $fc_kilometraje ? date('Y-m-d H:i:s', strtotime($fc_kilometraje)) : null,
+            "fecha_cambio_horometro" => $fc_horometro ? date('Y-m-d H:i:s', strtotime($fc_horometro)) : null,
         ];
     }
 
 
 
-    private function procesarHorometro($modelo, $fechaCambio)
+    protected function procesarHorometro($modelo, $fechaCambio = null): array
     {
         $resultado = [
             "ultimo" => null,
@@ -249,42 +249,108 @@ trait Resource
             "anterior" => null,
             "fecha_anterior" => null,
         ];
-
-        if (!$modelo->cambio_horometro) {
-            $resultado["ultimo"] =
-                $modelo->parte_diario->horometro_final ?? null;
-            $resultado["fecha_ultimo"] =
-                $modelo->parte_diario->fecha_registro ?? null;
+    
+        // Obtener datos de parte diario
+        $parte_diario_horometro = $modelo->parte_diario->horometro_final ?? null;
+        $parte_diario_fecha = $modelo->parte_diario->fecha_registro ?? null;
+    
+        // Obtener datos de horómetros
+        $horometro_valor = $modelo->horometros->horometro ?? null;
+        $horometro_fecha = $modelo->horometros->fecha_registro ?? null;
+    
+        // Si no hay cambio de horómetro, usar lógica simple de comparación
+        if (!$fechaCambio) {
+            if ($parte_diario_fecha && $horometro_fecha) {
+                // Comparar fechas
+                if ($parte_diario_fecha > $horometro_fecha) {
+                    $resultado["ultimo"] = $parte_diario_horometro;
+                    $resultado["fecha_ultimo"] = $parte_diario_fecha;
+                } elseif ($parte_diario_fecha < $horometro_fecha) {
+                    $resultado["ultimo"] = $horometro_valor;
+                    $resultado["fecha_ultimo"] = $horometro_fecha;
+                } else {
+                    // Si las fechas son iguales, comparar horómetros
+                    if ($parte_diario_horometro > $horometro_valor) {
+                        $resultado["ultimo"] = $parte_diario_horometro;
+                        $resultado["fecha_ultimo"] = $parte_diario_fecha;
+                    } else {
+                        $resultado["ultimo"] = $horometro_valor;
+                        $resultado["fecha_ultimo"] = $horometro_fecha;
+                    }
+                }
+            } elseif ($parte_diario_fecha) {
+                // Solo existe parte diario
+                $resultado["ultimo"] = $parte_diario_horometro;
+                $resultado["fecha_ultimo"] = $parte_diario_fecha;
+            } elseif ($horometro_fecha) {
+                // Solo existe horómetro
+                $resultado["ultimo"] = $horometro_valor;
+                $resultado["fecha_ultimo"] = $horometro_fecha;
+            } else {
+                // No hay datos, usar horómetro inicial
+                $resultado["ultimo"] = $modelo->horometro_inicial;
+                $resultado["fecha_ultimo"] = $modelo->updated_at ?? $modelo->created_at ?? null;
+            }
+    
             return $resultado;
         }
-
-        $fechaParteDiario = $modelo->parte_diario->fecha_registro ?? null;
-
-        if (
-            $fechaCambio &&
-            $fechaParteDiario &&
-            $fechaCambio < $fechaParteDiario
-        ) {
-            $resultado["ultimo"] = $modelo->parte_diario->horometro_final;
-            $resultado["fecha_ultimo"] = $fechaParteDiario;
-
-            $horometroAnterior = $modelo
-                ->horometro_anterior($fechaCambio)
-                ->first();
+    
+        // Lógica cuando existe cambio de horómetro (usando $fechaCambio)
+        // Determinar cuál es el registro más reciente entre parte_diario y horometros
+        $ultimo_registro_horometro = null;
+        $ultimo_registro_fecha = null;
+    
+        if ($parte_diario_fecha && $horometro_fecha) {
+            if ($parte_diario_fecha > $horometro_fecha) {
+                $ultimo_registro_horometro = $parte_diario_horometro;
+                $ultimo_registro_fecha = $parte_diario_fecha;
+            } elseif ($parte_diario_fecha < $horometro_fecha) {
+                $ultimo_registro_horometro = $horometro_valor;
+                $ultimo_registro_fecha = $horometro_fecha;
+            } else {
+                // Fechas iguales, tomar el horómetro mayor
+                if ($parte_diario_horometro > $horometro_valor) {
+                    $ultimo_registro_horometro = $parte_diario_horometro;
+                    $ultimo_registro_fecha = $parte_diario_fecha;
+                } else {
+                    $ultimo_registro_horometro = $horometro_valor;
+                    $ultimo_registro_fecha = $horometro_fecha;
+                }
+            }
+        } elseif ($parte_diario_fecha) {
+            $ultimo_registro_horometro = $parte_diario_horometro;
+            $ultimo_registro_fecha = $parte_diario_fecha;
+        } elseif ($horometro_fecha) {
+            $ultimo_registro_horometro = $horometro_valor;
+            $ultimo_registro_fecha = $horometro_fecha;
+        }
+    
+        // Comparar con fecha de cambio usando el parámetro $fechaCambio
+        if ($ultimo_registro_fecha && $fechaCambio <= $ultimo_registro_fecha) {
+            // El registro más reciente es después del cambio
+            $resultado["ultimo"] = $ultimo_registro_horometro;
+            $resultado["fecha_ultimo"] = $ultimo_registro_fecha;
+            
+            // Obtener horómetro anterior (antes del cambio)
+            $horometroAnterior = $modelo->horometro_anterior($fechaCambio)->first();
+            if ($fechaCambio &&$parte_diario_fecha &&$fechaCambio == $parte_diario_fecha) {
+                $resultado["ultimo"] =
+                $modelo->cambio_horometro->nuevo_horometro ??null;
+                $resultado["fecha_ultimo"] = $fechaCambio;        
+            } 
             if ($horometroAnterior) {
                 $resultado["anterior"] = $horometroAnterior->horometro_final;
-                $resultado["fecha_anterior"] =
-                    $horometroAnterior->fecha_registro;
+                $resultado["fecha_anterior"] = $horometroAnterior->fecha_registro;
             }
         } else {
-            $resultado["ultimo"] =
-                $modelo->cambio_horometro->nuevo_horometro ?? null;
+            // El cambio de horómetro es más reciente
+            $resultado["ultimo"] = $modelo->cambio_horometro->nuevo_horometro ?? null;
             $resultado["fecha_ultimo"] = $fechaCambio;
-            $resultado["anterior"] =
-                $modelo->parte_diario->horometro_final ?? null;
-            $resultado["fecha_anterior"] = $fechaParteDiario;
+            // El anterior es el último registro disponible
+            $resultado["anterior"] = $ultimo_registro_horometro;
+            $resultado["fecha_anterior"] = $ultimo_registro_fecha;
         }
-
+    
         return $resultado;
     }
 
@@ -308,11 +374,7 @@ trait Resource
         $fechaParteDiario =
             $modelo->parte_diario_kilometraje->fecha_registro ?? null;
 
-        if (
-            $fechaCambio &&
-            $fechaParteDiario &&
-            $fechaCambio < $fechaParteDiario
-        ) {
+        if ($fechaCambio &&$fechaParteDiario &&$fechaCambio <= $fechaParteDiario) {
             $resultado["ultimo"] =
                 $modelo->parte_diario_kilometraje->kilometraje_final;
             $resultado["fecha_ultimo"] = $fechaParteDiario;
@@ -326,7 +388,14 @@ trait Resource
                 $resultado["fecha_anterior"] =
                     $kilometrajeAnterior->fecha_registro;
             }
-        } else {
+            if ($fechaCambio &&$fechaParteDiario &&$fechaCambio == $fechaParteDiario) {
+                $resultado["ultimo"] =
+                $modelo->cambio_kilometraje->nuevo_kilometraje ??null;
+                $resultado["fecha_ultimo"] = $fechaCambio;        
+            } 
+            
+        } 
+        else {
             $resultado["ultimo"] =
                 $modelo->cambio_kilometraje->nuevo_kilometraje ?? null;
             $resultado["fecha_ultimo"] = $fechaCambio;
