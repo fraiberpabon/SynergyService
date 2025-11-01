@@ -104,7 +104,7 @@ Route::middleware('desencript')->group(function () {
 
         Route::prefix('equipos')->group(function () {
             Route::post('/array-find', [WbEquipoControlles::class, 'getListForIds']);
-            Route::get('/background', [WbEquipoControlles::class, 'equiposActivos']);
+            Route::get('/new', [WbEquipoControlles::class, 'equiposActivosNew']);
         });
 
         // conductores
@@ -138,6 +138,7 @@ Route::middleware('desencript')->group(function () {
             });
             Route::prefix('equipos')->group(function () {
                 Route::get('/', [WbEquipoControlles::class, 'equiposActivos']);
+                Route::get('new', [WbEquipoControlles::class, 'equiposActivosNew']);
                 Route::get('/estado', [WbEquipoEstadoController::class, 'getActivosForProject']);
                 Route::post('/insertar-peso-paquete', [WbEquipoControlles::class, 'postPesoArray']);
             });

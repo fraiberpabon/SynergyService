@@ -141,16 +141,16 @@ trait Resource
 
   
 
-    public function equiposToArray($lista): Collection|\Illuminate\Support\Collection
+    public function equiposToArrayNew($lista): Collection|\Illuminate\Support\Collection
     {
         return $lista->map(function ($data) {
-            return $this->equipoToModel($data);
+            return $this->equipoToModelNew($data);
         });
     }
 
 
 
-    public function equipoToModel($modelo): array
+    public function equipoToModelNew($modelo): array
     {
         $tipo_medicion = $this->determinarTipoMedicion($modelo);
           // Inicializar datos
@@ -2229,6 +2229,147 @@ trait Resource
             'nombre' => $modelo->nombre_motivo,
             'fk_interrupcion' => $modelo->fk_id_interrupcion,
             'proyecto' => $modelo->fk_id_project_Company
+        ];
+    }
+
+
+    /**Resource antiguo eliminar despues de la migracion */
+    public function equiposToArray($lista): Collection|\Illuminate\Support\Collection
+    {
+        return $lista->map(function ($data) {
+            return $this->equipoToModel($data);
+        });
+    }
+
+    public function equipoToModel($modelo): array
+    {
+        $horometroData = $this->getHorometroData($modelo);
+        $kilometrajeData = $this->getHKilometrajeData($modelo);
+        return [
+            'identificador' => $modelo->id,
+            'equipo' => $modelo->equiment_id,
+            'descripcion' => $modelo->descripcion,
+            'cubicaje' => $modelo->cubicaje,
+            'marca' => $modelo->marca,
+            'modelo' => $modelo->modelo,
+            'placa' => $modelo->placa,
+            'dueno' => $modelo->dueno,
+            'estado' => $modelo->estado,
+            'peso' => $modelo->peso ? $modelo->peso : ($modelo->vehiculos_pesos ? $modelo->vehiculos_pesos->peso : null),
+            'compania' => $modelo->fk_compania,
+            'companiaNombre' => $modelo->compania ? $modelo->compania->nombreCompañia : null,
+            'nombreTipoEquipo' => $modelo->tipo_equipo ? $modelo->tipo_equipo->nombre : null,
+            'es_kilometraje' => $modelo->tipo_equipo ? $modelo->tipo_equipo->kilometraje : 0,
+            'es_horometro' => $modelo->tipo_equipo ? $modelo->tipo_equipo->horometro : 0,
+            'tipoEquipo' => $modelo->fk_id_tipo_equipo,
+            'tipocontrato' => $modelo->tipocontrato,
+            'codigoExterno' => $modelo->codigo_externo,
+            'horometro' => isset($horometroData['horometro']) ? intval($horometroData['horometro']) : 0,
+            'fechaHorometro' => $horometroData['fechaHorometro'],
+            'kilometraje' => isset($kilometrajeData['kilometraje']) ? intval($kilometrajeData['kilometraje']) : 0,
+            'fechaKilometraje' => $kilometrajeData['fechaKilometraje'],
+            'ubicacionTramo' => $modelo->ubicacion ?
+                ($modelo->ubicacion->tramo ?
+                    $modelo->ubicacion->tramo->Id_Tramo . ($modelo->ubicacion->tramo->Descripcion ?
+                        ' - ' . $modelo->ubicacion->tramo->Descripcion : '')
+                    : null)
+                : null,
+            'ubicacionHito' => $modelo->ubicacion ?
+                ($modelo->ubicacion->hito ?
+                    $modelo->ubicacion->hito->Id_Hitos . ($modelo->ubicacion->hito->Descripcion ?
+                        ' - ' . $modelo->ubicacion->hito->Descripcion : '')
+                    : null)
+                : null,
+            'fechaUbicacion' => $modelo->ubicacion ? $modelo->ubicacion->fecha_registro : null,
+            'proyecto' => $modelo->fk_id_project_Company,
+            'volco' => $modelo->tipo_equipo ? $modelo->tipo_equipo->is_volco : 0,
+            'area' => $modelo->fk_id_area,
+            'nombreArea' => $modelo->area ? $modelo->area->Area : null,
+            'requierePreoperacional' => $modelo->tipo_equipo ? $modelo->tipo_equipo->requiere_preoperacional : 0,
+            'requiereParteDiario' => $modelo->tipo_equipo ? $modelo->tipo_equipo->requiere_parte_diario : 0,
+        ];
+    }
+
+
+     /**
+     * Funcion para extraer el ultimo horometro y la fecha de registro
+     */
+    protected function getHorometroData($modelo): array
+    {
+        // Obtener fechas y horómetros de las relaciones
+        $parte_diario_fecha = $modelo->parte_diario ? $modelo->parte_diario->fecha_registro : null;
+        $parte_diario_horometro = $modelo->parte_diario ? $modelo->parte_diario->horometro_final : null;
+
+        $horometro_fecha = $modelo->horometros ? Carbon::parse($modelo->horometros->fecha_registro)->format('Y-m-d') : null;
+        $horometro_fechasf = $modelo->horometros ? $modelo->horometros->fecha_registro : null;
+        $horometro_valor = $modelo->horometros ? $modelo->horometros->horometro : null;
+
+        // Inicializar variables
+        $horometro = $modelo->horometro_inicial; // Valor por defecto
+        $fechaHorometro = null;
+
+        // Determinar el horómetro y la fecha según la lógica
+        if ($parte_diario_fecha && $horometro_fecha) {
+            // Comparar fechas
+            if ($parte_diario_fecha > $horometro_fecha) {
+                $fechaHorometro = $parte_diario_fecha;
+                $horometro = $parte_diario_horometro;
+            } elseif ($parte_diario_fecha < $horometro_fecha) {
+                $fechaHorometro = $horometro_fechasf;
+                $horometro = $horometro_valor;
+            } else {
+                // Si las fechas son iguales, comparar horómetros
+                if ($parte_diario_horometro > $horometro_valor) {
+                    $fechaHorometro = $parte_diario_fecha;
+                    $horometro = $parte_diario_horometro;
+                } else {
+                    $fechaHorometro = $horometro_fechasf;
+                    $horometro = $horometro_valor;
+                }
+            }
+        } elseif ($parte_diario_fecha) {
+            // Solo existe parte diario
+            $fechaHorometro = $parte_diario_fecha;
+            $horometro = $parte_diario_horometro;
+        } elseif ($horometro_fechasf) {
+            // Solo existe horómetro
+            $fechaHorometro = $horometro_fechasf;
+            $horometro = $horometro_valor;
+        } else {
+            // No hay parte diario ni horómetro, usar valores por defecto
+            if (isset($horometro) && !empty($horometro)) {
+                $fechaHorometro = $modelo->updated_at
+                    ? Carbon::parse($modelo->updated_at)->format('Y-m-d H:i:s')
+                    : ($modelo->created_at ? Carbon::parse($modelo->created_at)->format('Y-m-d H:i:s') : null);
+            }
+        }
+
+        // Asegurar que la fecha tenga el formato YYYY-MM-DD HH:MM:SS
+        if ($fechaHorometro) {
+            $fechaHorometro = Carbon::parse($fechaHorometro)->format('Y-m-d H:i:s');
+        }
+
+        return [
+            'horometro' => $horometro,
+            'fechaHorometro' => $fechaHorometro,
+        ];
+    }
+
+    /*
+Funcion para extraer el ultimo kilometraje y la fecha del registro
+*/
+    protected function getHKilometrajeData($modelo): array
+    {
+        // Si no hay parte_diario, devuelve null en ambos campos
+        if (!$modelo->parte_diario_kilometraje) {
+            return [
+                'kilometraje' => null,
+                'fechaKilometraje' => null
+            ];
+        }
+        return [
+            'kilometraje' => $modelo->parte_diario_kilometraje->kilometraje_final,
+            'fechaKilometraje' => $modelo->parte_diario_kilometraje->fecha_registro = Carbon::parse($modelo->parte_diario_kilometraje->fecha_registro)->format('Y-m-d H:i:s')
         ];
     }
 }
