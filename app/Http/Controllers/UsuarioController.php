@@ -98,14 +98,14 @@ class UsuarioController extends BaseController implements Vervos
         $apellidosSplit = explode(' ', strtolower($req->apellido));
         $nombreAux = strtolower($req->nombres);
         if (count($nombreSplit) < 2) {
-            $nombreUsuarioGenerado = substr($nombreSplit[0], 0, 2).'.'.$apellidosSplit[0];
+            $nombreUsuarioGenerado = substr($nombreSplit[0], 0, 2) . '.' . $apellidosSplit[0];
             $usuarioEncontrado = usuarios_M::where('usuario', $nombreUsuarioGenerado)->get();
             if ($usuarioEncontrado->count() > 0) {
                 $cont = 1;
                 $encontrado = true;
                 while ($encontrado && $cont < strlen($apellidosSplit[1])) {
                     $nombreUsuarioGenerado = substr($nombreAux, 0, 2)
-                        .'.'.$apellidosSplit[0].substr($apellidosSplit[1], 0, $cont);
+                        . '.' . $apellidosSplit[0] . substr($apellidosSplit[1], 0, $cont);
                     $usuarioEncontrado = usuarios_M::where('usuario', $nombreUsuarioGenerado)->get();
                     if ($usuarioEncontrado->count() > 0) {
                         ++$cont;
@@ -115,14 +115,14 @@ class UsuarioController extends BaseController implements Vervos
                 }
             }
         } else {
-            $nombreUsuarioGenerado = substr($nombreSplit[0], 0, 1).substr($nombreSplit[1], 0, 1).'.'.$apellidosSplit[0];
+            $nombreUsuarioGenerado = substr($nombreSplit[0], 0, 1) . substr($nombreSplit[1], 0, 1) . '.' . $apellidosSplit[0];
             $usuarioEncontrado = usuarios_M::where('usuario', $nombreUsuarioGenerado)->get();
             if ($usuarioEncontrado->count() > 0) {
                 $cont = 1;
                 $valido = false;
                 while ($valido && $cont < strlen($apellidosSplit[1])) {
-                    $nombreUsuarioGenerado = substr($nombreAux, 0, 1).substr($nombreSplit[1], 0, 1)
-                        .'.'.$apellidosSplit[0].substr($apellidosSplit[1], 0, $cont);
+                    $nombreUsuarioGenerado = substr($nombreAux, 0, 1) . substr($nombreSplit[1], 0, 1)
+                        . '.' . $apellidosSplit[0] . substr($apellidosSplit[1], 0, $cont);
                     $usuarioEncontrado = usuarios_M::where('usuario', $nombreUsuarioGenerado)->get();
                     if ($usuarioEncontrado->count() > 0) {
                         ++$cont;
@@ -474,11 +474,35 @@ class UsuarioController extends BaseController implements Vervos
         return $this->handleAlert('Usuario no habilitado.');
     }
 
-    public function actualizarFirma(Request $request): JsonResponse
+    /**
+     * Actualiza la firma de un usuario
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function SubirFirma(Request $request): JsonResponse
     {
-        $usuarioCambiarFirma = usuarios_M::find($this->traitGetIdUsuarioToken($request));
-        $usuarioCambiarFirma->Firma = $request->firma;
-        $usuarioCambiarFirma->save();
+        // Validar los datos de entrada los cuales los 3 campos son obligatorios
+        $validator = Validator::make($request->all(), [
+            'firma' => 'required',
+            'proyecto' => 'required',
+            'usuario' => 'required'
+        ]);
+        if ($validator->fails()) {
+            return $this->handleAlert($validator->errors(), false);
+        }
+
+        \Log::info('usuario', $request->all());
+
+        $subirFirma = usuarios_M::where('id_usuarios', $request->usuario)
+            ->where('fk_id_project_Company', $request->proyecto)
+            ->first();
+
+        if (!$subirFirma) {
+            return $this->handleAlert('Usuario no encontrado.', false);
+        }
+
+        $subirFirma->Firma = $request->firma;
+        $subirFirma->save();
 
         return $this->handleResponse($request, [], 'Usuario actualizado.');
     }
@@ -637,9 +661,7 @@ class UsuarioController extends BaseController implements Vervos
         return $this->handleResponse($request, [], __('messages.usuario_bloqueado'));
     }
 
-    public function getPorProyecto(Request $request, $proyecto)
-    {
-    }
+    public function getPorProyecto(Request $request, $proyecto) {}
 
     public function cambiarContrasena(Request $request)
     {
@@ -670,7 +692,7 @@ class UsuarioController extends BaseController implements Vervos
     {
         $text = 'Ariguani';
         $now = new \DateTime();
-        $pass = $text.$now->format('Y');
+        $pass = $text . $now->format('Y');
 
         $hashed = Hash::make($pass, [
             'rounds' => 10,

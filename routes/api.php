@@ -75,6 +75,11 @@ Route::middleware('desencript')->group(function () {
             Route::post('/', [WbControlVersionesController::class, 'getByVersion']);
         });
 
+        Route::prefix('usuarios')->controller(UsuarioController::class)->group(function () {
+            Route::post('subir_firma', 'SubirFirma');
+        });
+
+
         Route::prefix('horometros-ubicaciones')->controller(WbHorometrosUbicacionesController::class)->group(function () {
             Route::post('/insertar', 'post');
             Route::post('/insertar-paquete-background', 'postArray');
