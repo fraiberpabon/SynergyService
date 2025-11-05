@@ -663,6 +663,21 @@ class InterrupcionesController extends BaseController implements Vervos
             return $this->handleAlert("No se guardaron registros");
         }
 
+        //Fix parte diario no sincronizado
+        $partesSinDistribuciones = WbParteDiario::where('fk_id_user_created', $usuario)
+        ->where('estado', 1)
+            ->doesntHave('distribuciones')
+            ->get();
+
+            foreach ($partesSinDistribuciones as $parte) {
+                $itemRespuesta = collect();
+                $itemRespuesta->put('estado', '0');
+                $itemRespuesta->put('hash', $parte->hash);
+                $respuesta->push($itemRespuesta);
+                
+            }
+
+
         return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));
 
     } catch (\Throwable $th) {
