@@ -494,7 +494,6 @@ class UsuarioController extends BaseController implements Vervos
         \Log::info('usuario', $request->all());
 
         $subirFirma = usuarios_M::where('id_usuarios', $request->usuario)
-            ->where('fk_id_project_Company', $request->proyecto)
             ->first();
 
         if (!$subirFirma) {
