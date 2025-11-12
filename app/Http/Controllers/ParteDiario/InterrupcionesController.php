@@ -8,7 +8,7 @@ use App\Http\interfaces\Vervos;
 use App\Jobs\AnularParteDiarioAutomatico;
 use App\Models\ParteDiario\Interrupciones;
 use App\Models\ParteDiario\WbInterrupciones;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\DB; 
 use App\Models\ParteDiario\WbParteDiario;
 use App\Models\ParteDiario\WbDistribucionesParteDiario;
 use Illuminate\Support\Facades\Validator;
@@ -16,7 +16,7 @@ use Exception;
 use Carbon\Carbon;
 use PhpParser\Node\Stmt\Else_;
 use Illuminate\Support\Facades\Log;
-use App\Jobs\FirmarParteDiarioAutomatico;
+
 class InterrupcionesController extends BaseController implements Vervos
 {
 
@@ -70,6 +70,20 @@ class InterrupcionesController extends BaseController implements Vervos
             $model->horometro_final = isset($req->horometro_final) && !empty($req->horometro_final) && $req->horometro_final > 0 ? $req->horometro_final : null;
             $model->kilometraje_inicial = isset($req->kilometraje_inicial) && !empty($req->kilometraje_inicial) && $req->kilometraje_inicial > 0 ? $req->kilometraje_inicial : null;
             $model->kilometraje_final = isset($req->kilometraje_final) && !empty($req->kilometraje_final) && $req->kilometraje_final > 0 ? $req->kilometraje_final : null;
+
+            /* if (isset($req->horometro_inicial) && !empty($req->horometro_inicial) && $req->horometro_inicial > 0) {
+                $model->horometro_inicial = $req->horometro_inicial;
+            }
+            if (isset($req->horometro_final) && !empty($req->horometro_final) && $req->horometro_final > 0) {
+                $model->horometro_final = $req->horometro_final;
+            }
+            if (isset($req->kilometraje_inicial) && !empty($req->kilometraje_inicial) && $req->kilometraje_inicial > 0) {
+                $model->kilometraje_inicial = $req->kilometraje_inicial;
+            }
+            if (isset($req->kilometraje_final) && !empty($req->kilometraje_final) && $req->kilometraje_final > 0) {
+                $model->kilometraje_final = $req->kilometraje_final;
+            } */
+
             $model->fk_matricula_operador = $req->matricula_operador ? $req->matricula_operador : null;
             $model->hash = $req->hash ? $req->hash : null;
             $model->fk_id_user_created = $req->usuario ? $req->usuario : null;
@@ -88,12 +102,6 @@ class InterrupcionesController extends BaseController implements Vervos
                 $model->fk_id_seguridad_sitio_turno,
                 $model->fecha_registro
             );
-
-
-            FirmarParteDiarioAutomatico::dispatch(
-                        $model->fk_equiment_id,
-                        $model->id_parte_diario
-                    );
 
             $respuesta->put('estado', '1');
             $respuesta->put('id_servidor', $model->id_parte_diario);
@@ -165,11 +173,289 @@ class InterrupcionesController extends BaseController implements Vervos
         }
     }
 
+    // public function postArray(Request $req)
+    // {
+    //     //Log::info($req);
+    //     $usuario = $this->traitGetIdUsuarioToken($req);
+    //     $general = $req->all();
+    //     try {
+    //         $validate = Validator::make($req->all(), [
+    //             'datos' => 'required',
+    //         ]);
+
+    //         if ($validate->fails()) {
+    //             return $this->handleAlert($validate->errors());
+    //         }
+
+    //         $respuesta = collect();
+
+    //         $listaGuardar = json_decode($req->datos, true);
+
+    //         if (is_array($listaGuardar) && sizeof($listaGuardar) > 0) {
+    //             $guardados = 0;
+    //             $idParteDiarioArray = []; // Array para almacenar los id_parte_diario generados
+
+    //             foreach ($listaGuardar as $key => $info) {
+    //                 $validator = Validator::make($info, [
+    //                     'fecha_registro' => 'required|string',
+    //                     'fecha_creacion' => 'required|string',
+    //                     'fk_equipo_id' => 'required|string',
+    //                     'observacion' => 'nullable',
+    //                     'fk_turno' => 'required|string',
+    //                     'horometro_inicial' => 'nullable',
+    //                     'horometro_final' => 'nullable',
+    //                     'kilometraje_inicial' => 'nullable',
+    //                     'kilometraje_final' => 'nullable',
+    //                     'matricula_operador' => 'required|string',
+    //                     'hash' => 'required|string',
+    //                     'estado' => 'required|string',
+    //                     'usuario' => 'required|string',
+    //                     'usuario_actualizacion' => 'nullable',
+    //                     'proyecto' => 'required|string',
+    //                 ]);
+
+    //                 if ($validator->fails()) {
+    //                     return $this->handleAlert($validator->errors());
+    //                 }
+    //                  $find = WbParteDiario::select('id_parte_diario')
+    //                 ->where('fecha_registro',$info['fecha_registro'])
+    //                 ->where('fk_equiment_id',$info['fk_equipo_id'])
+    //                 ->where('fk_id_project_Company',$info['proyecto'])
+    //                 ->where('hash', $info['hash'])->first();
+    //                 //\Log::info($find);
+    //                 $model_parte_diario = new WbParteDiario();
+    //                 if ($info['estado'] == 2) {
+    //                     if ($find != null) {
+    //                         $fechaFormateada = Carbon::now()->format('d-m-Y H:i:s.v');
+    //                         $find->estado = 0;
+    //                         $find->fk_usuario_anulacion = $usuario;
+    //                         $find->motivo_anulacion = $info['motivo_anulacion'] ?? null;
+    //                         $find->fecha_anulacion = $fechaFormateada;
+    //                         if ($find->save()) {
+    //                             $guardados++;
+    //                             $itemRespuesta = collect();
+    //                             $itemRespuesta->put('estado', '3');
+    //                             $itemRespuesta->put('hash', $info['hash']);
+    //                             $respuesta->push($itemRespuesta);
+    //                             continue;
+    //                         }
+    //                     } else {
+    //                         $guardados++;
+    //                         $itemRespuesta = collect();
+    //                         $itemRespuesta->put('estado', '3');
+    //                         $itemRespuesta->put('hash', $info['hash']);
+    //                         $respuesta->push($itemRespuesta);
+    //                         continue;
+    //                     }
+    //                 } else {
+    //                     if ($find != null) {
+    //                         $guardados++;
+    //                         $itemRespuesta = collect();
+    //                         $itemRespuesta->put('id_servidor', $find->id_parte_diario);
+    //                         $itemRespuesta->put('hash', $info['hash']);
+    //                         $itemRespuesta->put('estado', '1');
+    //                         $respuesta->push($itemRespuesta);
+    //                         continue;
+    //                     }
+    //                     $model_parte_diario->fecha_registro = $info['fecha_registro'] ?? null;
+    //                     $model_parte_diario->fecha_creacion_registro = $info['fecha_creacion'] ?? null;
+    //                     $model_parte_diario->fk_equiment_id = $info['fk_equipo_id'] ?? null;
+    //                     $model_parte_diario->observacion = $info['observacion'] ?? null;
+    //                     $model_parte_diario->fk_id_seguridad_sitio_turno = $info['fk_turno'] ?? null;
+    //                     if (isset($info['horometro_inicial']) && is_numeric($info['horometro_inicial'])) {
+    //                         $model_parte_diario->horometro_inicial = $info['horometro_inicial'];
+    //                     }
+    //                     if (isset($info['horometro_final']) && is_numeric($info['horometro_final'])) {
+    //                         $model_parte_diario->horometro_final = $info['horometro_final'];
+    //                     }
+    //                     if (isset($info['kilometraje_inicial']) && is_numeric($info['kilometraje_inicial'])) {
+    //                         $model_parte_diario->kilometraje_inicial = $info['kilometraje_inicial'];
+    //                     }
+    //                     if (isset($info['kilometraje_final']) && is_numeric($info['kilometraje_final'])) {
+    //                         $model_parte_diario->kilometraje_final = $info['kilometraje_final'];
+    //                     }
+    //                     $model_parte_diario->estado = 1;
+    //                     $model_parte_diario->fk_id_project_Company = $info['proyecto'] ?? null;
+    //                     $model_parte_diario->fk_matricula_operador = $info['matricula_operador'] ?? null;
+    //                     $model_parte_diario->fk_id_user_created = $info['usuario'] ?? null;
+    //                     $model_parte_diario->hash = $info['hash'] ?? null;
+    //                     $model_parte_diario->motivo_anulacion = $info['motivo_anulacion'] ?? null;
+    //                     $model_parte_diario->fk_id_user_updated = $info['usuario_actualizacion'] ?? null;
+    //                     try {
+    //                         if (!$model_parte_diario->save()) {
+    //                             $itemRespuesta = collect();
+    //                             $itemRespuesta->put('estado', '0');
+    //                             $itemRespuesta->put('hash', $info['hash']);
+    //                             $respuesta->push($itemRespuesta);
+
+    //                             continue;
+    //                         }
+    //                     } catch (\Exception $e) {
+    //                         $itemRespuesta = collect();
+    //                         $itemRespuesta->put('estado', '0');
+    //                         $itemRespuesta->put('hash', $info['hash']);
+    //                         $respuesta->push($itemRespuesta);
+    //                         Log::error('error al insertar parte diario' . $e->getMessage());
+    //                         continue;
+    //                     }
+    //                     // dispatch para anular parte diario automatico
+    //                     AnularParteDiarioAutomatico::dispatch(
+    //                         $model_parte_diario->fk_equiment_id,
+    //                         $model_parte_diario->fk_id_user_created,
+    //                         $model_parte_diario->fk_id_seguridad_sitio_turno,
+    //                         $model_parte_diario->fecha_registro
+    //                     );
+
+    //                     $id_parte_diario = $model_parte_diario->id_parte_diario;
+    //                     $idParteDiarioArray[] = $id_parte_diario; // Almacenar el id_parte_diario generado
+
+    //                     $guardados++;
+    //                     $itemRespuesta = collect();
+    //                     $itemRespuesta->put('id_servidor', $id_parte_diario);
+    //                     $itemRespuesta->put('hash', $info['hash'] ?? null);
+    //                     $itemRespuesta->put('estado', '1');
+    //                     $respuesta->push($itemRespuesta);
+    //                 }
+    //             }
+    //             if ($guardados == 0)
+    //                 return $this->handleAlert("empty");
+
+    //             return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));
+    //         } else {
+    //             return $this->handleAlert("empty");
+    //         }
+    //     } catch (\Throwable $th) {
+    //         Log::error($th->getMessage());
+    //         return $this->handleAlert(__('messages.error_servicio'));
+    //     }
+    // }
+
+    // public function postArrayDistribuciones(Request $req)
+    // {
+    //     $usuario = $this->traitGetIdUsuarioToken($req);
+    //     $general = $req->all();
+    //     try {
+    //         $validate = Validator::make($req->all(), [
+    //             'datos' => 'required',
+    //         ]);
+
+    //         if ($validate->fails()) {
+    //             return $this->handleAlert($validate->errors());
+    //         }
+
+    //         $respuesta = collect();
+
+    //         $listaGuardar = json_decode($req->datos, true);
+    //         if (is_array($listaGuardar) && sizeof($listaGuardar) > 0) {
+    //             $guardados = 0;
+
+
+    //             foreach ($listaGuardar as $key => $info) {
+    //                 $validator = Validator::make($info, [
+    //                     'fk_parte_diario' => 'nullable',
+    //                     'descripcion_trabajo' => 'nullable',
+    //                     'fk_centro_costo_id' => 'nullable',
+    //                     'hr_trabajo' => 'nullable',
+    //                     'cant_viajes' => 'nullable',
+    //                     'fk_interrupcion' => 'nullable',
+    //                     'proyecto' => 'nullable',
+    //                     'usuario' => 'nullable',
+    //                     'hash' => 'nullable',
+    //                     'fecha_creacion_registro' => 'nullable',
+    //                 ]);
+
+    //                 if ($validator->fails()) {
+    //                     return $this->handleAlert($validator->errors());
+    //                 }
+
+
+
+    //                 // Buscar si ya existe un registro con el mismo hash
+    //                 $find = WbDistribucionesParteDiario::select('id_distribuciones')->where('hash', $info['hash'])->first();
+    //                 if ($find != null) {
+    //                     $guardados++;
+    //                     $itemRespuesta = collect();
+    //                     $itemRespuesta->put('id_servidor', $find->id_distribuciones);
+    //                     $itemRespuesta->put('hash', $info['hash']);
+    //                     $itemRespuesta->put('estado', '1'); // Estado 1 porque ya existe
+    //                     $respuesta->push($itemRespuesta);
+    //                     continue;
+    //                 }
+
+    //                 // Si no existe, crear un nuevo registro
+    //                 $model = new WbDistribucionesParteDiario();
+    //                 // Asignar el id_parte_diario al modelo
+    //                 $model->fk_id_parte_diario = $info['fk_parte_diario_server'] ?? null;
+
+    //                 // Asignar los demás campos
+    //                 $model->fk_id_centro_costo = $info['fk_centro_costo'] ?? null;
+    //                 $model->fecha_creacion_registro = $info['fecha_creacion_registro'] ?? null;
+    //                 $model->descripcion_trabajo = $info['descripcion_trabajo'] ?? null;
+    //                 $model->hr_trabajo = $info['hr_trabajo'] ?? null;
+    //                 $model->fk_id_interrupcion = $info['fk_interrupcion'] ?? null;
+    //                 $model->estado = 1; // Estado 1 porque se guardó correctamente
+    //                 $model->hash = $info['hash'] ?? null;
+    //                 $model->fk_id_project_Company = $info['proyecto'] ?? null;
+    //                 $model->fk_id_user_created = $info['usuario'] ?? null;
+    //                 $model->fk_id_user_updated = $info['usuario_actualizacion'] ?? null;
+    //                 $model->motivo_anulacion = $info['motivo_anulacion'] ?? null;
+    //                 $model->fecha_anulacion = $info['fecha_anulacion'] ?? null;
+    //                 $model->fk_usuario_anulacion = $info['usuario'] ?? null;
+    //                 $model->fk_interrupcion_motivo = $info['fk_motivo_interrupcion'] ?? null;
+
+
+    //                 try {
+    //                     if (!$model->save()) {
+    //                         $find = WbDistribucionesParteDiario::select('id_distribuciones')->where('hash', $info['hash'])->first();
+    //                         $itemRespuesta = collect();
+    //                         $itemRespuesta->put('id_servidor', $find->id_distribuciones ?? 'vacio');
+    //                         $itemRespuesta->put('estado', '0'); // Estado 0 porque falló el guardado
+    //                         $respuesta->push($itemRespuesta);
+
+    //                         continue;
+    //                     }
+    //                 } catch (\Exception $e) {
+    //                     $find = WbDistribucionesParteDiario::select('id_distribuciones')->where('hash', $info['hash'])->first();
+    //                     $itemRespuesta = collect();
+    //                     $itemRespuesta->put('id_servidor', $find->id_distribuciones ?? 'vacio2');
+    //                     $itemRespuesta->put('estado', '0'); // Estado 0 porque falló el guardado
+    //                     $respuesta->push($itemRespuesta);
+    //                     \Log::error('error al insertar distribuciones' . $e->getMessage());
+    //                     continue;
+    //                 }
+    //                 // Guardar el modelo
+
+    //                 $id_distribuciones = $model->id_distribuciones;
+    //                 $idParteDiarioArray[] = $id_distribuciones;
+    //                 // Incrementar el contador de guardados
+    //                 $guardados++;
+
+    //                 // Agregar la respuesta
+    //                 $find = WbDistribucionesParteDiario::select('id_distribuciones')->where('hash', $info['hash'])->first();
+    //                 $itemRespuesta = collect();
+    //                 $itemRespuesta->put('hash', $model->hash);
+    //                 $itemRespuesta->put('id_servidor', $find->id_distribuciones ?? 'vacio3');
+    //                 $itemRespuesta->put('estado', '1'); // Estado 1 porque se guardó correctamente
+    //                 $respuesta->push($itemRespuesta);
+    //             }
+
+    //             if ($guardados == 0)
+    //                 return $this->handleAlert("empty");
+    //             return $this->handleResponse($req, $respuesta, __('messages.registro_exitoso'));
+    //         } else {
+    //             return $this->handleAlert("empty");
+    //         }
+    //     } catch (\Throwable $th) {
+    //         \Log::error($th->getMessage());
+    //         return $this->handleAlert(__('messages.error_servicio'));
+    //     }
+    // }
+
 
     public function postArrayParteDiarioConDistribuciones(Request $req)
 {
     $usuario = $this->traitGetIdUsuarioToken($req);
-
+    
     try {
         $validate = Validator::make($req->all(), [
             'datos' => 'required',
@@ -216,7 +502,7 @@ class InterrupcionesController extends BaseController implements Vervos
 
             // Iniciar transacción para garantizar atomicidad
             DB::beginTransaction();
-
+            
             try {
                 $itemRespuesta = collect();
                 $distribucionesRespuesta = collect();
@@ -236,7 +522,7 @@ class InterrupcionesController extends BaseController implements Vervos
                         $find->fk_usuario_anulacion = $usuario;
                         $find->motivo_anulacion = $info['motivo_anulacion'] ?? null;
                         $find->fecha_anulacion = $fechaFormateada;
-
+                        
                         if ($find->save()) {
                             // Anular distribuciones asociadas
                             if (isset($info['distribuciones']) && is_array($info['distribuciones'])) {
@@ -250,7 +536,7 @@ class InterrupcionesController extends BaseController implements Vervos
                                         ]);
                                 }
                             }
-
+                            
                             DB::commit();
                             $guardados++;
                             $itemRespuesta->put('estado', '3');
@@ -259,7 +545,7 @@ class InterrupcionesController extends BaseController implements Vervos
                             continue;
                         }
                     }
-
+                    
                     DB::commit();
                     $guardados++;
                     $itemRespuesta->put('estado', '3');
@@ -271,20 +557,20 @@ class InterrupcionesController extends BaseController implements Vervos
                 // === CASO 2: PARTE DIARIO YA EXISTE ===
                 if ($find != null) {
                     $id_parte_diario = $find->id_parte_diario;
-
+                    
                     // Procesar distribuciones
                     if (isset($info['distribuciones']) && is_array($info['distribuciones'])) {
                         foreach ($info['distribuciones'] as $dist) {
                             $distRespuesta = $this->procesarDistribucion(
-                                $dist,
-                                $id_parte_diario,
-                                $info['proyecto'],
+                                $dist, 
+                                $id_parte_diario, 
+                                $info['proyecto'], 
                                 $info['usuario']
                             );
                             $distribucionesRespuesta->push($distRespuesta);
                         }
                     }
-
+                    
                     DB::commit();
                     $guardados++;
                     $itemRespuesta->put('id_servidor', $id_parte_diario);
@@ -302,7 +588,7 @@ class InterrupcionesController extends BaseController implements Vervos
                 $model_parte_diario->fk_equiment_id = $info['fk_equipo_id'];
                 $model_parte_diario->observacion = $info['observacion'] ?? null;
                 $model_parte_diario->fk_id_seguridad_sitio_turno = $info['fk_turno'];
-
+                
                 // Horometros y kilometrajes
                 if (isset($info['horometro_inicial']) && is_numeric($info['horometro_inicial'])) {
                     $model_parte_diario->horometro_inicial = $info['horometro_inicial'];
@@ -316,7 +602,7 @@ class InterrupcionesController extends BaseController implements Vervos
                 if (isset($info['kilometraje_final']) && is_numeric($info['kilometraje_final'])) {
                     $model_parte_diario->kilometraje_final = $info['kilometraje_final'];
                 }
-
+                
                 $model_parte_diario->estado = 1;
                 $model_parte_diario->fk_id_project_Company = $info['proyecto'];
                 $model_parte_diario->fk_matricula_operador = $info['matricula_operador'];
@@ -338,20 +624,13 @@ class InterrupcionesController extends BaseController implements Vervos
                     $model_parte_diario->fecha_registro
                 );
 
-
-                  FirmarParteDiarioAutomatico::dispatch(
-                        $model_parte_diario->fk_equiment_id,
-                        $model_parte_diario->id_parte_diario
-                    );
-
-
                 // Procesar distribuciones del nuevo parte diario
                 if (isset($info['distribuciones']) && is_array($info['distribuciones'])) {
                     foreach ($info['distribuciones'] as $dist) {
                         $distRespuesta = $this->procesarDistribucion(
-                            $dist,
-                            $id_parte_diario,
-                            $info['proyecto'],
+                            $dist, 
+                            $id_parte_diario, 
+                            $info['proyecto'], 
                             $info['usuario']
                         );
                         $distribucionesRespuesta->push($distRespuesta);
@@ -360,7 +639,7 @@ class InterrupcionesController extends BaseController implements Vervos
 
                 DB::commit();
                 $guardados++;
-
+                
                 $itemRespuesta->put('id_servidor', $id_parte_diario);
                 $itemRespuesta->put('hash', $info['hash']);
                 $itemRespuesta->put('estado', '1');
@@ -371,7 +650,7 @@ class InterrupcionesController extends BaseController implements Vervos
                 DB::rollBack();
                 Log::error('Error al procesar parte diario [' . $info['hash'] . ']: ' . $e->getMessage());
                 Log::error($e->getTraceAsString());
-
+                
                 $itemRespuesta->put('estado', '0');
                 $itemRespuesta->put('hash', $info['hash']);
                 $itemRespuesta->put('error', $e->getMessage());
@@ -395,7 +674,7 @@ class InterrupcionesController extends BaseController implements Vervos
                 $itemRespuesta->put('estado', '0');
                 $itemRespuesta->put('hash', $parte->hash);
                 $respuesta->push($itemRespuesta);
-
+                
             }
 
 
@@ -414,20 +693,20 @@ class InterrupcionesController extends BaseController implements Vervos
 private function procesarDistribucion($dist, $id_parte_diario, $proyecto, $usuario)
 {
     $respuesta = collect();
-
+    
     try {
         // Buscar si ya existe la distribución
         $findDist = WbDistribucionesParteDiario::where('hash', $dist['hash'])
         ->where('fk_id_parte_diario',$id_parte_diario)
         ->first();
-        //añador por fk_id_parte_diario,
+        //añador por fk_id_parte_diario, 
         if ($findDist != null) {
             // Actualizar el fk_id_parte_diario si es necesario
             if ($findDist->fk_id_parte_diario != $id_parte_diario) {
                 $findDist->fk_id_parte_diario = $id_parte_diario;
                 $findDist->save();
             }
-
+            
             $respuesta->put('id_servidor', $findDist->id_distribuciones);
             $respuesta->put('hash', $dist['hash']);
             $respuesta->put('estado', '1');
@@ -458,7 +737,7 @@ private function procesarDistribucion($dist, $id_parte_diario, $proyecto, $usuar
         $model->fk_id_user_created = $usuario;
         $model->fk_id_user_updated = $dist['usuario_actualizacion'] ?? null;
 
-
+        
 
         if (!$model->save()) {
             throw new Exception('Error al guardar distribución');
