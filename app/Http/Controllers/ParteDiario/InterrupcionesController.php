@@ -92,7 +92,8 @@ class InterrupcionesController extends BaseController implements Vervos
 
             FirmarParteDiarioAutomatico::dispatch(
                         $model->fk_equiment_id,
-                        $model->id_parte_diario
+                        $model->id_parte_diario,
+                        $model->fk_id_project_Company
                     );
 
             $respuesta->put('estado', '1');
@@ -341,7 +342,8 @@ class InterrupcionesController extends BaseController implements Vervos
 
                   FirmarParteDiarioAutomatico::dispatch(
                         $model_parte_diario->fk_equiment_id,
-                        $model_parte_diario->id_parte_diario
+                        $model_parte_diario->id_parte_diario,
+                         $model_parte_diario->fk_id_project_Company
                     );
 
 

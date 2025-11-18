@@ -11,6 +11,7 @@ use Illuminate\Queue\SerializesModels;
 use Carbon\Carbon;
 use App\Models\Equipos\WbEquipo;
 use Illuminate\Support\Facades\Log;
+use App\Models\WbConfiguraciones;
 use App\Models\Modulos\WbResponsablesArea;
 use App\Models\ParteDiario\WbParteDiario;
 class FirmarParteDiarioAutomatico implements ShouldQueue
@@ -21,16 +22,17 @@ class FirmarParteDiarioAutomatico implements ShouldQueue
     private int $idEquipo;
     private int $idParteDiario;
 
-
+    private int $proyecto;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(int $idEquipo, int $idParteDiario)
+    public function __construct(int $idEquipo, int $idParteDiario,int $proyecto)
     {
         $this->idEquipo = $idEquipo;
         $this->idParteDiario = $idParteDiario;
+        $this->proyecto = $proyecto;
     }
 
     /**
@@ -41,6 +43,16 @@ class FirmarParteDiarioAutomatico implements ShouldQueue
     public function handle()
     {
         try {
+
+        $configuracionFirma = WbConfiguraciones::where('fk_id_project_Company',  $this->proyecto)
+            ->select('firma_parte_diario')
+            ->first();
+
+        if (!$configuracionFirma || $configuracionFirma->firma_parte_diario != '1') {
+            Log::info("Firma no válida para el proyecto { $this->proyecto}: el firmante no está habilitado para firmar el parte diario {$this->idParteDiario}");
+            return; // ⛔️ Detiene la firma automática
+        }
+
             $equipos = WbEquipo::where('id', $this->idEquipo)->first();
             $AreaEquipo = $equipos->fk_id_area;
             if (!$equipos)
